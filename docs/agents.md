@@ -557,20 +557,20 @@ src/
 
 **Checklist**
 
-* [ ] **1.3.1 Services — `account.ts`, `category.ts`**
+* [x] **1.3.1 Services — `account.ts`, `category.ts`**
   CRUD sederhana (create/get/update/delete) ter-scoped ke `userId`.
 
-* [ ] **1.3.2 FormWrapper — `src/components/forms/FormWrapper.tsx`**
+* [x] **1.3.2 FormWrapper — `src/components/forms/FormWrapper.tsx`**
 
   * Menerima `zodSchema`, `defaultValues`, `onSubmit`, render prop children.
   * Tangani error & loading generik.
 
-* [ ] **1.3.3 UI Akun — `AccountList.tsx`, `AccountForm.tsx`**
+* [x] **1.3.3 UI Akun — `AccountList.tsx`, `AccountForm.tsx`**
 
   * List akun + modal tambah/edit.
   * Tampilkan saldo saat ini & saldo awal.
 
-* [ ] **1.3.4 UI Kategori — `CategoryManager.tsx`, `CategoryForm.tsx`**
+* [x] **1.3.4 UI Kategori — `CategoryManager.tsx`, `CategoryForm.tsx`**
 
   * CRUD kategori (type: INCOME/EXPENSE), icon picker simple.
 
@@ -587,7 +587,7 @@ src/
 
 * [ ] **1.4.1 Skema Debt (sudah di schema.ts)**
 
-* [ ] **1.4.2 Dashboard Service — `src/services/dashboard.ts`**
+* [x] **1.4.2 Dashboard Service — `src/services/dashboard.ts`**
 
   ```ts
   export async function getTotalBalance(userId: number) { /* SUM balance semua akun */ }
@@ -596,16 +596,16 @@ src/
   }
   ```
 
-* [ ] **1.4.3 Debt Service — `src/services/debt.ts`**
+* [x] **1.4.3 Debt Service — `src/services/debt.ts`**
 
   * CRUD + `markAsPaid(debtId)` (ubah status + optional transaksi balancing jika diinginkan)
 
-* [ ] **1.4.4 Halaman Dashboard**
+* [x] **1.4.4 Halaman Dashboard**
 
   * `src/app/(protected)/dashboard/page.tsx`
   * Kartu ringkasan saldo & pie pengeluaran bulan berjalan.
 
-* [ ] **1.4.5 Visualisasi — `PieChart.tsx`**
+* [x] **1.4.5 Visualisasi — `PieChart.tsx`**
 
   * Gunakan chart lib (mis. `recharts`):
 
