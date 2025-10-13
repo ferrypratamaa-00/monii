@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { ExpensePieChart } from "@/components/app/dashboard/ExpensePieChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import {
   getMonthlyExpenseByCategory,
   getMonthlySummary,
@@ -10,19 +11,24 @@ import {
 } from "@/services/dashboard";
 
 export default function DashboardPage() {
+  const { data: user } = useCurrentUser();
+
   const { data: totalBalance } = useQuery({
-    queryKey: ["totalBalance"],
-    queryFn: () => getTotalBalance(1), // TODO: get userId
+    queryKey: ["totalBalance", user?.userId],
+    queryFn: () => getTotalBalance(user?.userId),
+    enabled: !!user,
   });
 
   const { data: monthlySummary } = useQuery({
-    queryKey: ["monthlySummary"],
-    queryFn: () => getMonthlySummary(1), // TODO: get userId
+    queryKey: ["monthlySummary", user?.userId],
+    queryFn: () => getMonthlySummary(user?.userId),
+    enabled: !!user,
   });
 
   const { data: expenseByCategory } = useQuery({
-    queryKey: ["expenseByCategory"],
-    queryFn: () => getMonthlyExpenseByCategory(1), // TODO: get userId
+    queryKey: ["expenseByCategory", user?.userId],
+    queryFn: () => getMonthlyExpenseByCategory(user?.userId),
+    enabled: !!user,
   });
 
   return (

@@ -72,7 +72,7 @@ export function AccountForm({
             />
             {methods.formState.errors.name && (
               <p className="text-sm text-red-500">
-                {methods.formState.errors.name.message}
+                {methods.formState.errors.name.message?.toString() || "Error"}
               </p>
             )}
           </div>
@@ -86,7 +86,8 @@ export function AccountForm({
             />
             {methods.formState.errors.initialBalance && (
               <p className="text-sm text-red-500">
-                {methods.formState.errors.initialBalance.message}
+                {methods.formState.errors.initialBalance.message?.toString() ||
+                  "Error"}
               </p>
             )}
           </div>

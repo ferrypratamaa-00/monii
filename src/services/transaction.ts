@@ -10,16 +10,7 @@ export async function createTransaction(
   return db.transaction(async (tx) => {
     const [trx] = await tx
       .insert(transactions)
-      .values({
-        userId: input.userId,
-        accountId: input.accountId,
-        categoryId: input.categoryId,
-        type: input.type,
-        amount: input.amount,
-        description: input.description,
-        date: input.date,
-        isRecurring: input.isRecurring,
-      })
+      .values(input as any)
       .returning();
 
     // Update saldo atomic (balance = balance + amount)

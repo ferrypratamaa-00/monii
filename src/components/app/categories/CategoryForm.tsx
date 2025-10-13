@@ -84,7 +84,7 @@ export function CategoryForm({
             />
             {methods.formState.errors.name && (
               <p className="text-sm text-red-500">
-                {methods.formState.errors.name.message}
+                {methods.formState.errors.name.message?.toString() || "Error"}
               </p>
             )}
           </div>
