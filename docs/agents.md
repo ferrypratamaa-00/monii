@@ -975,7 +975,7 @@ src/
 ### Fase 1 — MVP
 
 * [x] **M-1.0 Auth** (Zod, service, actions, forms)
-* [x] **M-2.0 Transaksi** (Zod, atomic create, actions, UI)
+* [ ] **M-2.0 Transaksi** (Zod, atomic create, actions, UI)
 * [ ] **M-3.0 Kategori & Akun** (CRUD + FormWrapper)
 * [ ] **M-4.0 Dashboard & Debt** (summary, pie, debt CRUD)
 

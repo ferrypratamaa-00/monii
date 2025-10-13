@@ -71,3 +71,15 @@ export async function loginAction(formData: FormData) {
     return { success: false, error: err.message };
   }
 }
+
+export async function getCurrentUser() {
+  const c = await cookies();
+  const token = c.get("session")?.value;
+  if (!token) return null;
+  try {
+    const payload = jwt.verify(token, JWT_SECRET) as { userId: number };
+    return payload.userId;
+  } catch {
+    return null;
+  }
+}
