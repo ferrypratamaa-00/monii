@@ -3,6 +3,7 @@ import type { z } from "zod";
 import { db } from "@/db";
 import { accounts, transactions } from "@/db/schema";
 import type { TransactionSchema } from "@/lib/validations/transaction";
+import { updateBudgetSpending } from "./budget";
 
 export async function createTransaction(
   input: z.infer<typeof TransactionSchema> & { userId: number },
@@ -18,6 +19,15 @@ export async function createTransaction(
       .update(accounts)
       .set({ balance: sql`${accounts.balance} + ${input.amount}` })
       .where(eq(accounts.id, input.accountId));
+
+    // Update budget spending jika expense dengan category
+    if (input.type === "EXPENSE" && input.categoryId) {
+      await updateBudgetSpending(
+        input.userId,
+        input.categoryId,
+        Math.abs(input.amount),
+      );
+    }
 
     return trx;
   });

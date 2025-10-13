@@ -8,6 +8,13 @@
       "when": 1760368600239,
       "tag": "0000_nebulous_mindworm",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1760399201500,
+      "tag": "0001_condemned_pride",
+      "breakpoints": true
     }
   ]
 }

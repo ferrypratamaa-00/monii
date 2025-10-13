@@ -626,7 +626,7 @@ src/
 
 **Checklist**
 
-* [ ] **2.1.1 Skema Budget**
+* [x] **2.1.1 Skema Budget**
 
   ```ts
   // schema.ts
@@ -641,10 +641,10 @@ src/
   });
   ```
 
-* [ ] **2.1.2 Service — `budget.ts`**
+* [x] **2.1.2 Service — `budget.ts`**
   CRUD + `updateBudgetSpending(categoryId, amount)`.
 
-* [ ] **2.1.3 Integrasi Kritis — modify `createTransaction`**
+* [x] **2.1.3 Integrasi Kritis — modify `createTransaction`**
   Setelah update balance, panggil:
 
   ```ts
@@ -653,7 +653,7 @@ src/
   }
   ```
 
-* [ ] **2.1.4 UI — `BudgetProgressBar.tsx`**
+* [x] **2.1.4 UI — `BudgetProgressBar.tsx`**
 
   * Warna dinamis: <60% hijau, 60-80% kuning, >80% merah.
   * Tooltip sisa anggaran & estimasi hari.

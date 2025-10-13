@@ -14,6 +14,7 @@ import {
 export const txTypeEnum = pgEnum("tx_type", ["INCOME", "EXPENSE"]);
 export const debtTypeEnum = pgEnum("debt_type", ["DEBT", "RECEIVABLE"]);
 export const debtStatusEnum = pgEnum("debt_status", ["ACTIVE", "PAID"]);
+export const budgetPeriodEnum = pgEnum("budget_period", ["MONTHLY", "YEARLY"]);
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -75,10 +76,27 @@ export const debts = pgTable("debts", {
   status: debtStatusEnum("status").default("ACTIVE").notNull(),
 });
 
+export const budgets = pgTable("budgets", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .references(() => users.id)
+    .notNull(),
+  categoryId: integer("category_id")
+    .references(() => categories.id)
+    .notNull(),
+  period: budgetPeriodEnum("period").default("MONTHLY").notNull(),
+  limitAmount: numeric("limit_amount", { precision: 14, scale: 2 }).notNull(),
+  currentSpending: numeric("current_spending", { precision: 14, scale: 2 })
+    .default("0")
+    .notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // relations (opsional, untuk eager typed)
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
   transactions: many(transactions),
   debts: many(debts),
   categories: many(categories),
+  budgets: many(budgets),
 }));
