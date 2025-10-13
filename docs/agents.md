@@ -429,7 +429,7 @@ src/
 
 **Checklist**
 
-* [ ] **1.1.1 Validasi (Zod) — `src/lib/validations/auth.ts`**
+* [x] **1.1.1 Validasi (Zod) — `src/lib/validations/auth.ts`**
 
   ```ts
   import { z } from 'zod';
@@ -448,7 +448,7 @@ src/
   });
   ```
 
-* [ ] **1.1.2 Service — `src/services/auth.ts`**
+* [x] **1.1.2 Service — `src/services/auth.ts`**
 
   ```ts
   import { db } from '@/db';
@@ -472,13 +472,13 @@ src/
 
   > **Catatan:** Sesi bisa via **HttpOnly cookie** (Server Actions) atau integrasi ke penyedia (mis. Lucia/NextAuth) — tetap jaga SOC.
 
-* [ ] **1.1.3 Actions — `src/app/actions/auth.ts`**
+* [x] **1.1.3 Actions — `src/app/actions/auth.ts`**
 
   * `signUpAction(formData)` → parse Zod → `authService.registerUser` → set cookie sesi.
   * `loginAction(formData)` → parse Zod → `authService.verifyCredentials` → set cookie sesi.
   * Error mapping: `ZodError` → field errors; lainnya → toast generic.
 
-* [ ] **1.1.4 Komponen — `LoginForm.tsx` & `SignUpForm.tsx`**
+* [x] **1.1.4 Komponen — `LoginForm.tsx` & `SignUpForm.tsx`**
 
   * `react-hook-form` + Zod resolver (atau shadcn form).
   * Pakai `useMutation` dari TanStack Query (untuk spinner, error, success).
@@ -974,7 +974,7 @@ src/
 
 ### Fase 1 — MVP
 
-* [ ] **M-1.0 Auth** (Zod, service, actions, forms)
+* [x] **M-1.0 Auth** (Zod, service, actions, forms)
 * [ ] **M-2.0 Transaksi** (Zod, atomic create, actions, UI)
 * [ ] **M-3.0 Kategori & Akun** (CRUD + FormWrapper)
 * [ ] **M-4.0 Dashboard & Debt** (summary, pie, debt CRUD)
