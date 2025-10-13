@@ -1,6 +1,6 @@
 import { eq, sql, sum } from "drizzle-orm";
 import { db } from "@/db";
-import { accounts, categories, transactions } from "@/db/schema";
+import { transactions } from "@/db/schema";
 
 export async function getTotalBalance(userId: number) {
   const result = await db
@@ -38,23 +38,45 @@ export async function getMonthlySummary(userId: number) {
   return { income, expense };
 }
 
-export async function getMonthlyExpenseByCategory(userId: number) {
-  const currentMonth = sql`date_trunc('month', now())`;
+export async function getMonthlyTrendData(
+  userId: number,
+  numMonths: number = 12,
+) {
+  const results = [];
 
-  const result = await db
-    .select({
-      categoryName: categories.name,
-      total: sum(transactions.amount),
-    })
-    .from(transactions)
-    .innerJoin(categories, eq(transactions.categoryId, categories.id))
-    .where(
-      sql`${transactions.userId} = ${userId} AND ${transactions.type} = 'EXPENSE' AND date_trunc('month', ${transactions.date}) = ${currentMonth}`,
-    )
-    .groupBy(categories.name);
+  for (let i = numMonths - 1; i >= 0; i--) {
+    const monthStart = sql`date_trunc('month', now() - interval '${i} months')`;
+    const monthEnd = sql`date_trunc('month', now() - interval '${i - 1} months')`;
 
-  return result.map((row) => ({
-    name: row.categoryName,
-    value: Math.abs(parseFloat(row.total || "0")),
-  }));
+    const [incomeResult] = await db
+      .select({
+        month: sql<string>`to_char(${monthStart}, 'YYYY-MM')`,
+        income: sum(transactions.amount),
+      })
+      .from(transactions)
+      .where(
+        sql`${transactions.userId} = ${userId} AND ${transactions.type} = 'INCOME' AND ${transactions.date} >= ${monthStart} AND ${transactions.date} < ${monthEnd}`,
+      );
+
+    const [expenseResult] = await db
+      .select({
+        month: sql<string>`to_char(${monthStart}, 'YYYY-MM')`,
+        expense: sum(transactions.amount),
+      })
+      .from(transactions)
+      .where(
+        sql`${transactions.userId} = ${userId} AND ${transactions.type} = 'EXPENSE' AND ${transactions.date} >= ${monthStart} AND ${transactions.date} < ${monthEnd}`,
+      );
+
+    results.push({
+      month:
+        incomeResult?.month ||
+        expenseResult?.month ||
+        `2024-${String(i + 1).padStart(2, "0")}`,
+      income: Math.abs(parseFloat(incomeResult?.income || "0")),
+      expense: Math.abs(parseFloat(expenseResult?.expense || "0")),
+    });
+  }
+
+  return results;
 }

@@ -2,6 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { ExpensePieChart } from "@/components/app/dashboard/ExpensePieChart";
+import { ExportButtons } from "@/components/app/dashboard/ExportButtons";
+import { TrendChart } from "@/components/app/dashboard/TrendChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import {
@@ -76,6 +78,17 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent>
           <ExpensePieChart data={expenseByCategory || []} />
+        </CardContent>
+      </Card>
+
+      <TrendChart />
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Export Data</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ExportButtons />
         </CardContent>
       </Card>
     </div>

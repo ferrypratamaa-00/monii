@@ -669,16 +669,16 @@ src/
 
 **Checklist**
 
-* [ ] **2.2.1 Dashboard Service — `getMonthlyTrendData(userId, numMonths)`**
+* [x] **2.2.1 Dashboard Service — `getMonthlyTrendData(userId, numMonths)`**
 
   * Agregasi per bulan (`date_trunc` / raw SQL) untuk 12 bulan terakhir.
 
-* [ ] **2.2.2 Ekspor Service — `src/services/export.ts`**
+* [x] **2.2.2 Ekspor Service — `src/services/export.ts`**
 
   * `generateTransactionCSV(userId, filter)` → string CSV.
   * **lib/csv/stringify.ts**: util sederhana (hindari dep besar jika bisa).
 
-* [ ] **2.2.3 API Ekspor — `src/app/api/export/route.ts`**
+* [x] **2.2.3 API Ekspor — `src/app/api/export/route.ts`**
 
   ```ts
   import { NextResponse } from 'next/server';
@@ -693,7 +693,7 @@ src/
   }
   ```
 
-* [ ] **2.2.4 Visualisasi — `LineChart.tsx`**
+* [x] **2.2.4 Visualisasi — `LineChart.tsx`**
 
   * Bandingkan income vs expense 12 bulan.
 
@@ -981,8 +981,8 @@ src/
 
 ### Fase 2 — Pengelolaan & Analisis
 
-* [ ] **M-5.0 Budget** (skema, service, integrasi createTransaction, progress bar)
-* [ ] **M-6.0 Tren & Ekspor** (trend query 12 bln, CSV API, line chart)
+* [x] **M-5.0 Budget** (skema, service, integrasi createTransaction, progress bar)
+* [x] **M-6.0 Tren & Ekspor** (trend query 12 bln, CSV API, line chart)
 * [ ] **M-7.0 Security+Sync** (ErrorBoundary, reset password, backup JSON)
 
 ### Fase 3 — Diferensiasi
