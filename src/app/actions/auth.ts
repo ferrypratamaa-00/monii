@@ -1,9 +1,9 @@
 "use server";
 
-import jwt from 'jsonwebtoken';
-import { cookies } from 'next/headers';
-import { LoginSchema, SignupSchema } from '@/lib/validations/auth';
-import { registerUser, verifyCredentials } from '@/services/auth';
+import jwt from "jsonwebtoken";
+import { cookies } from "next/headers";
+import { LoginSchema, SignupSchema } from "@/lib/validations/auth";
+import { registerUser, verifyCredentials } from "@/services/auth";
 
 const JWT_SECRET = process.env.JWT_SECRET || "secret"; // in production, use strong secret
 

@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
+import type { z } from "zod";
 import { loginAction } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,7 +34,7 @@ export default function LoginForm() {
     },
   });
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: z.infer<typeof LoginSchema>) => {
     const formData = new FormData();
     formData.append("email", data.email);
     formData.append("password", data.password);

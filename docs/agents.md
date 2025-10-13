@@ -496,7 +496,7 @@ src/
 
 **Checklist**
 
-* [ ] **1.2.1 Validasi — `src/lib/validations/transaction.ts`**
+* [x] **1.2.1 Validasi — `src/lib/validations/transaction.ts`**
 
   ```ts
   export const TransactionSchema = z.object({
@@ -512,7 +512,7 @@ src/
   });
   ```
 
-* [ ] **1.2.2 Service (KRITIS Atomic) — `src/services/transaction.ts`**
+* [x] **1.2.2 Service (KRITIS Atomic) — `src/services/transaction.ts`**
 
   ```ts
   import { db } from '@/db';
@@ -536,11 +536,11 @@ src/
   }
   ```
 
-* [ ] **1.2.3 Action — `src/app/actions/transaction.ts`**
+* [x] **1.2.3 Action — `src/app/actions/transaction.ts`**
 
   * `createTransactionAction(formData)` → parse Zod → `service.createTransaction`.
 
-* [ ] **1.2.4 UI — `TransactionForm.tsx`, `TransactionModal.tsx`**
+* [x] **1.2.4 UI — `TransactionForm.tsx`, `TransactionModal.tsx`**
 
   * Reusable form (DRY), pilih akun, kategori, tipe, tanggal.
   * `useMutation` + invalidasi query daftar transaksi & saldo akun.
@@ -975,7 +975,7 @@ src/
 ### Fase 1 — MVP
 
 * [x] **M-1.0 Auth** (Zod, service, actions, forms)
-* [ ] **M-2.0 Transaksi** (Zod, atomic create, actions, UI)
+* [x] **M-2.0 Transaksi** (Zod, atomic create, actions, UI)
 * [ ] **M-3.0 Kategori & Akun** (CRUD + FormWrapper)
 * [ ] **M-4.0 Dashboard & Debt** (summary, pie, debt CRUD)
 
