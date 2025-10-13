@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-import Providers from "./providers";
+import Providers from "../src/app/providers";
 
 export const metadata = { title: "Kantong" };
 

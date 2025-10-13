@@ -16,7 +16,7 @@
 
 ## 0.1 Bootstrap Proyek & Kualitas Kode
 
-* [ ] **Langkah 0.1.1 — Inisiasi Next.js (App Router, TS, Tailwind, ESLint)**
+* [x] **Langkah 0.1.1 — Inisiasi Next.js (App Router, TS, Tailwind, ESLint)**
 
   ```bash
   bun create next-app@latest kantong-app -- --ts --tailwind --eslint
@@ -25,7 +25,7 @@
 
   **DoD:** Proyek jalan `bun run dev`, halaman starter tampil.
 
-* [ ] **Langkah 0.1.2 — Git init & commit awal**
+* [x] **Langkah 0.1.2 — Git init & commit awal**
 
   ```bash
   git init
@@ -36,7 +36,7 @@
   # git push -u origin main
   ```
 
-* [ ] **Langkah 0.1.3 — Biome (formatter + linter all-in-one)**
+* [x] **Langkah 0.1.3 — Biome (formatter + linter all-in-one)**
 
   ```bash
   bun add -D @biomejs/biome
@@ -57,7 +57,7 @@
 
   **DoD:** `bun run lint` & `bun run format` sukses.
 
-* [ ] **Langkah 0.1.4 — Husky + lint-staged (pre-commit)**
+* [x] **Langkah 0.1.4 — Husky + lint-staged (pre-commit)**
 
   ```bash
   bun add -D husky lint-staged
@@ -87,12 +87,12 @@
 
 ## 0.2 Setup PWA
 
-* [ ] **Langkah 0.2.1 — Install PWA**
+* [x] **Langkah 0.2.1 — Install PWA**
 
   ```bash
   bun add next-pwa
   ```
-* [ ] **Langkah 0.2.2 — next.config.mjs**
+* [x] **Langkah 0.2.2 — next.config.mjs**
 
   ```js
   // next.config.mjs
@@ -114,7 +114,7 @@
     // runtimeCaching bisa ditambah jika perlu kontrol cache lebih rinci
   })(nextConfig);
   ```
-* [ ] **Langkah 0.2.3 — Manifest & ikon**
+* [x] **Langkah 0.2.3 — Manifest & ikon**
 
   * **public/manifest.json**
 
@@ -135,7 +135,7 @@
     }
     ```
   * Tambahkan ikon di `public/icons/` (192, 512, maskable).
-* [ ] **Langkah 0.2.4 — Inject manifest di layout**
+* [x] **Langkah 0.2.4 — Inject manifest di layout**
 
   ```tsx
   // src/app/layout.tsx
@@ -158,14 +158,14 @@
 
 ## 0.3 Data Layer (Drizzle, Zod, TanStack Query) + UI Kit
 
-* [ ] **Langkah 0.3.1 — Install lib data**
+* [x] **Langkah 0.3.1 — Install lib data**
 
   ```bash
   bun add drizzle-orm zod @tanstack/react-query @tanstack/react-query-next-experimental
   bun add -D drizzle-kit typescript ts-node
   ```
 
-* [ ] **Langkah 0.3.2 — Drizzle config**
+* [x] **Langkah 0.3.2 — Drizzle config**
 
   ```bash
   # pilih salah satu target db; contoh postgres (neon/supabase) atau sqlite lokal
@@ -194,7 +194,7 @@
   });
   ```
 
-* [ ] **Langkah 0.3.3 — Struktur DB & koneksi**
+* [x] **Langkah 0.3.3 — Struktur DB & koneksi**
 
   ```
   src/db/
@@ -224,7 +224,7 @@
   export const db = drizzle(sqlite);
   ```
 
-* [ ] **Langkah 0.3.4 — Skema dasar (User, Account, Category, Transaction, Debt)**
+* [x] **Langkah 0.3.4 — Skema dasar (User, Account, Category, Transaction, Debt)**
 
   ```ts
   // src/db/schema.ts
@@ -290,7 +290,7 @@
   }));
   ```
 
-* [ ] **Langkah 0.3.5 — shadcn/ui**
+* [x] **Langkah 0.3.5 — shadcn/ui**
 
   ```bash
   bunx shadcn-ui@latest init
@@ -299,7 +299,7 @@
 
   **DoD:** Komponen UI dasar tersedia.
 
-* [ ] **Langkah 0.3.6 — TanStack Query Provider**
+* [x] **Langkah 0.3.6 — TanStack Query Provider**
 
   ```tsx
   // src/app/providers.tsx
@@ -331,7 +331,7 @@
   }
   ```
 
-* [ ] **Langkah 0.3.7 — Commit Infrastruktur**
+* [x] **Langkah 0.3.7 — Commit Infrastruktur**
 
   ```bash
   git checkout -b feat/setup-infra
@@ -965,12 +965,12 @@ src/
 
 ### Fase 0 — Infrastruktur
 
-* [ ] Next.js + TS + Tailwind + ESLint
-* [ ] Biome + Husky + lint-staged
-* [ ] PWA (manifest, SW, ikon)
-* [ ] Drizzle (config + koneksi)
-* [ ] shadcn/ui + TanStack Query
-* [ ] Commit infra → merge
+* [x] Next.js + TS + Tailwind + ESLint
+* [x] Biome + Husky + lint-staged
+* [x] PWA (manifest, SW, ikon)
+* [x] Drizzle (config + koneksi)
+* [x] shadcn/ui + TanStack Query
+* [x] Commit infra → merge
 
 ### Fase 1 — MVP
 
