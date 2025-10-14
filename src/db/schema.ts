@@ -23,6 +23,11 @@ export const auditEventTypeEnum = pgEnum("audit_event_type", [
   "security",
   "system",
 ]);
+export const notificationTypeEnum = pgEnum("notification_type", [
+  "BUDGET_ALERT",
+  "GOAL_REMINDER",
+  "TRANSACTION_ALERT",
+]);
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -169,6 +174,16 @@ export const auditLogs = pgTable("audit_logs", {
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
 
+export const notifications = pgTable("notifications", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  type: notificationTypeEnum("type").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  message: text("message").notNull(),
+  isRead: boolean("is_read").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // relations (opsional, untuk eager typed)
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
@@ -181,6 +196,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   badges: many(badges),
   passwordResets: many(passwordResets),
   auditLogs: many(auditLogs),
+  notifications: many(notifications),
 }));
 
 export const accountsRelations = relations(accounts, ({ one, many }) => ({
@@ -269,6 +285,13 @@ export const passwordResetsRelations = relations(passwordResets, ({ one }) => ({
 export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
   user: one(users, {
     fields: [auditLogs.userId],
+    references: [users.id],
+  }),
+}));
+
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+  user: one(users, {
+    fields: [notifications.userId],
     references: [users.id],
   }),
 }));

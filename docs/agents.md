@@ -1002,3 +1002,496 @@ src/
 * **Performance**: gunakan **React Server Components** untuk data statis; `revalidate` untuk caching laporan; lazy-import chart.
 
 ---
+
+# Fitur Tambahan & Optimisasi (Phase 4)
+
+## Performance Monitoring
+
+**Checklist**
+
+* [ ] **4.1.1 Install Monitoring Tools**
+
+  ```bash
+  bun add @vercel/analytics nextjs-bundle-analyzer
+  bun add -D @next/bundle-analyzer
+  ```
+
+  **DoD:** Tools terinstall untuk metrics collection.
+
+* [ ] **4.1.2 Metrics Collection — `src/lib/performance.ts`**
+
+  ```ts
+  import { NextWebVitalsMetric } from 'next/app';
+
+  export function reportWebVitals(metric: NextWebVitalsMetric) {
+    // Kirim ke analytics service (Vercel, Google Analytics, dll)
+    console.log(metric); // placeholder
+  }
+  ```
+
+  **src/app/layout.tsx:**
+
+  ```tsx
+  import { reportWebVitals } from '@/lib/performance';
+
+  export function reportWebVitals(metric) {
+    // Implementasi
+  }
+  ```
+
+* [ ] **4.1.3 Error Tracking — Install Sentry**
+
+  ```bash
+  bun add @sentry/nextjs
+  ```
+
+  **sentry.client.config.js & sentry.server.config.js** sesuai dokumentasi Sentry.
+
+* [ ] **4.1.4 Performance Budgets — CI/CD Enhancement**
+
+  Update `.github/workflows/ci-cd.yml`:
+
+  ```yaml
+  - name: Performance Check
+    run: bun run build:analyze
+    # Tambah threshold untuk bundle size
+  ```
+
+**Acceptance Criteria**
+
+* Web vitals (LCP, FID, CLS) ter-track dan dilaporkan.
+* Error otomatis dilaporkan ke Sentry tanpa PII.
+
+---
+
+## Internationalization (i18n)
+
+**Checklist**
+
+* [ ] **4.2.1 Install next-intl**
+
+  ```bash
+  bun add next-intl
+  ```
+
+* [ ] **4.2.2 Setup i18n Config — `src/i18n.ts`**
+
+  ```ts
+  import { createSharedPathnamesNavigation } from 'next-intl/navigation';
+  import { defineRouting } from 'next-intl/routing';
+
+  export const routing = defineRouting({
+    locales: ['id', 'en'],
+    defaultLocale: 'id'
+  });
+
+  export const { Link, redirect, usePathname, useRouter } =
+    createSharedPathnamesNavigation(routing);
+  ```
+
+* [ ] **4.2.3 Translation Files — `src/messages/`**
+
+  * `id.json`: {"nav.dashboard": "Dasbor", ...}
+  * `en.json`: {"nav.dashboard": "Dashboard", ...}
+
+* [ ] **4.2.4 Middleware — `src/middleware.ts` (update)**
+
+  Tambah locale detection.
+
+* [ ] **4.2.5 UI Integration — `useTranslations` hook**
+
+  ```tsx
+  import { useTranslations } from 'next-intl';
+
+  export default function Component() {
+    const t = useTranslations('nav');
+    return <h1>{t('dashboard')}</h1>;
+  }
+  ```
+
+**Acceptance Criteria**
+
+* App mendukung bahasa Indonesia & English, switcher di header.
+* Semua string UI ter-translate.
+
+---
+
+## Accessibility Features (A11y)
+
+**Checklist**
+
+* [ ] **4.3.1 ARIA Labels & Roles**
+
+  Update semua komponen form & interactive:
+
+  ```tsx
+  <button aria-label="Tambah transaksi" aria-describedby="add-desc">
+    <PlusIcon aria-hidden="true" />
+  </button>
+  ```
+
+* [ ] **4.3.2 Keyboard Navigation**
+
+  * Tab order logis, skip links untuk main content.
+  * Enter/Space untuk buttons, Arrow keys untuk dropdowns.
+
+* [ ] **4.3.3 Screen Reader Support**
+
+  * Alt text untuk charts & icons.
+  * Live regions untuk notifications.
+
+* [ ] **4.3.4 Color Contrast & Focus Indicators**
+
+  * Pastikan kontras ≥4.5:1.
+  * Focus ring visible & tidak bergantung warna saja.
+
+* [ ] **4.3.5 Testing — axe-core**
+
+  ```bash
+  bun add -D @axe-core/playwright
+  ```
+
+  Update Playwright tests dengan accessibility checks.
+
+**Acceptance Criteria**
+
+* Lighthouse Accessibility score ≥90.
+* Navigasi keyboard penuh, screen reader compatible.
+
+---
+
+## Dark Mode Support
+
+**Checklist**
+
+* [ ] **4.4.1 CSS Variables — `src/styles/themes.css`**
+
+  ```css
+  :root {
+    --bg: #ffffff;
+    --text: #000000;
+    /* ... */
+  }
+
+  [data-theme="dark"] {
+    --bg: #0b1220;
+    --text: #ffffff;
+    /* ... */
+  }
+  ```
+
+* [ ] **4.4.2 Theme Provider — `src/components/ThemeProvider.tsx`**
+
+  ```tsx
+  'use client';
+  import { createContext, useContext, useEffect, useState } from 'react';
+
+  const ThemeContext = createContext<{ theme: string; setTheme: (t: string) => void }>(null!);
+
+  export function ThemeProvider({ children }: { children: React.ReactNode }) {
+    const [theme, setTheme] = useState('light');
+
+    useEffect(() => {
+      const saved = localStorage.getItem('theme') || 'light';
+      setTheme(saved);
+      document.documentElement.setAttribute('data-theme', saved);
+    }, []);
+
+    const updateTheme = (newTheme: string) => {
+      setTheme(newTheme);
+      localStorage.setItem('theme', newTheme);
+      document.documentElement.setAttribute('data-theme', newTheme);
+    };
+
+    return (
+      <ThemeContext.Provider value={{ theme, setTheme: updateTheme }}>
+        {children}
+      </ThemeContext.Provider>
+    );
+  }
+
+  export const useTheme = () => useContext(ThemeContext);
+  ```
+
+* [ ] **4.4.3 Toggle Component — `src/components/ThemeToggle.tsx`**
+
+  ```tsx
+  'use client';
+  import { useTheme } from './ThemeProvider';
+  import { MoonIcon, SunIcon } from 'lucide-react';
+
+  export default function ThemeToggle() {
+    const { theme, setTheme } = useTheme();
+
+    return (
+      <button
+        onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+        aria-label="Toggle theme"
+      >
+        {theme === 'light' ? <MoonIcon /> : <SunIcon />}
+      </button>
+    );
+  }
+  ```
+
+* [ ] **4.4.4 Update Layout**
+
+  Wrap app dengan `<ThemeProvider>` di `layout.tsx`.
+
+**Acceptance Criteria**
+
+* Toggle dark/light mode, persist di localStorage.
+* Semua komponen respect theme variables.
+
+---
+
+## Advanced Data Export (PDF)
+
+**Checklist**
+
+* [ ] **4.5.1 Install jsPDF**
+
+  ```bash
+  bun add jspdf jspdf-autotable
+  bun add -D @types/jspdf
+  ```
+
+* [ ] **4.5.2 PDF Service — `src/services/export.ts` (update)**
+
+  ```ts
+  import jsPDF from 'jspdf';
+  import 'jspdf-autotable';
+
+  export async function generateTransactionPDF(userId: number, filters: any) {
+    const transactions = await getFilteredTransactions(userId, filters);
+    
+    const doc = new jsPDF();
+    doc.text('Laporan Transaksi KANTONG', 20, 20);
+    
+    const tableData = transactions.map(t => [t.date, t.description, t.amount]);
+    (doc as any).autoTable({
+      head: [['Tanggal', 'Deskripsi', 'Jumlah']],
+      body: tableData,
+      startY: 30
+    });
+    
+    return doc.output('blob');
+  }
+  ```
+
+* [ ] **4.5.3 API Route — `src/app/api/export/pdf/route.ts`**
+
+  ```ts
+  import { NextResponse } from 'next/server';
+  import { generateTransactionPDF } from '@/services/export';
+
+  export async function GET(req: Request) {
+    // Auth check, parse filters
+    const pdfBlob = await generateTransactionPDF(userId, filters);
+    
+    return new NextResponse(pdfBlob, {
+      headers: {
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': 'attachment; filename="kantong-report.pdf"'
+      }
+    });
+  }
+  ```
+
+* [ ] **4.5.4 UI — Update Export Button**
+
+  Tambah opsi "Export PDF" di halaman laporan.
+
+**Acceptance Criteria**
+
+* Tombol "Export PDF" menghasilkan file PDF dengan tabel transaksi.
+
+---
+
+## Advanced Search & Filtering
+
+**Checklist**
+
+* [ ] **4.6.1 Search Schema — `src/lib/validations/search.ts`**
+
+  ```ts
+  import { z } from 'zod';
+
+  export const SearchFiltersSchema = z.object({
+    query: z.string().optional(),
+    categoryId: z.number().optional(),
+    accountId: z.number().optional(),
+    dateFrom: z.coerce.date().optional(),
+    dateTo: z.coerce.date().optional(),
+    amountMin: z.number().optional(),
+    amountMax: z.number().optional(),
+    type: z.enum(['INCOME', 'EXPENSE']).optional()
+  });
+  ```
+
+* [ ] **4.6.2 Service — `src/services/transaction.ts` (update `getTransactions`)**
+
+  ```ts
+  export async function getFilteredTransactions(userId: number, filters: z.infer<typeof SearchFiltersSchema>) {
+    let query = db.select().from(transactions).where(eq(transactions.userId, userId));
+    
+    if (filters.query) {
+      query = query.where(like(transactions.description, `%${filters.query}%`));
+    }
+    if (filters.categoryId) {
+      query = query.where(eq(transactions.categoryId, filters.categoryId));
+    }
+    // Tambah filter lainnya...
+    
+    return query;
+  }
+  ```
+
+* [ ] **4.6.3 UI — `AdvancedSearchForm.tsx`**
+
+  Form dengan input text, dropdown kategori/akun, date pickers, amount range.
+
+* [ ] **4.6.4 Integration — Update Transaction List**
+
+  Pakai `useQuery` dengan filters, debounce search input.
+
+**Acceptance Criteria**
+
+* Search by description, filter by kategori/akun/tanggal/jumlah/type.
+* Real-time results dengan debounce.
+
+---
+
+## Notification System
+
+**Checklist**
+
+* [ ] **4.7.1 Skema Notification**
+
+  ```ts
+  // schema.ts
+  export const notifications = pgTable('notifications', {
+    id: serial('id').primaryKey(),
+    userId: integer('user_id').references(() => users.id).notNull(),
+    type: pgEnum('notification_type', ['BUDGET_ALERT', 'GOAL_REMINDER', 'TRANSACTION_ALERT'])('type').notNull(),
+    title: varchar('title', { length: 255 }).notNull(),
+    message: text('message').notNull(),
+    isRead: boolean('is_read').default(false).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull()
+  });
+  ```
+
+* [ ] **4.7.2 Service — `src/services/notification.ts`**
+
+  ```ts
+  export async function createNotification(userId: number, type: string, title: string, message: string) {
+    return db.insert(notifications).values({ userId, type, title, message });
+  }
+
+  export async function getUnreadNotifications(userId: number) {
+    return db.select().from(notifications).where(and(eq(notifications.userId, userId), eq(notifications.isRead, false)));
+  }
+  ```
+
+* [ ] **4.7.3 Trigger Logic**
+
+  * Di `createTransaction`: jika expense > budget limit, buat notification.
+  * Di `updateGoal`: jika mendekati deadline, reminder.
+
+* [ ] **4.7.4 UI — `NotificationBell.tsx`**
+
+  Icon bell dengan badge count unread, dropdown list notifications.
+
+* [ ] **4.7.5 Push Notifications (Optional)**
+
+  Integrasi dengan Web Push API untuk browser notifications.
+
+**Acceptance Criteria**
+
+* Notifications untuk budget alerts & goal reminders.
+* UI bell icon dengan dropdown, mark as read.
+
+---
+
+## Offline Support
+
+**Checklist**
+
+* [ ] **4.8.1 Service Worker Enhancement — `public/sw.js`**
+
+  ```js
+  // Cache static assets, API responses untuk read-only data
+  const CACHE_NAME = 'kantong-v1';
+
+  self.addEventListener('install', (event) => {
+    event.waitUntil(
+      caches.open(CACHE_NAME).then((cache) => {
+        return cache.addAll([
+          '/',
+          '/manifest.json',
+          // static assets
+        ]);
+      })
+    );
+  });
+
+  self.addEventListener('fetch', (event) => {
+    if (event.request.url.includes('/api/')) {
+      // Cache read-only APIs
+      event.respondWith(
+        caches.match(event.request).then((response) => {
+          return response || fetch(event.request);
+        })
+      );
+    }
+  });
+  ```
+
+* [ ] **4.8.2 Offline UI — `src/components/OfflineIndicator.tsx`**
+
+  ```tsx
+  'use client';
+  import { useState, useEffect } from 'react';
+
+  export default function OfflineIndicator() {
+    const [isOnline, setIsOnline] = useState(true);
+
+    useEffect(() => {
+      const handleOnline = () => setIsOnline(true);
+      const handleOffline = () => setIsOnline(false);
+
+      window.addEventListener('online', handleOnline);
+      window.addEventListener('offline', handleOffline);
+
+      return () => {
+        window.removeEventListener('online', handleOnline);
+        window.removeEventListener('offline', handleOffline);
+      };
+    }, []);
+
+    if (isOnline) return null;
+
+    return (
+      <div className="fixed bottom-4 right-4 bg-yellow-500 text-white p-2 rounded">
+        Offline - Beberapa fitur terbatas
+      </div>
+    );
+  }
+  ```
+
+* [ ] **4.8.3 Data Sync — `src/services/sync.ts`**
+
+  ```ts
+  export async function syncPendingTransactions() {
+    // Ambil pending dari IndexedDB/localStorage, sync ke server saat online
+  }
+  ```
+
+* [ ] **4.8.4 IndexedDB untuk Local Storage**
+
+  Gunakan `idb` library untuk store data lokal saat offline.
+
+**Acceptance Criteria**
+
+* App berfungsi offline untuk view data cached.
+* Indicator offline, sync otomatis saat kembali online.

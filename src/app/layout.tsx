@@ -1,0 +1,38 @@
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import './styles/themes.css';
+import { reportWebVitals } from '@/lib/performance';
+import { ThemeProvider } from '@/components/ThemeProvider';
+import OfflineIndicator from '@/components/OfflineIndicator';
+
+const inter = Inter({ subsets: ['latin'] });
+
+export const metadata: Metadata = {
+  title: 'KANTONG - Personal Finance Manager',
+  description: 'Catat keuangan pribadi & keluarga, simpel dan cerdas.',
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="id">
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#0B1220" />
+      </head>
+      <body className={inter.className}>
+        <ThemeProvider>
+          {children}
+          <OfflineIndicator />
+        </ThemeProvider>
+      </body>
+    </html>
+  );
+}
+
+// Web Vitals reporting
+export { reportWebVitals };
