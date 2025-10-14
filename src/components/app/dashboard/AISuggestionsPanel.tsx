@@ -2,12 +2,13 @@
 
 import { useQuery } from "@tanstack/react-query";
 import {
-  Brain,
-  TrendingUp,
   AlertTriangle,
-  Target,
+  Brain,
   Lightbulb,
+  Target,
+  TrendingUp,
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -15,7 +16,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import type { AIAnalysis, AISuggestion } from "@/services/ai-analytics";
 
@@ -226,15 +226,18 @@ function FinancialHealthScore({ health }: FinancialHealthScoreProps) {
             <div>
               <h4 className="font-medium text-green-700 mb-2">Strengths</h4>
               <ul className="text-sm space-y-1">
-                {health.strengths.map((strength, index) => (
-                  <li
-                    key={`strength-${strength}-${index}`}
-                    className="flex items-center gap-2"
-                  >
-                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
-                    {strength}
-                  </li>
-                ))}
+                {health.strengths.map((strength, index) => {
+                  let idx = index;
+                  return (
+                    <li
+                      key={`strength-${strength}-${idx++}`}
+                      className="flex items-center gap-2"
+                    >
+                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                      {strength}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
 
@@ -243,15 +246,18 @@ function FinancialHealthScore({ health }: FinancialHealthScoreProps) {
                 Areas for Improvement
               </h4>
               <ul className="text-sm space-y-1">
-                {health.weaknesses.map((weakness, index) => (
-                  <li
-                    key={`weakness-${weakness}-${index}`}
-                    className="flex items-center gap-2"
-                  >
-                    <div className="w-1.5 h-1.5 bg-orange-500 rounded-full"></div>
-                    {weakness}
-                  </li>
-                ))}
+                {health.weaknesses.map((weakness, index) => {
+                  let idx = index;
+                  return (
+                    <li
+                      key={`weakness-${weakness}-${idx++}`}
+                      className="flex items-center gap-2"
+                    >
+                      <div className="w-1.5 h-1.5 bg-orange-500 rounded-full"></div>
+                      {weakness}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           </div>
@@ -352,15 +358,18 @@ function RiskAssessment({ assessment }: RiskAssessmentProps) {
             <div className="mb-3">
               <h4 className="text-sm font-medium mb-2">Risk Factors:</h4>
               <ul className="text-sm space-y-1">
-                {assessment.factors.map((factor, index) => (
-                  <li
-                    key={`factor-${factor}-${index}`}
-                    className="flex items-center gap-2"
-                  >
-                    <div className="w-1.5 h-1.5 bg-current rounded-full"></div>
-                    {factor}
-                  </li>
-                ))}
+                {assessment.factors.map((factor, index) => {
+                  let idx = index;
+                  return (
+                    <li
+                      key={`factor-${factor}-${idx++}`}
+                      className="flex items-center gap-2"
+                    >
+                      <div className="w-1.5 h-1.5 bg-current rounded-full"></div>
+                      {factor}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           )}
@@ -369,15 +378,18 @@ function RiskAssessment({ assessment }: RiskAssessmentProps) {
             <div>
               <h4 className="text-sm font-medium mb-2">Recommendations:</h4>
               <ul className="text-sm space-y-1">
-                {assessment.recommendations.map((rec, index) => (
-                  <li
-                    key={`recommendation-${rec}-${index}`}
-                    className="flex items-center gap-2"
-                  >
-                    <div className="w-1.5 h-1.5 bg-current rounded-full"></div>
-                    {rec}
-                  </li>
-                ))}
+                {assessment.recommendations.map((rec, index) => {
+                  let idx = index;
+                  return (
+                    <li
+                      key={`recommendation-${rec}-${idx++}`}
+                      className="flex items-center gap-2"
+                    >
+                      <div className="w-1.5 h-1.5 bg-current rounded-full"></div>
+                      {rec}
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           )}

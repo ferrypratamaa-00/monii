@@ -1,18 +1,18 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import {
-  createPersonalGoal,
-  createJointGoal,
-  getUserGoals,
-  contributeToGoal,
-  deleteGoal,
-} from "@/services/goal";
-import {
-  CreatePersonalGoalSchema,
-  CreateJointGoalSchema,
   ContributeToGoalSchema,
+  CreateJointGoalSchema,
+  CreatePersonalGoalSchema,
   DeleteGoalSchema,
 } from "@/lib/validations/goal";
+import {
+  contributeToGoal,
+  createJointGoal,
+  createPersonalGoal,
+  deleteGoal,
+  getUserGoals,
+} from "@/services/goal";
 
 export async function GET(_request: NextRequest) {
   try {

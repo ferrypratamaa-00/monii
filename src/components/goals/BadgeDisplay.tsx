@@ -1,8 +1,8 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Award, Star, Target, Trophy, Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, Star, Target, Zap, Award } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface GoalBadge {
   id: number;
@@ -11,6 +11,8 @@ interface GoalBadge {
   icon: string;
   earnedAt?: Date;
 }
+
+export type { GoalBadge };
 
 const iconMap = {
   "🏆": Trophy,

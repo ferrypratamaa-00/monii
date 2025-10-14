@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Target, Trophy, Users, User } from "lucide-react";
-import { GoalProgressCard } from "@/components/goals/GoalProgressCard";
-import { BadgeDisplay } from "@/components/goals/BadgeDisplay";
+import { Target, Trophy, User, Users } from "lucide-react";
+import { useState } from "react";
+import { BadgeDisplay, type GoalBadge } from "@/components/goals/BadgeDisplay";
 import { CreateGoalDialog } from "@/components/goals/CreateGoalDialog";
+import { GoalProgressCard } from "@/components/goals/GoalProgressCard";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Goal {
   id: number;
@@ -40,6 +40,7 @@ interface Account {
 interface GoalUser {
   id: number;
   name: string;
+  email: string;
 }
 
 export default function GoalsPage() {

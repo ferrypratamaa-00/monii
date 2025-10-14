@@ -1,6 +1,6 @@
 import {
-  generateFinancialInsights,
   type FinancialInsights,
+  generateFinancialInsights,
   type SpendingTrend,
 } from "./analytics";
 

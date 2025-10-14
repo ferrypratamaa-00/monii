@@ -1,6 +1,6 @@
-import { eq, sql, and, gte, lte, desc } from "drizzle-orm";
+import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { transactions, categories, budgets } from "@/db/schema";
+import { budgets, categories, transactions } from "@/db/schema";
 
 export interface MonthlySpending {
   month: string;

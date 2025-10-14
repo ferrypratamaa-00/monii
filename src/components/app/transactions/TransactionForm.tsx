@@ -28,7 +28,13 @@ import { TransactionSchema } from "@/lib/validations/transaction";
 const accounts = [{ id: 1, name: "Bank" }];
 const categories = [{ id: 1, name: "Food", type: "EXPENSE" }];
 
-export default function TransactionForm() {
+interface TransactionFormProps {
+  onSuccess?: () => void;
+}
+
+export default function TransactionForm({
+  onSuccess,
+}: TransactionFormProps = {}) {
   const queryClient = useQueryClient();
   const form = useForm({
     resolver: zodResolver(TransactionSchema),
@@ -49,6 +55,7 @@ export default function TransactionForm() {
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
       form.reset();
+      onSuccess?.();
     },
     onError: (error) => {
       console.error("Transaction error", error);

@@ -1,12 +1,12 @@
+import { and, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import {
-  goals,
-  goalMembers,
-  badges,
   accounts,
+  badges,
+  goalMembers,
+  goals,
   transactions,
 } from "@/db/schema";
-import { eq, and, sql, desc } from "drizzle-orm";
 
 export interface CreateGoalData {
   userId: number;

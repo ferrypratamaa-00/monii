@@ -1,10 +1,10 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { AISuggestionsPanel } from "@/components/app/dashboard/AISuggestionsPanel";
 import { ExpensePieChart } from "@/components/app/dashboard/ExpensePieChart";
 import { ExportButtons } from "@/components/app/dashboard/ExportButtons";
 import { TrendChart } from "@/components/app/dashboard/TrendChart";
-import { AISuggestionsPanel } from "@/components/app/dashboard/AISuggestionsPanel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import {
