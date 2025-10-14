@@ -861,19 +861,19 @@ src/
 
 **Autorisasi**
 
-* [ ] Semua query service **mewajibkan userId** (multi-tenant boundary).
-* [ ] Akses resource selalu `WHERE user_id = currentUserId`.
+* [x] Semua query service **mewajibkan userId** (multi-tenant boundary).
+* [x] Akses resource selalu `WHERE user_id = currentUserId`.
 
 **Validasi & Sanitasi**
 
-* [ ] **Zod** di boundaries (actions/API). Tolak input di luar skema.
+* [x] **Zod** di boundaries (actions/API). Tolak input di luar skema.
 * [ ] Hindari XSS: encode output, tidak inject HTML dari user.
 * [ ] File upload: validasi MIME/ukuran, scan jika perlu, simpan privat.
 
 **Transport & Headers**
 
-* [ ] **HTTPS** wajib.
-* [ ] Tambahkan security headers (via `next/headers` atau middleware):
+* [x] **HTTPS** wajib.
+* [x] Tambahkan security headers (via `next/headers` atau middleware):
 
   * `Content-Security-Policy` (default-src 'self'; img/media sesuai kebutuhan)
   * `X-Frame-Options: DENY`
@@ -888,18 +888,18 @@ src/
 
 **DB & Transaksi**
 
-* [ ] Semua operasi finansial **atomic** (Drizzle `db.transaction`).
-* [ ] Gunakan **numeric(14,2)** untuk nilai uang; hindari float.
+* [x] Semua operasi finansial **atomic** (Drizzle `db.transaction`).
+* [x] Gunakan **numeric(14,2)** untuk nilai uang; hindari float.
 
 **Logging & Audit**
 
-* [ ] Log kesalahan tanpa rahasia (PII/secret).
-* [ ] Jejak audit untuk tindakan penting (ganti sandi, reset, ekspor, backup).
+* [x] Log kesalahan tanpa rahasia (PII/secret).
+* [x] Jejak audit untuk tindakan penting (ganti sandi, reset, ekspor, backup).
 
 **Email & Reset**
 
 * [ ] Token reset: acak kriptografis, sekali pakai, kadaluarsa (≤ 30 menit).
-* [ ] Jangan leak apakah email terdaftar (pesan generik).
+* [x] Jangan leak apakah email terdaftar (pesan generik).
 
 ---
 
@@ -926,17 +926,17 @@ src/
 
 **GitHub Actions (ringkas)**
 
-* [ ] Workflow: `on: [push, pull_request]`
-* [ ] Steps: `setup-node`, `bun ci`, `bun run typecheck`, `bun run lint`, `bun run build`, jalankan unit tests.
+* [x] Workflow: `on: [push, pull_request]`
+* [x] Steps: `setup-node`, `bun ci`, `bun run typecheck`, `bun run lint`, `bun run build`, jalankan unit tests.
 
 **Testing (disarankan)**
 
-* [ ] **Vitest** untuk unit/service
+* [x] **Vitest** untuk unit/service
 
   ```bash
   bun add -D vitest @testing-library/react @testing-library/jest-dom
   ```
-* [ ] **Playwright** untuk e2e PWA
+* [x] **Playwright** untuk e2e PWA
 
   ```bash
   bun add -D @playwright/test
