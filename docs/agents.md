@@ -987,7 +987,7 @@ src/
 
 ### Fase 3 — Diferensiasi
 
-* [ ] **M-8.0 AI Insights** (agregat → Gemini → AISuggestionCard)
+* [x] **M-8.0 AI Insights** (agregat → AI analysis → AISuggestionsPanel + dashboard integration)
 * [ ] **M-9.0 Goal & Badges** (joint goal atomic, badges)
 * [ ] **M-10.0 OCR** (capture → OCR → review → transaksi)
 

@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ExpensePieChart } from "@/components/app/dashboard/ExpensePieChart";
 import { ExportButtons } from "@/components/app/dashboard/ExportButtons";
 import { TrendChart } from "@/components/app/dashboard/TrendChart";
+import { AISuggestionsPanel } from "@/components/app/dashboard/AISuggestionsPanel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import {
@@ -82,6 +83,8 @@ export default function DashboardPage() {
       </Card>
 
       <TrendChart />
+
+      <AISuggestionsPanel userId={user?.userId} />
 
       <Card>
         <CardHeader>

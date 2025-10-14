@@ -112,3 +112,60 @@ export const usersRelations = relations(users, ({ many }) => ({
   budgets: many(budgets),
   passwordResets: many(passwordResets),
 }));
+
+export const accountsRelations = relations(accounts, ({ one, many }) => ({
+  user: one(users, {
+    fields: [accounts.userId],
+    references: [users.id],
+  }),
+  transactions: many(transactions),
+}));
+
+export const categoriesRelations = relations(categories, ({ one, many }) => ({
+  user: one(users, {
+    fields: [categories.userId],
+    references: [users.id],
+  }),
+  transactions: many(transactions),
+  budgets: many(budgets),
+}));
+
+export const transactionsRelations = relations(transactions, ({ one }) => ({
+  user: one(users, {
+    fields: [transactions.userId],
+    references: [users.id],
+  }),
+  account: one(accounts, {
+    fields: [transactions.accountId],
+    references: [accounts.id],
+  }),
+  category: one(categories, {
+    fields: [transactions.categoryId],
+    references: [categories.id],
+  }),
+}));
+
+export const budgetsRelations = relations(budgets, ({ one }) => ({
+  user: one(users, {
+    fields: [budgets.userId],
+    references: [users.id],
+  }),
+  category: one(categories, {
+    fields: [budgets.categoryId],
+    references: [categories.id],
+  }),
+}));
+
+export const debtsRelations = relations(debts, ({ one }) => ({
+  user: one(users, {
+    fields: [debts.userId],
+    references: [users.id],
+  }),
+}));
+
+export const passwordResetsRelations = relations(passwordResets, ({ one }) => ({
+  user: one(users, {
+    fields: [passwordResets.userId],
+    references: [users.id],
+  }),
+}));
