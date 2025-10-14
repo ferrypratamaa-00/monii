@@ -5,6 +5,7 @@ import {
   numeric,
   pgEnum,
   pgTable,
+  primaryKey,
   serial,
   text,
   timestamp,
@@ -15,6 +16,7 @@ export const txTypeEnum = pgEnum("tx_type", ["INCOME", "EXPENSE"]);
 export const debtTypeEnum = pgEnum("debt_type", ["DEBT", "RECEIVABLE"]);
 export const debtStatusEnum = pgEnum("debt_status", ["ACTIVE", "PAID"]);
 export const budgetPeriodEnum = pgEnum("budget_period", ["MONTHLY", "YEARLY"]);
+export const goalTypeEnum = pgEnum("goal_type", ["PERSONAL", "JOINT"]);
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -92,6 +94,49 @@ export const budgets = pgTable("budgets", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const goals = pgTable("goals", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .references(() => users.id)
+    .notNull(),
+  name: varchar("name", { length: 120 }).notNull(),
+  targetAmount: numeric("target_amount", { precision: 14, scale: 2 }).notNull(),
+  savedAmount: numeric("saved_amount", { precision: 14, scale: 2 })
+    .default("0")
+    .notNull(),
+  deadline: timestamp("deadline"),
+  type: goalTypeEnum("type").default("PERSONAL").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const goalMembers = pgTable(
+  "goal_members",
+  {
+    goalId: integer("goal_id")
+      .references(() => goals.id)
+      .notNull(),
+    userId: integer("user_id")
+      .references(() => users.id)
+      .notNull(),
+    contributionAmount: numeric("contribution_amount", { precision: 14, scale: 2 })
+      .default("0")
+      .notNull(),
+    joinedAt: timestamp("joined_at").defaultNow().notNull(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.goalId, t.userId] }),
+  })
+);
+
+export const badges = pgTable("badges", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .references(() => users.id)
+    .notNull(),
+  code: varchar("code", { length: 64 }).notNull(),
+  earnedAt: timestamp("earned_at").defaultNow().notNull(),
+});
+
 export const passwordResets = pgTable("password_resets", {
   id: serial("id").primaryKey(),
   userId: integer("user_id")
@@ -110,6 +155,9 @@ export const usersRelations = relations(users, ({ many }) => ({
   debts: many(debts),
   categories: many(categories),
   budgets: many(budgets),
+  goals: many(goals),
+  goalMemberships: many(goalMembers),
+  badges: many(badges),
   passwordResets: many(passwordResets),
 }));
 
@@ -153,6 +201,32 @@ export const budgetsRelations = relations(budgets, ({ one }) => ({
   category: one(categories, {
     fields: [budgets.categoryId],
     references: [categories.id],
+  }),
+}));
+
+export const goalsRelations = relations(goals, ({ one, many }) => ({
+  user: one(users, {
+    fields: [goals.userId],
+    references: [users.id],
+  }),
+  members: many(goalMembers),
+}));
+
+export const goalMembersRelations = relations(goalMembers, ({ one }) => ({
+  goal: one(goals, {
+    fields: [goalMembers.goalId],
+    references: [goals.id],
+  }),
+  user: one(users, {
+    fields: [goalMembers.userId],
+    references: [users.id],
+  }),
+}));
+
+export const badgesRelations = relations(badges, ({ one }) => ({
+  user: one(users, {
+    fields: [badges.userId],
+    references: [users.id],
   }),
 }));
 

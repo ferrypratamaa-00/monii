@@ -5,7 +5,7 @@ import { Brain, TrendingUp, AlertTriangle, Target, Lightbulb } from "lucide-reac
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { AIAnalysis, AISuggestion } from "@/services/ai-analytics";
+import type { AIAnalysis, AISuggestion } from "@/services/ai-analytics";
 
 interface AISuggestionsPanelProps {
   userId: number;
@@ -82,7 +82,7 @@ export function AISuggestionsPanel({ userId }: AISuggestionsPanelProps) {
         <CardContent>
           <div className="space-y-4">
             {aiAnalysis.personalizedSuggestions.map((suggestion, index) => (
-              <AISuggestionCard key={index} suggestion={suggestion} />
+              <AISuggestionCard key={`${suggestion.type}-${suggestion.title}-${index}`} suggestion={suggestion} />
             ))}
             {aiAnalysis.personalizedSuggestions.length === 0 && (
               <p className="text-muted-foreground text-center py-4">
@@ -206,7 +206,7 @@ function FinancialHealthScore({ health }: FinancialHealthScoreProps) {
               <h4 className="font-medium text-green-700 mb-2">Strengths</h4>
               <ul className="text-sm space-y-1">
                 {health.strengths.map((strength, index) => (
-                  <li key={index} className="flex items-center gap-2">
+                  <li key={`strength-${strength}-${index}`} className="flex items-center gap-2">
                     <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
                     {strength}
                   </li>
@@ -218,7 +218,7 @@ function FinancialHealthScore({ health }: FinancialHealthScoreProps) {
               <h4 className="font-medium text-orange-700 mb-2">Areas for Improvement</h4>
               <ul className="text-sm space-y-1">
                 {health.weaknesses.map((weakness, index) => (
-                  <li key={index} className="flex items-center gap-2">
+                  <li key={`weakness-${weakness}-${index}`} className="flex items-center gap-2">
                     <div className="w-1.5 h-1.5 bg-orange-500 rounded-full"></div>
                     {weakness}
                   </li>
@@ -251,7 +251,7 @@ function SpendingPredictions({ predictions }: SpendingPredictionsProps) {
       <CardContent>
         <div className="space-y-4">
           {predictions.map((prediction, index) => (
-            <div key={index} className="flex items-center justify-between p-3 border rounded">
+            <div key={`prediction-${prediction.category}-${index}`} className="flex items-center justify-between p-3 border rounded">
               <div>
                 <p className="font-medium">{prediction.category}</p>
                 <p className="text-sm text-muted-foreground">
@@ -317,7 +317,7 @@ function RiskAssessment({ assessment }: RiskAssessmentProps) {
               <h4 className="text-sm font-medium mb-2">Risk Factors:</h4>
               <ul className="text-sm space-y-1">
                 {assessment.factors.map((factor, index) => (
-                  <li key={index} className="flex items-center gap-2">
+                  <li key={`factor-${factor}-${index}`} className="flex items-center gap-2">
                     <div className="w-1.5 h-1.5 bg-current rounded-full"></div>
                     {factor}
                   </li>
@@ -331,7 +331,7 @@ function RiskAssessment({ assessment }: RiskAssessmentProps) {
               <h4 className="text-sm font-medium mb-2">Recommendations:</h4>
               <ul className="text-sm space-y-1">
                 {assessment.recommendations.map((rec, index) => (
-                  <li key={index} className="flex items-center gap-2">
+                  <li key={`recommendation-${rec}-${index}`} className="flex items-center gap-2">
                     <div className="w-1.5 h-1.5 bg-current rounded-full"></div>
                     {rec}
                   </li>

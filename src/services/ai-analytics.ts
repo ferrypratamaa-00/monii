@@ -3,8 +3,8 @@ import {
   MonthlySpending,
   CategorySpending,
   BudgetAnalysis,
-  FinancialInsights,
-  SpendingTrend
+  type FinancialInsights,
+  type SpendingTrend
 } from "./analytics";
 
 export interface AIPrediction {
@@ -51,16 +51,16 @@ export class AIAnalyticsService {
     const insights = await generateFinancialInsights(userId);
 
     // Generate spending predictions based on trends
-    const spendingPredictions = this.generateSpendingPredictions(insights);
+    const spendingPredictions = AIAnalyticsService.generateSpendingPredictions(insights);
 
     // Generate personalized suggestions
-    const personalizedSuggestions = this.generatePersonalizedSuggestions(insights);
+    const personalizedSuggestions = AIAnalyticsService.generatePersonalizedSuggestions(insights);
 
     // Assess financial risk
-    const riskAssessment = this.assessFinancialRisk(insights);
+    const riskAssessment = AIAnalyticsService.assessFinancialRisk(insights);
 
     // Calculate financial health score
-    const financialHealth = this.calculateFinancialHealth(insights);
+    const financialHealth = AIAnalyticsService.calculateFinancialHealth(insights);
 
     return {
       spendingPredictions,
@@ -91,7 +91,7 @@ export class AIAnalyticsService {
 
       if (categoryTrends.length >= 2) {
         // Simple linear regression for prediction
-        const prediction = this.predictNextMonthSpending(categoryTrends);
+        const prediction = AIAnalyticsService.predictNextMonthSpending(categoryTrends);
         const confidence = Math.min(categoryTrends.length / 6 * 100, 85); // Max 85% confidence
 
         predictions.push({
@@ -313,7 +313,7 @@ export class AIAnalyticsService {
     }
 
     // Spending stability (0-20 points)
-    const spendingVariation = this.calculateSpendingVariation(insights.monthlyTrends);
+    const spendingVariation = AIAnalyticsService.calculateSpendingVariation(insights.monthlyTrends);
     if (spendingVariation < 0.2) {
       score += 20;
       strengths.push('Consistent spending patterns');

@@ -100,7 +100,14 @@ export async function getMonthlySpendingAnalysis(
       });
     }
 
-    const monthData = monthlyMap.get(key)!;
+    const monthData = monthlyMap.get(key) ?? {
+      month: key,
+      year: parseInt(key.split('-')[0], 10),
+      totalIncome: 0,
+      totalExpenses: 0,
+      netIncome: 0,
+      categoryBreakdown: []
+    };
 
     if (row.type === 'INCOME') {
       monthData.totalIncome += row.amount;
