@@ -17,6 +17,12 @@ export const debtTypeEnum = pgEnum("debt_type", ["DEBT", "RECEIVABLE"]);
 export const debtStatusEnum = pgEnum("debt_status", ["ACTIVE", "PAID"]);
 export const budgetPeriodEnum = pgEnum("budget_period", ["MONTHLY", "YEARLY"]);
 export const goalTypeEnum = pgEnum("goal_type", ["PERSONAL", "JOINT"]);
+export const auditEventTypeEnum = pgEnum("audit_event_type", [
+  "auth",
+  "transaction",
+  "security",
+  "system",
+]);
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -151,6 +157,18 @@ export const passwordResets = pgTable("password_resets", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const auditLogs = pgTable("audit_logs", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  eventType: auditEventTypeEnum("event_type").notNull(),
+  resource: varchar("resource", { length: 100 }).notNull(),
+  action: varchar("action", { length: 100 }).notNull(),
+  details: text("details"),
+  ipAddress: varchar("ip_address", { length: 45 }),
+  userAgent: text("user_agent"),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
 // relations (opsional, untuk eager typed)
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
@@ -162,6 +180,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   goalMemberships: many(goalMembers),
   badges: many(badges),
   passwordResets: many(passwordResets),
+  auditLogs: many(auditLogs),
 }));
 
 export const accountsRelations = relations(accounts, ({ one, many }) => ({
@@ -243,6 +262,13 @@ export const debtsRelations = relations(debts, ({ one }) => ({
 export const passwordResetsRelations = relations(passwordResets, ({ one }) => ({
   user: one(users, {
     fields: [passwordResets.userId],
+    references: [users.id],
+  }),
+}));
+
+export const auditLogsRelations = relations(auditLogs, ({ one }) => ({
+  user: one(users, {
+    fields: [auditLogs.userId],
     references: [users.id],
   }),
 }));

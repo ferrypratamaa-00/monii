@@ -2,13 +2,13 @@
 
 ## 0) Meta
 
-* [ ] Repo Git siap (GitHub/GitLab) + proteksi branch `main` (PR wajib, review minimal 1).
-* [ ] CI minimal: **Build + Typecheck + Lint + Unit test** (GitHub Actions).
-* [ ] `.env.example` lengkap (tanpa nilai rahasia).
-* [ ] Dokumentasi `README.md` + `CONTRIBUTING.md`.
-* [ ] Color Pallete : E7F2EF, A1C2BD, 708993, 1B3C53
-* [ ] Style simple, clean Design, modern rounded based
-* [ ] Mmobile First, Responsive
+* [x] Repo Git siap (GitHub/GitLab) + proteksi branch `main` (PR wajib, review minimal 1).
+* [x] CI minimal: **Build + Typecheck + Lint + Unit test** (GitHub Actions).
+* [x] `.env.example` lengkap (tanpa nilai rahasia).
+* [x] Dokumentasi `README.md` + `CONTRIBUTING.md`.
+* [x] Color Pallete : E7F2EF, A1C2BD, 708993, 1B3C53
+* [x] Style simple, clean Design, modern rounded based
+* [x] Mmobile First, Responsive
 
 ---
 
@@ -708,21 +708,21 @@ src/
 
 **Checklist**
 
-* [ ] **2.3.1 ErrorBoundary (frontend)**
+* [x] **2.3.1 ErrorBoundary (frontend)**
 
   * Komponen `ErrorBoundary` + `fallback UI` di layout protected.
 
-* [ ] **2.3.2 Password Reset Flow (Service Layer)**
+* [x] **2.3.2 Password Reset Flow (Service Layer)**
 
   * Tabel `password_resets` (token, userId, expiresAt, usedAt).
   * Generate token kriptografis, kirim email via **Postmark/SendGrid**.
   * Endpoint/action untuk verifikasi & set password baru.
 
-* [ ] **2.3.3 Backup Service — `createFullDataBackup(userId)`**
+* [x] **2.3.3 Backup Service — `createFullDataBackup(userId)`**
 
   * Dump semua entitas pengguna → objek JSON siap unduh.
 
-* [ ] **2.3.4 UI — Tombol “Unduh Backup Data”**
+* [x] **2.3.4 UI — Tombol “Unduh Backup Data”**
 
   * Server Action mengembalikan file JSON.
 
@@ -739,24 +739,24 @@ src/
 
 **Checklist**
 
-* [ ] **3.1.1 AI Service — `src/services/ai.ts`**
+* [x] **3.1.1 AI Service — `src/services/ai.ts`**
 
   * **Ambil agregat**: top 3 kategori, rata-rata pengeluaran harian, spike outlier.
   * Hindari kirim raw transaksi (hemat token/biaya).
 
-* [ ] **3.1.2 Prompt Engineering (Gemini)**
+* [x] **3.1.2 Prompt Engineering (Gemini)**
 
   ```
   System: "Anda adalah Penasihat Finansial KANTUNG. Berikan 3 saran spesifik, bernada suportif, berbasis data agregat."
   User: {json data agregat 90 hari}
   ```
 
-* [ ] **3.1.3 Panggilan API Gemini**
+* [x] **3.1.3 Panggilan API Gemini**
 
   * `GEMINI_API_KEY` via env, panggil SDK/REST dari server.
   * Sanitasi input, timeout, retry.
 
-* [ ] **3.1.4 UI — `AISuggestionCard.tsx`**
+* [x] **3.1.4 UI — `AISuggestionCard.tsx`**
 
   * Skeleton loader, error state yang ramah.
   * **Menampilkan hasil saran AI** ke pengguna.
@@ -771,7 +771,7 @@ src/
 
 **Checklist**
 
-* [ ] **3.2.1 Skema Goal + Member + Badge**
+* [x] **3.2.1 Skema Goal + Member + Badge**
 
   ```ts
   export const goals = pgTable('goals', {
@@ -798,16 +798,16 @@ src/
   });
   ```
 
-* [ ] **3.2.2 Services — goal.ts**
+* [x] **3.2.2 Services — goal.ts**
 
   * `createJointGoal(data, members)`
   * `contributeToGoal(goalId, amount)` (atomic: kurangi saldo akun contributor, tambah savedAmount goal).
 
-* [ ] **3.2.3 Badge logic**
+* [x] **3.2.3 Badge logic**
 
   * Rule engine sederhana (mis. sukses 3 bulan berturut-turut di bawah budget).
 
-* [ ] **3.2.4 UI**
+* [x] **3.2.4 UI**
 
   * `GoalProgressCard.tsx` + `BadgeDisplay.tsx`.
 
@@ -822,20 +822,20 @@ src/
 
 **Checklist**
 
-* [ ] **3.3.1 OCR Service — `src/services/ocr.ts`**
+* [x] **3.3.1 OCR Service — `src/services/ocr.ts`**
 
   * `processReceiptImage(file)` → base64 → kirim ke Vision/OCR API → normalisasi output `{vendor, amount, date}`.
 
-* [ ] **3.3.2 Frontend Capture — `CameraCaptureModal.tsx`**
+* [x] **3.3.2 Frontend Capture — `CameraCaptureModal.tsx`**
 
   * Akses kamera/upload, preview, kirim ke server action.
 
-* [ ] **3.3.3 Review Screen (KRITIS) — `ReviewTransactionModal.tsx`**
+* [x] **3.3.3 Review Screen (KRITIS) — `ReviewTransactionModal.tsx`**
 
   * Menampilkan gambar & hasil OCR (editable): vendor, jumlah, tanggal, saran kategori.
   * **Wajib:** user mengonfirmasi/ubah sebelum `createTransactionAction`.
 
-* [ ] **3.3.4 Update Action — `createTransactionAction`**
+* [x] **3.3.4 Update Action — `createTransactionAction`**
 
   * Menerima data dari review, normalisasi, lanjut ke service atomic.
 
@@ -849,14 +849,14 @@ src/
 
 **Konfigurasi & Secret**
 
-* [ ] `.env` hanya dibaca server. Commit **hanya** `.env.example`.
+* [x] `.env` hanya dibaca server. Commit **hanya** `.env.example`.
 * [ ] Rotasi kunci API (Gemini/OCR/Email) berkala, beri scope minimal.
 
 **Autentikasi & Sesi**
 
-* [ ] Cookie **HttpOnly**, `Secure`, `SameSite=Lax/Strict`. Simpan minimal claims (userId, iat, exp).
-* [ ] Hash password **bcrypt** dengan cost 12 (atau **argon2id** jika memungkinkan).
-* [ ] Rate limiting brute-force login (IP + account), exponential backoff.
+* [x] Cookie **HttpOnly**, `Secure`, `SameSite=Lax/Strict`. Simpan minimal claims (userId, iat, exp).
+* [x] Hash password **bcrypt** dengan cost 12 (atau **argon2id** jika memungkinkan).
+* [x] Rate limiting brute-force login (IP + account), exponential backoff.
 * [ ] **2FA (TOTP)** opsional di M-7.0.
 
 **Autorisasi**
@@ -983,13 +983,13 @@ src/
 
 * [x] **M-5.0 Budget** (skema, service, integrasi createTransaction, progress bar)
 * [x] **M-6.0 Tren & Ekspor** (trend query 12 bln, CSV API, line chart)
-* [ ] **M-7.0 Security+Sync** (ErrorBoundary, reset password, backup JSON)
+* [x] **M-7.0 Security+Sync** (ErrorBoundary, reset password, backup JSON)
 
 ### Fase 3 — Diferensiasi
 
 * [x] **M-8.0 AI Insights** (agregat → AI analysis → AISuggestionsPanel + dashboard integration)
 * [x] **M-9.0 Goal & Badges** (joint goal atomic, badges)
-* [ ] **M-10.0 OCR** (capture → OCR → review → transaksi)
+* [x] **M-10.0 OCR** (capture → OCR → review → transaksi)
 
 ---
 

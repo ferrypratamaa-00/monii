@@ -1,8 +1,9 @@
 "use server";
 
 import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { LoginSchema, SignupSchema } from "@/lib/validations/auth";
+import { AuditService } from "@/services/audit";
 import { registerUser, verifyCredentials } from "@/services/auth";
 
 const JWT_SECRET = process.env.JWT_SECRET || "secret"; // in production, use strong secret
@@ -30,6 +31,17 @@ export async function signUpAction(formData: FormData) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
     });
+
+    // Audit logging
+    const h = await headers();
+    await AuditService.logAuthEvent(
+      user.id,
+      "signup",
+      { email: result.data.email },
+      h.get("x-forwarded-for") || h.get("x-real-ip") || "unknown",
+      h.get("user-agent") || undefined,
+    );
+
     return { success: true };
   } catch (error: unknown) {
     const err = error as Error;
@@ -54,6 +66,16 @@ export async function loginAction(formData: FormData) {
       result.data.password,
     );
     if (!user) {
+      // Audit logging for failed login
+      const h = await headers();
+      await AuditService.logAuthEvent(
+        undefined,
+        "failed_login",
+        { email: result.data.email },
+        h.get("x-forwarded-for") || h.get("x-real-ip") || "unknown",
+        h.get("user-agent") || undefined,
+      );
+
       return { success: false, error: "Email atau password salah" };
     }
     const token = jwt.sign({ userId: user.id }, JWT_SECRET, {
@@ -65,6 +87,17 @@ export async function loginAction(formData: FormData) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
     });
+
+    // Audit logging for successful login
+    const h = await headers();
+    await AuditService.logAuthEvent(
+      user.id,
+      "login",
+      { email: result.data.email },
+      h.get("x-forwarded-for") || h.get("x-real-ip") || "unknown",
+      h.get("user-agent") || undefined,
+    );
+
     return { success: true };
   } catch (error: unknown) {
     const err = error as Error;
