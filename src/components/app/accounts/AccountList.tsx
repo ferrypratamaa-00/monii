@@ -11,12 +11,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import type { accounts } from "@/db/schema";
 import { getAccounts } from "@/services/account";
 import { AccountForm } from "./AccountForm";
 
+type Account = typeof accounts.$inferSelect;
+
 export function AccountList() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingAccount, setEditingAccount] = useState<any>(null);
+  const [editingAccount, setEditingAccount] = useState<Account | null>(null);
 
   const { data: accounts, isLoading } = useQuery({
     queryKey: ["accounts"],
@@ -28,7 +31,7 @@ export function AccountList() {
     setIsModalOpen(true);
   };
 
-  const handleEdit = (account: any) => {
+  const handleEdit = (account: Account) => {
     setEditingAccount(account);
     setIsModalOpen(true);
   };

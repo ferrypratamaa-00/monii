@@ -37,7 +37,10 @@ export function AccountForm({
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data: AccountFormData) => updateAccount(1, accountId!, data), // TODO: get userId
+    mutationFn: (data: AccountFormData) => {
+      if (!accountId) throw new Error("Account ID is required for update");
+      return updateAccount(1, accountId, data); // TODO: get userId
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
       onSuccess?.();

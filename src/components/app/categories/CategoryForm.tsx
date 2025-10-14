@@ -47,8 +47,10 @@ export function CategoryForm({
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data: CategoryFormData) =>
-      updateCategory(1, categoryId!, data), // TODO: get userId
+    mutationFn: (data: CategoryFormData) => {
+      if (!categoryId) throw new Error("Category ID is required for update");
+      return updateCategory(1, categoryId, data); // TODO: get userId
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["categories"] });
       onSuccess?.();

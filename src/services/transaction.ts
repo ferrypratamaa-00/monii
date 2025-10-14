@@ -11,7 +11,10 @@ export async function createTransaction(
   return db.transaction(async (tx) => {
     const [trx] = await tx
       .insert(transactions)
-      .values(input as any)
+      .values({
+        ...input,
+        amount: input.amount.toString(),
+      })
       .returning();
 
     // Update saldo atomic (balance = balance + amount)

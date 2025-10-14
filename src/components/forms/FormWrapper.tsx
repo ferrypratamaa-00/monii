@@ -1,12 +1,10 @@
-"use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 
 interface FormWrapperProps {
   schema: z.ZodSchema;
-  defaultValues: any;
+  defaultValues: Record<string, any>;
   onSubmit: (data: any) => void | Promise<void>;
   children: (methods: ReturnType<typeof useForm>) => React.ReactNode;
 }

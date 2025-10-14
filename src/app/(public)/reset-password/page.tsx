@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { CheckCircle, Lock } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { resetPasswordAction } from "@/app/actions/password-reset";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -17,10 +17,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 type ActionResponse = {
-  success: boolean;
+  success?: boolean;
+  valid?: boolean;
   message?: string;
   error?: string;
   errors?: Record<string, string[]>;
+  userId?: number;
 };
 
 export default function ResetPasswordPage() {

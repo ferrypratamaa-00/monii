@@ -12,12 +12,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import type { categories } from "@/db/schema";
 import { getCategories } from "@/services/category";
 import { CategoryForm } from "./CategoryForm";
 
+type Category = typeof categories.$inferSelect;
+
 export function CategoryManager() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<any>(null);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
   const { data: categories, isLoading } = useQuery({
     queryKey: ["categories"],
@@ -29,7 +32,7 @@ export function CategoryManager() {
     setIsModalOpen(true);
   };
 
-  const handleEdit = (category: any) => {
+  const handleEdit = (category: Category) => {
     setEditingCategory(category);
     setIsModalOpen(true);
   };
@@ -62,7 +65,7 @@ export function CategoryManager() {
                   ? {
                       name: editingCategory.name,
                       type: editingCategory.type,
-                      iconName: editingCategory.iconName,
+                      iconName: editingCategory.iconName || undefined,
                     }
                   : undefined
               }

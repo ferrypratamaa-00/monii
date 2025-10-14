@@ -16,10 +16,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 type ActionResponse = {
-  success: boolean;
+  success?: boolean;
+  valid?: boolean;
   message?: string;
   error?: string;
   errors?: Record<string, string[]>;
+  token?: string;
+  userId?: number;
 };
 
 export default function ForgotPasswordPage() {
