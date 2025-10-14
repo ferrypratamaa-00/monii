@@ -985,11 +985,16 @@ src/
 * [x] **M-6.0 Tren & Ekspor** (trend query 12 bln, CSV API, line chart)
 * [x] **M-7.0 Security+Sync** (ErrorBoundary, reset password, backup JSON)
 
-### Fase 3 — Diferensiasi
+### Fase 4 — Optimisasi & Diferensiasi (M-11.0 s/d M-14.0)
 
-* [x] **M-8.0 AI Insights** (agregat → AI analysis → AISuggestionsPanel + dashboard integration)
-* [x] **M-9.0 Goal & Badges** (joint goal atomic, badges)
-* [x] **M-10.0 OCR** (capture → OCR → review → transaksi)
+* [x] **Performance Monitoring** (Web Vitals, error tracking, metrics collection)
+* [x] **Internationalization (i18n)** (next-intl, Indonesian/English support)
+* [x] **Accessibility Features** (ARIA labels, keyboard navigation, WCAG compliance)
+* [x] **Dark Mode Support** (theme provider, CSS variables, toggle component)
+* [x] **Advanced Data Export** (PDF format with jsPDF, enhanced CSV)
+* [x] **Advanced Search & Filtering** (multi-criteria search, date ranges, amounts)
+* [x] **Notification System** (budget alerts, goal reminders, database schema)
+* [x] **Offline Support** (service worker, caching, offline indicator)
 
 ---
 
