@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/app/actions/auth";
+import Navigation from "@/components/app/Navigation";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
 
 export default async function ProtectedLayout({
@@ -12,5 +13,10 @@ export default async function ProtectedLayout({
     redirect("/login");
   }
 
-  return <ErrorBoundary>{children}</ErrorBoundary>;
+  return (
+    <ErrorBoundary>
+      <Navigation />
+      {children}
+    </ErrorBoundary>
+  );
 }

@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import type { categories } from "@/db/schema";
 import { getCategories } from "@/services/category";
-import { CategoryForm } from "./CategoryForm";
+import CategoryForm from "./CategoryForm";
 
 type Category = typeof categories.$inferSelect;
 
@@ -59,10 +59,10 @@ export function CategoryManager() {
               </DialogTitle>
             </DialogHeader>
             <CategoryForm
-              categoryId={editingCategory?.id}
-              defaultValues={
+              category={
                 editingCategory
                   ? {
+                      id: editingCategory.id,
                       name: editingCategory.name,
                       type: editingCategory.type,
                       iconName: editingCategory.iconName || undefined,

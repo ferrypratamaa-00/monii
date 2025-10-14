@@ -1,107 +1,98 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { z } from "zod";
-import { FormWrapper } from "@/components/forms/FormWrapper";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import type { z } from "zod";
+import {
+  createAccountAction,
+  updateAccountAction,
+} from "@/app/actions/account";
 import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { createAccount, updateAccount } from "@/services/account";
-
-const AccountSchema = z.object({
-  name: z.string().min(1, "Nama akun wajib"),
-  initialBalance: z.number().finite(),
-});
-
-type AccountFormData = z.infer<typeof AccountSchema>;
+import { AccountSchema } from "@/lib/validations/account";
 
 interface AccountFormProps {
-  accountId?: number;
-  defaultValues?: Partial<AccountFormData>;
+  account?: {
+    id: number;
+    name: string;
+    initialBalance: string;
+  };
   onSuccess?: () => void;
 }
 
-export function AccountForm({
-  accountId,
-  defaultValues,
-  onSuccess,
-}: AccountFormProps) {
-  const queryClient = useQueryClient();
-
-  const createMutation = useMutation({
-    mutationFn: (data: AccountFormData) => createAccount(1, data), // TODO: get userId
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["accounts"] });
-      onSuccess?.();
+export default function AccountForm({ account, onSuccess }: AccountFormProps) {
+  const form = useForm({
+    resolver: zodResolver(AccountSchema),
+    defaultValues: {
+      name: account?.name || "",
+      initialBalance: account ? parseFloat(account.initialBalance) : 0,
     },
   });
 
-  const updateMutation = useMutation({
-    mutationFn: (data: AccountFormData) => {
-      if (!accountId) throw new Error("Account ID is required for update");
-      return updateAccount(1, accountId, data); // TODO: get userId
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["accounts"] });
-      onSuccess?.();
-    },
-  });
+  const onSubmit = async (data: z.infer<typeof AccountSchema>) => {
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("initialBalance", data.initialBalance.toString());
 
-  const handleSubmit = (data: AccountFormData) => {
-    if (accountId) {
-      updateMutation.mutate(data);
+    const result = account
+      ? await updateAccountAction(account.id, formData)
+      : await createAccountAction(formData);
+
+    if (result.success) {
+      form.reset();
+      onSuccess?.();
     } else {
-      createMutation.mutate(data);
+      console.error(result.error);
     }
   };
 
   return (
-    <FormWrapper
-      schema={AccountSchema}
-      defaultValues={{
-        name: defaultValues?.name || "",
-        initialBalance: defaultValues?.initialBalance || 0,
-      }}
-      onSubmit={handleSubmit}
-    >
-      {(methods) => (
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="name">Nama Akun</Label>
-            <Input
-              id="name"
-              {...methods.register("name")}
-              placeholder="e.g. Bank BCA"
-            />
-            {methods.formState.errors.name && (
-              <p className="text-sm text-red-500">
-                {methods.formState.errors.name.message?.toString() || "Error"}
-              </p>
-            )}
-          </div>
-          <div>
-            <Label htmlFor="initialBalance">Saldo Awal</Label>
-            <Input
-              id="initialBalance"
-              type="number"
-              step="0.01"
-              {...methods.register("initialBalance", { valueAsNumber: true })}
-            />
-            {methods.formState.errors.initialBalance && (
-              <p className="text-sm text-red-500">
-                {methods.formState.errors.initialBalance.message?.toString() ||
-                  "Error"}
-              </p>
-            )}
-          </div>
-          <Button
-            type="submit"
-            disabled={createMutation.isPending || updateMutation.isPending}
-          >
-            {accountId ? "Update" : "Tambah"} Akun
-          </Button>
-        </div>
-      )}
-    </FormWrapper>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Account Name</FormLabel>
+              <FormControl>
+                <Input placeholder="e.g., BCA, Cash, GoPay" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="initialBalance"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Initial Balance</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  step="0.01"
+                  placeholder="0.00"
+                  {...field}
+                  onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit" disabled={form.formState.isSubmitting}>
+          {account ? "Update Account" : "Create Account"}
+        </Button>
+      </form>
+    </Form>
   );
 }

@@ -35,3 +35,14 @@ export async function createTransaction(
     return trx;
   });
 }
+
+export async function getTransactions(userId: number) {
+  return db.query.transactions.findMany({
+    where: eq(transactions.userId, userId),
+    with: {
+      account: true,
+      category: true,
+    },
+    orderBy: (transactions, { desc }) => [desc(transactions.date)],
+  });
+}

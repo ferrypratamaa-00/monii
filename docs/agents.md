@@ -585,7 +585,7 @@ src/
 
 **Checklist**
 
-* [ ] **1.4.1 Skema Debt (sudah di schema.ts)**
+* [x] **1.4.1 Skema Debt (sudah di schema.ts)**
 
 * [x] **1.4.2 Dashboard Service — `src/services/dashboard.ts`**
 
@@ -975,9 +975,9 @@ src/
 ### Fase 1 — MVP
 
 * [x] **M-1.0 Auth** (Zod, service, actions, forms)
-* [ ] **M-2.0 Transaksi** (Zod, atomic create, actions, UI)
-* [ ] **M-3.0 Kategori & Akun** (CRUD + FormWrapper)
-* [ ] **M-4.0 Dashboard & Debt** (summary, pie, debt CRUD)
+* [x] **M-2.0 Transaksi** (Zod, atomic create, actions, UI)
+* [x] **M-3.0 Kategori & Akun** (CRUD + FormWrapper)
+* [x] **M-4.0 Dashboard & Debt** (summary, pie, debt CRUD)
 
 ### Fase 2 — Pengelolaan & Analisis
 
