@@ -34,7 +34,7 @@ export interface BudgetAnalysis {
   actual: number;
   remaining: number;
   percentageUsed: number;
-  status: 'UNDER_BUDGET' | 'ON_TRACK' | 'OVER_BUDGET';
+  status: "UNDER_BUDGET" | "ON_TRACK" | "OVER_BUDGET";
 }
 
 export interface FinancialInsights {
@@ -51,7 +51,7 @@ export interface FinancialInsights {
  */
 export async function getMonthlySpendingAnalysis(
   userId: number,
-  months: number = 6
+  months: number = 6,
 ): Promise<MonthlySpending[]> {
   const endDate = new Date();
   const startDate = new Date();
@@ -72,15 +72,15 @@ export async function getMonthlySpendingAnalysis(
       and(
         eq(transactions.userId, userId),
         gte(transactions.date, startDate),
-        lte(transactions.date, endDate)
-      )
+        lte(transactions.date, endDate),
+      ),
     )
     .groupBy(
       sql`TO_CHAR(${transactions.date}, 'YYYY-MM')`,
       sql`EXTRACT(YEAR FROM ${transactions.date})`,
       transactions.type,
       categories.id,
-      categories.name
+      categories.name,
     )
     .orderBy(desc(sql`TO_CHAR(${transactions.date}, 'YYYY-MM')`));
 
@@ -102,14 +102,14 @@ export async function getMonthlySpendingAnalysis(
 
     const monthData = monthlyMap.get(key) ?? {
       month: key,
-      year: parseInt(key.split('-')[0], 10),
+      year: parseInt(key.split("-")[0], 10),
       totalIncome: 0,
       totalExpenses: 0,
       netIncome: 0,
-      categoryBreakdown: []
+      categoryBreakdown: [],
     };
 
-    if (row.type === 'INCOME') {
+    if (row.type === "INCOME") {
       monthData.totalIncome += row.amount;
     } else {
       monthData.totalExpenses += row.amount;
@@ -118,7 +118,7 @@ export async function getMonthlySpendingAnalysis(
     // Add to category breakdown if category exists
     if (row.categoryId && row.categoryName) {
       const existingCategory = monthData.categoryBreakdown.find(
-        cat => cat.categoryId === row.categoryId
+        (cat) => cat.categoryId === row.categoryId,
       );
 
       if (existingCategory) {
@@ -137,13 +137,14 @@ export async function getMonthlySpendingAnalysis(
   }
 
   // Calculate percentages and net income
-  const result = Array.from(monthlyMap.values()).map(month => {
+  const result = Array.from(monthlyMap.values()).map((month) => {
     month.netIncome = month.totalIncome - month.totalExpenses;
 
     // Calculate percentages for categories
     const totalExpenses = month.totalExpenses;
-    month.categoryBreakdown.forEach(cat => {
-      cat.percentage = totalExpenses > 0 ? (cat.amount / totalExpenses) * 100 : 0;
+    month.categoryBreakdown.forEach((cat) => {
+      cat.percentage =
+        totalExpenses > 0 ? (cat.amount / totalExpenses) * 100 : 0;
     });
 
     return month;
@@ -157,11 +158,11 @@ export async function getMonthlySpendingAnalysis(
  */
 export async function getSpendingTrends(
   userId: number,
-  months: number = 12
+  months: number = 12,
 ): Promise<SpendingTrend[]> {
   const monthlyData = await getMonthlySpendingAnalysis(userId, months);
 
-  return monthlyData.map(month => ({
+  return monthlyData.map((month) => ({
     period: month.month,
     income: month.totalIncome,
     expenses: month.totalExpenses,
@@ -175,10 +176,10 @@ export async function getSpendingTrends(
  */
 export async function getBudgetAnalysis(
   userId: number,
-  month?: string // Format: 'YYYY-MM'
+  month?: string, // Format: 'YYYY-MM'
 ): Promise<BudgetAnalysis[]> {
   const targetMonth = month || new Date().toISOString().slice(0, 7); // Current month
-  const [year, monthNum] = targetMonth.split('-').map(Number);
+  const [year, monthNum] = targetMonth.split("-").map(Number);
 
   const startDate = new Date(year, monthNum - 1, 1);
   const endDate = new Date(year, monthNum, 0); // Last day of month
@@ -201,35 +202,36 @@ export async function getBudgetAnalysis(
     .where(
       and(
         eq(transactions.userId, userId),
-        eq(transactions.type, 'EXPENSE'),
+        eq(transactions.type, "EXPENSE"),
         gte(transactions.date, startDate),
-        lte(transactions.date, endDate)
-      )
+        lte(transactions.date, endDate),
+      ),
     )
     .groupBy(transactions.categoryId);
 
   // Create budget analysis
-  const analysis: BudgetAnalysis[] = userBudgets.map(budget => {
-    const actual = actualSpending.find(
-      spending => spending.categoryId === budget.categoryId
-    )?.amount || 0;
+  const analysis: BudgetAnalysis[] = userBudgets.map((budget) => {
+    const actual =
+      actualSpending.find(
+        (spending) => spending.categoryId === budget.categoryId,
+      )?.amount || 0;
 
     const budgeted = parseFloat(budget.limitAmount);
     const remaining = budgeted - actual;
     const percentageUsed = budgeted > 0 ? (actual / budgeted) * 100 : 0;
 
-    let status: 'UNDER_BUDGET' | 'ON_TRACK' | 'OVER_BUDGET';
+    let status: "UNDER_BUDGET" | "ON_TRACK" | "OVER_BUDGET";
     if (percentageUsed > 100) {
-      status = 'OVER_BUDGET';
+      status = "OVER_BUDGET";
     } else if (percentageUsed > 80) {
-      status = 'ON_TRACK';
+      status = "ON_TRACK";
     } else {
-      status = 'UNDER_BUDGET';
+      status = "UNDER_BUDGET";
     }
 
     return {
       categoryId: budget.categoryId,
-      categoryName: budget.category?.name || 'Unknown Category',
+      categoryName: budget.category?.name || "Unknown Category",
       budgeted,
       actual,
       remaining,
@@ -245,24 +247,28 @@ export async function getBudgetAnalysis(
  * Generate AI-ready financial insights
  */
 export async function generateFinancialInsights(
-  userId: number
+  userId: number,
 ): Promise<FinancialInsights> {
   const trends = await getSpendingTrends(userId, 6);
   const budgetAnalysis = await getBudgetAnalysis(userId);
 
   // Calculate average monthly spending
-  const averageMonthlySpending = trends.length > 0
-    ? trends.reduce((sum, trend) => sum + trend.expenses, 0) / trends.length
-    : 0;
+  const averageMonthlySpending =
+    trends.length > 0
+      ? trends.reduce((sum, trend) => sum + trend.expenses, 0) / trends.length
+      : 0;
 
   // Calculate spending growth rate (last 3 months vs previous 3 months)
   let spendingGrowthRate = 0;
   if (trends.length >= 6) {
-    const recent3Months = trends.slice(0, 3).reduce((sum, t) => sum + t.expenses, 0) / 3;
-    const previous3Months = trends.slice(3, 6).reduce((sum, t) => sum + t.expenses, 0) / 3;
-    spendingGrowthRate = previous3Months > 0
-      ? ((recent3Months - previous3Months) / previous3Months) * 100
-      : 0;
+    const recent3Months =
+      trends.slice(0, 3).reduce((sum, t) => sum + t.expenses, 0) / 3;
+    const previous3Months =
+      trends.slice(3, 6).reduce((sum, t) => sum + t.expenses, 0) / 3;
+    spendingGrowthRate =
+      previous3Months > 0
+        ? ((recent3Months - previous3Months) / previous3Months) * 100
+        : 0;
   }
 
   // Get top spending categories from most recent month
@@ -272,21 +278,23 @@ export async function generateFinancialInsights(
   const recommendations: string[] = [];
 
   // Budget recommendations
-  const overBudgetCategories = budgetAnalysis.filter(b => b.status === 'OVER_BUDGET');
+  const overBudgetCategories = budgetAnalysis.filter(
+    (b) => b.status === "OVER_BUDGET",
+  );
   if (overBudgetCategories.length > 0) {
     recommendations.push(
-      `You're over budget in ${overBudgetCategories.length} categories. Consider reducing spending in: ${overBudgetCategories.map(c => c.categoryName).join(', ')}`
+      `You're over budget in ${overBudgetCategories.length} categories. Consider reducing spending in: ${overBudgetCategories.map((c) => c.categoryName).join(", ")}`,
     );
   }
 
   // Spending trend recommendations
   if (spendingGrowthRate > 20) {
     recommendations.push(
-      `Your spending has increased by ${spendingGrowthRate.toFixed(1)}% recently. Consider reviewing your expenses.`
+      `Your spending has increased by ${spendingGrowthRate.toFixed(1)}% recently. Consider reviewing your expenses.`,
     );
   } else if (spendingGrowthRate < -10) {
     recommendations.push(
-      `Great job! Your spending has decreased by ${Math.abs(spendingGrowthRate).toFixed(1)}% recently.`
+      `Great job! Your spending has decreased by ${Math.abs(spendingGrowthRate).toFixed(1)}% recently.`,
     );
   }
 
@@ -295,23 +303,26 @@ export async function generateFinancialInsights(
     const topCategory = topSpendingCategories[0];
     if (topCategory.percentage > 50) {
       recommendations.push(
-        `${topCategory.categoryName} accounts for ${topCategory.percentage.toFixed(1)}% of your expenses. Consider optimizing this category.`
+        `${topCategory.categoryName} accounts for ${topCategory.percentage.toFixed(1)}% of your expenses. Consider optimizing this category.`,
       );
     }
   }
 
   // Savings recommendations
-  const avgIncome = trends.reduce((sum, t) => sum + t.income, 0) / trends.length;
-  const avgExpenses = trends.reduce((sum, t) => sum + t.expenses, 0) / trends.length;
-  const savingsRate = avgIncome > 0 ? ((avgIncome - avgExpenses) / avgIncome) * 100 : 0;
+  const avgIncome =
+    trends.reduce((sum, t) => sum + t.income, 0) / trends.length;
+  const avgExpenses =
+    trends.reduce((sum, t) => sum + t.expenses, 0) / trends.length;
+  const savingsRate =
+    avgIncome > 0 ? ((avgIncome - avgExpenses) / avgIncome) * 100 : 0;
 
   if (savingsRate < 20) {
     recommendations.push(
-      `Your savings rate is ${savingsRate.toFixed(1)}%. Consider aiming for at least 20% savings.`
+      `Your savings rate is ${savingsRate.toFixed(1)}%. Consider aiming for at least 20% savings.`,
     );
   } else {
     recommendations.push(
-      `Excellent! Your savings rate is ${savingsRate.toFixed(1)}%. Keep up the good work!`
+      `Excellent! Your savings rate is ${savingsRate.toFixed(1)}%. Keep up the good work!`,
     );
   }
 

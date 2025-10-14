@@ -1,10 +1,7 @@
 import {
   generateFinancialInsights,
-  MonthlySpending,
-  CategorySpending,
-  BudgetAnalysis,
   type FinancialInsights,
-  type SpendingTrend
+  type SpendingTrend,
 } from "./analytics";
 
 export interface AIPrediction {
@@ -15,10 +12,10 @@ export interface AIPrediction {
 }
 
 export interface AISuggestion {
-  type: 'WARNING' | 'TIP' | 'GOAL' | 'INSIGHT';
+  type: "WARNING" | "TIP" | "GOAL" | "INSIGHT";
   title: string;
   description: string;
-  impact: 'HIGH' | 'MEDIUM' | 'LOW';
+  impact: "HIGH" | "MEDIUM" | "LOW";
   actionable: boolean;
   category?: string;
 }
@@ -27,13 +24,13 @@ export interface AIAnalysis {
   spendingPredictions: AIPrediction[];
   personalizedSuggestions: AISuggestion[];
   riskAssessment: {
-    level: 'LOW' | 'MEDIUM' | 'HIGH';
+    level: "LOW" | "MEDIUM" | "HIGH";
     factors: string[];
     recommendations: string[];
   };
   financialHealth: {
     score: number; // 0-100
-    grade: 'A' | 'B' | 'C' | 'D' | 'F';
+    grade: "A" | "B" | "C" | "D" | "F";
     strengths: string[];
     weaknesses: string[];
   };
@@ -51,16 +48,19 @@ export class AIAnalyticsService {
     const insights = await generateFinancialInsights(userId);
 
     // Generate spending predictions based on trends
-    const spendingPredictions = AIAnalyticsService.generateSpendingPredictions(insights);
+    const spendingPredictions =
+      AIAnalyticsService.generateSpendingPredictions(insights);
 
     // Generate personalized suggestions
-    const personalizedSuggestions = AIAnalyticsService.generatePersonalizedSuggestions(insights);
+    const personalizedSuggestions =
+      AIAnalyticsService.generatePersonalizedSuggestions(insights);
 
     // Assess financial risk
     const riskAssessment = AIAnalyticsService.assessFinancialRisk(insights);
 
     // Calculate financial health score
-    const financialHealth = AIAnalyticsService.calculateFinancialHealth(insights);
+    const financialHealth =
+      AIAnalyticsService.calculateFinancialHealth(insights);
 
     return {
       spendingPredictions,
@@ -73,7 +73,9 @@ export class AIAnalyticsService {
   /**
    * Generate spending predictions for next month
    */
-  private static generateSpendingPredictions(insights: FinancialInsights): AIPrediction[] {
+  private static generateSpendingPredictions(
+    insights: FinancialInsights,
+  ): AIPrediction[] {
     const predictions: AIPrediction[] = [];
 
     if (insights.monthlyTrends.length < 2) {
@@ -81,18 +83,21 @@ export class AIAnalyticsService {
     }
 
     // Analyze each top spending category
-    insights.topSpendingCategories.forEach(category => {
+    insights.topSpendingCategories.forEach((category) => {
       const categoryTrends = insights.monthlyTrends
-        .map(trend => {
-          const catData = trend.categories.find(c => c.categoryId === category.categoryId);
+        .map((trend) => {
+          const catData = trend.categories.find(
+            (c) => c.categoryId === category.categoryId,
+          );
           return catData ? catData.amount : 0;
         })
-        .filter(amount => amount > 0);
+        .filter((amount) => amount > 0);
 
       if (categoryTrends.length >= 2) {
         // Simple linear regression for prediction
-        const prediction = AIAnalyticsService.predictNextMonthSpending(categoryTrends);
-        const confidence = Math.min(categoryTrends.length / 6 * 100, 85); // Max 85% confidence
+        const prediction =
+          AIAnalyticsService.predictNextMonthSpending(categoryTrends);
+        const confidence = Math.min((categoryTrends.length / 6) * 100, 85); // Max 85% confidence
 
         predictions.push({
           category: category.categoryName,
@@ -112,13 +117,16 @@ export class AIAnalyticsService {
   private static predictNextMonthSpending(historicalData: number[]): number {
     if (historicalData.length < 2) return historicalData[0] || 0;
 
-    const n = historicalData.length;
+    const _n = historicalData.length;
     const lastValue = historicalData[0];
     const previousValue = historicalData[1];
 
     // Simple trend calculation (weighted average of recent months)
-    const weights = historicalData.map((_, index) => Math.pow(0.9, index));
-    const weightedSum = historicalData.reduce((sum, value, index) => sum + value * weights[index], 0);
+    const weights = historicalData.map((_, index) => 0.9 ** index);
+    const weightedSum = historicalData.reduce(
+      (sum, value, index) => sum + value * weights[index],
+      0,
+    );
     const weightSum = weights.reduce((sum, weight) => sum + weight, 0);
 
     const trend = weightedSum / weightSum;
@@ -133,17 +141,24 @@ export class AIAnalyticsService {
   /**
    * Generate personalized financial suggestions
    */
-  private static generatePersonalizedSuggestions(insights: FinancialInsights): AISuggestion[] {
+  private static generatePersonalizedSuggestions(
+    insights: FinancialInsights,
+  ): AISuggestion[] {
     const suggestions: AISuggestion[] = [];
 
     // Budget-related suggestions
-    const overBudget = insights.budgetPerformance.filter(b => b.status === 'OVER_BUDGET');
+    const overBudget = insights.budgetPerformance.filter(
+      (b) => b.status === "OVER_BUDGET",
+    );
     if (overBudget.length > 0) {
       suggestions.push({
-        type: 'WARNING',
-        title: 'Budget Alert',
-        description: `You're over budget in ${overBudget.length} categories. Consider reviewing your spending in ${overBudget.map(b => b.categoryName).slice(0, 2).join(' and ')}.`,
-        impact: 'HIGH',
+        type: "WARNING",
+        title: "Budget Alert",
+        description: `You're over budget in ${overBudget.length} categories. Consider reviewing your spending in ${overBudget
+          .map((b) => b.categoryName)
+          .slice(0, 2)
+          .join(" and ")}.`,
+        impact: "HIGH",
         actionable: true,
       });
     }
@@ -151,25 +166,30 @@ export class AIAnalyticsService {
     // Spending growth suggestions
     if (insights.spendingGrowthRate > 15) {
       suggestions.push({
-        type: 'WARNING',
-        title: 'Spending Increase Detected',
+        type: "WARNING",
+        title: "Spending Increase Detected",
         description: `Your expenses have increased by ${insights.spendingGrowthRate.toFixed(1)}% recently. Review your recent transactions to identify areas for optimization.`,
-        impact: 'HIGH',
+        impact: "HIGH",
         actionable: true,
       });
     }
 
     // Savings suggestions
-    const avgIncome = insights.monthlyTrends.reduce((sum, t) => sum + t.income, 0) / insights.monthlyTrends.length;
-    const avgExpenses = insights.monthlyTrends.reduce((sum, t) => sum + t.expenses, 0) / insights.monthlyTrends.length;
-    const savingsRate = avgIncome > 0 ? ((avgIncome - avgExpenses) / avgIncome) * 100 : 0;
+    const avgIncome =
+      insights.monthlyTrends.reduce((sum, t) => sum + t.income, 0) /
+      insights.monthlyTrends.length;
+    const avgExpenses =
+      insights.monthlyTrends.reduce((sum, t) => sum + t.expenses, 0) /
+      insights.monthlyTrends.length;
+    const savingsRate =
+      avgIncome > 0 ? ((avgIncome - avgExpenses) / avgIncome) * 100 : 0;
 
     if (savingsRate < 20) {
       suggestions.push({
-        type: 'TIP',
-        title: 'Boost Your Savings',
+        type: "TIP",
+        title: "Boost Your Savings",
         description: `Your current savings rate is ${savingsRate.toFixed(1)}%. Try the 50/30/20 rule: 50% needs, 30% wants, 20% savings.`,
-        impact: 'MEDIUM',
+        impact: "MEDIUM",
         actionable: true,
       });
     }
@@ -179,10 +199,10 @@ export class AIAnalyticsService {
       const topCategory = insights.topSpendingCategories[0];
       if (topCategory.percentage > 40) {
         suggestions.push({
-          type: 'TIP',
-          title: 'Category Optimization',
+          type: "TIP",
+          title: "Category Optimization",
           description: `${topCategory.categoryName} represents ${topCategory.percentage.toFixed(1)}% of your spending. Look for ways to reduce costs in this area.`,
-          impact: 'MEDIUM',
+          impact: "MEDIUM",
           actionable: true,
           category: topCategory.categoryName,
         });
@@ -192,22 +212,25 @@ export class AIAnalyticsService {
     // Goal suggestions
     if (savingsRate >= 20) {
       suggestions.push({
-        type: 'GOAL',
-        title: 'Emergency Fund Goal',
-        description: 'Great savings rate! Consider building an emergency fund covering 3-6 months of expenses.',
-        impact: 'MEDIUM',
+        type: "GOAL",
+        title: "Emergency Fund Goal",
+        description:
+          "Great savings rate! Consider building an emergency fund covering 3-6 months of expenses.",
+        impact: "MEDIUM",
         actionable: true,
       });
     }
 
     // Seasonal insights
     const currentMonth = new Date().getMonth();
-    if (currentMonth === 11) { // December
+    if (currentMonth === 11) {
+      // December
       suggestions.push({
-        type: 'INSIGHT',
-        title: 'Year-End Planning',
-        description: 'December is here! Review your annual spending and plan for tax optimization strategies.',
-        impact: 'LOW',
+        type: "INSIGHT",
+        title: "Year-End Planning",
+        description:
+          "December is here! Review your annual spending and plan for tax optimization strategies.",
+        impact: "LOW",
         actionable: false,
       });
     }
@@ -224,43 +247,58 @@ export class AIAnalyticsService {
     const recommendations: string[] = [];
 
     // Budget overruns
-    const overBudgetCount = insights.budgetPerformance.filter(b => b.status === 'OVER_BUDGET').length;
+    const overBudgetCount = insights.budgetPerformance.filter(
+      (b) => b.status === "OVER_BUDGET",
+    ).length;
     if (overBudgetCount > 0) {
       riskScore += overBudgetCount * 20;
       factors.push(`${overBudgetCount} categories over budget`);
-      recommendations.push('Review and adjust budget limits for over-budget categories');
+      recommendations.push(
+        "Review and adjust budget limits for over-budget categories",
+      );
     }
 
     // High spending growth
     if (insights.spendingGrowthRate > 25) {
       riskScore += 30;
-      factors.push(`Spending increased by ${insights.spendingGrowthRate.toFixed(1)}%`);
-      recommendations.push('Monitor spending trends and identify unusual expenses');
+      factors.push(
+        `Spending increased by ${insights.spendingGrowthRate.toFixed(1)}%`,
+      );
+      recommendations.push(
+        "Monitor spending trends and identify unusual expenses",
+      );
     }
 
     // Low savings rate
-    const avgIncome = insights.monthlyTrends.reduce((sum, t) => sum + t.income, 0) / insights.monthlyTrends.length;
-    const avgExpenses = insights.monthlyTrends.reduce((sum, t) => sum + t.expenses, 0) / insights.monthlyTrends.length;
-    const savingsRate = avgIncome > 0 ? ((avgIncome - avgExpenses) / avgIncome) * 100 : 0;
+    const avgIncome =
+      insights.monthlyTrends.reduce((sum, t) => sum + t.income, 0) /
+      insights.monthlyTrends.length;
+    const avgExpenses =
+      insights.monthlyTrends.reduce((sum, t) => sum + t.expenses, 0) /
+      insights.monthlyTrends.length;
+    const savingsRate =
+      avgIncome > 0 ? ((avgIncome - avgExpenses) / avgIncome) * 100 : 0;
 
     if (savingsRate < 10) {
       riskScore += 40;
       factors.push(`Very low savings rate (${savingsRate.toFixed(1)}%)`);
-      recommendations.push('Increase savings rate to at least 20% of income');
+      recommendations.push("Increase savings rate to at least 20% of income");
     } else if (savingsRate < 20) {
       riskScore += 20;
       factors.push(`Low savings rate (${savingsRate.toFixed(1)}%)`);
-      recommendations.push('Consider increasing savings to build financial security');
+      recommendations.push(
+        "Consider increasing savings to build financial security",
+      );
     }
 
     // Determine risk level
-    let level: 'LOW' | 'MEDIUM' | 'HIGH';
+    let level: "LOW" | "MEDIUM" | "HIGH";
     if (riskScore >= 60) {
-      level = 'HIGH';
+      level = "HIGH";
     } else if (riskScore >= 30) {
-      level = 'MEDIUM';
+      level = "MEDIUM";
     } else {
-      level = 'LOW';
+      level = "LOW";
     }
 
     return { level, factors, recommendations };
@@ -275,28 +313,39 @@ export class AIAnalyticsService {
     const weaknesses: string[] = [];
 
     // Savings rate (0-30 points)
-    const avgIncome = insights.monthlyTrends.reduce((sum, t) => sum + t.income, 0) / insights.monthlyTrends.length;
-    const avgExpenses = insights.monthlyTrends.reduce((sum, t) => sum + t.expenses, 0) / insights.monthlyTrends.length;
-    const savingsRate = avgIncome > 0 ? ((avgIncome - avgExpenses) / avgIncome) * 100 : 0;
+    const avgIncome =
+      insights.monthlyTrends.reduce((sum, t) => sum + t.income, 0) /
+      insights.monthlyTrends.length;
+    const avgExpenses =
+      insights.monthlyTrends.reduce((sum, t) => sum + t.expenses, 0) /
+      insights.monthlyTrends.length;
+    const savingsRate =
+      avgIncome > 0 ? ((avgIncome - avgExpenses) / avgIncome) * 100 : 0;
 
     if (savingsRate >= 30) {
       score += 30;
-      strengths.push('Excellent savings rate');
+      strengths.push("Excellent savings rate");
     } else if (savingsRate >= 20) {
       score += 25;
-      strengths.push('Good savings rate');
+      strengths.push("Good savings rate");
     } else if (savingsRate >= 10) {
       score += 15;
-      strengths.push('Moderate savings rate');
+      strengths.push("Moderate savings rate");
     } else {
       score += 5;
-      weaknesses.push('Low savings rate');
+      weaknesses.push("Low savings rate");
     }
 
     // Budget performance (0-25 points)
-    const onTrackBudgets = insights.budgetPerformance.filter(b => b.status === 'ON_TRACK').length;
-    const underBudgets = insights.budgetPerformance.filter(b => b.status === 'UNDER_BUDGET').length;
-    const overBudgets = insights.budgetPerformance.filter(b => b.status === 'OVER_BUDGET').length;
+    const onTrackBudgets = insights.budgetPerformance.filter(
+      (b) => b.status === "ON_TRACK",
+    ).length;
+    const underBudgets = insights.budgetPerformance.filter(
+      (b) => b.status === "UNDER_BUDGET",
+    ).length;
+    const overBudgets = insights.budgetPerformance.filter(
+      (b) => b.status === "OVER_BUDGET",
+    ).length;
     const totalBudgets = insights.budgetPerformance.length;
 
     if (totalBudgets > 0) {
@@ -304,49 +353,51 @@ export class AIAnalyticsService {
       score += budgetScore;
 
       if (overBudgets === 0) {
-        strengths.push('All budgets on track');
+        strengths.push("All budgets on track");
       } else if (overBudgets < totalBudgets * 0.3) {
-        strengths.push('Most budgets on track');
+        strengths.push("Most budgets on track");
       } else {
-        weaknesses.push('Multiple budgets exceeded');
+        weaknesses.push("Multiple budgets exceeded");
       }
     }
 
     // Spending stability (0-20 points)
-    const spendingVariation = AIAnalyticsService.calculateSpendingVariation(insights.monthlyTrends);
+    const spendingVariation = AIAnalyticsService.calculateSpendingVariation(
+      insights.monthlyTrends,
+    );
     if (spendingVariation < 0.2) {
       score += 20;
-      strengths.push('Consistent spending patterns');
+      strengths.push("Consistent spending patterns");
     } else if (spendingVariation < 0.4) {
       score += 15;
-      strengths.push('Moderately stable spending');
+      strengths.push("Moderately stable spending");
     } else {
       score += 5;
-      weaknesses.push('Variable spending patterns');
+      weaknesses.push("Variable spending patterns");
     }
 
     // Spending growth (0-15 points)
     if (insights.spendingGrowthRate <= 5) {
       score += 15;
-      strengths.push('Controlled spending growth');
+      strengths.push("Controlled spending growth");
     } else if (insights.spendingGrowthRate <= 15) {
       score += 10;
-      strengths.push('Moderate spending growth');
+      strengths.push("Moderate spending growth");
     } else {
       score += 0;
-      weaknesses.push('High spending growth');
+      weaknesses.push("High spending growth");
     }
 
     // Ensure score is within bounds
     score = Math.max(0, Math.min(100, score));
 
     // Determine grade
-    let grade: 'A' | 'B' | 'C' | 'D' | 'F';
-    if (score >= 90) grade = 'A';
-    else if (score >= 80) grade = 'B';
-    else if (score >= 70) grade = 'C';
-    else if (score >= 60) grade = 'D';
-    else grade = 'F';
+    let grade: "A" | "B" | "C" | "D" | "F";
+    if (score >= 90) grade = "A";
+    else if (score >= 80) grade = "B";
+    else if (score >= 70) grade = "C";
+    else if (score >= 60) grade = "D";
+    else grade = "F";
 
     return { score, grade, strengths, weaknesses };
   }
@@ -357,9 +408,11 @@ export class AIAnalyticsService {
   private static calculateSpendingVariation(trends: SpendingTrend[]): number {
     if (trends.length < 2) return 0;
 
-    const expenses = trends.map(t => t.expenses);
+    const expenses = trends.map((t) => t.expenses);
     const mean = expenses.reduce((sum, val) => sum + val, 0) / expenses.length;
-    const variance = expenses.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / expenses.length;
+    const variance =
+      expenses.reduce((sum, val) => sum + (val - mean) ** 2, 0) /
+      expenses.length;
     const stdDev = Math.sqrt(variance);
 
     return mean > 0 ? stdDev / mean : 0;

@@ -118,14 +118,17 @@ export const goalMembers = pgTable(
     userId: integer("user_id")
       .references(() => users.id)
       .notNull(),
-    contributionAmount: numeric("contribution_amount", { precision: 14, scale: 2 })
+    contributionAmount: numeric("contribution_amount", {
+      precision: 14,
+      scale: 2,
+    })
       .default("0")
       .notNull(),
     joinedAt: timestamp("joined_at").defaultNow().notNull(),
   },
   (t) => ({
     pk: primaryKey({ columns: [t.goalId, t.userId] }),
-  })
+  }),
 );
 
 export const badges = pgTable("badges", {
