@@ -92,6 +92,17 @@ export const budgets = pgTable("budgets", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const passwordResets = pgTable("password_resets", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .references(() => users.id)
+    .notNull(),
+  token: varchar("token", { length: 255 }).notNull().unique(),
+  expiresAt: timestamp("expires_at").notNull(),
+  usedAt: timestamp("used_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // relations (opsional, untuk eager typed)
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
@@ -99,4 +110,5 @@ export const usersRelations = relations(users, ({ many }) => ({
   debts: many(debts),
   categories: many(categories),
   budgets: many(budgets),
+  passwordResets: many(passwordResets),
 }));

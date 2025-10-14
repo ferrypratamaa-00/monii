@@ -15,6 +15,13 @@
       "when": 1760399201500,
       "tag": "0001_condemned_pride",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1760400863569,
+      "tag": "0002_lucky_colossus",
+      "breakpoints": true
     }
   ]
 }

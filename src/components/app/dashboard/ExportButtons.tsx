@@ -1,6 +1,6 @@
 "use client";
 
-import { Download } from "lucide-react";
+import { Database, Download } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -32,8 +32,33 @@ export function ExportButtons() {
     }
   };
 
+  const handleBackup = async () => {
+    setIsExporting("backup");
+    try {
+      const response = await fetch("/api/backup");
+      if (!response.ok) {
+        throw new Error("Backup failed");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `kantong-backup-${new Date().toISOString().split("T")[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("Backup error:", error);
+      alert("Failed to backup data");
+    } finally {
+      setIsExporting(null);
+    }
+  };
+
   return (
-    <div className="flex gap-2">
+    <div className="flex flex-wrap gap-2">
       <Button
         variant="outline"
         onClick={() => handleExport("transactions")}
@@ -51,6 +76,14 @@ export function ExportButtons() {
       >
         <Download className="mr-2 h-4 w-4" />
         {isExporting === "budgets" ? "Exporting..." : "Export Budgets"}
+      </Button>
+      <Button
+        variant="outline"
+        onClick={handleBackup}
+        disabled={isExporting !== null}
+      >
+        <Database className="mr-2 h-4 w-4" />
+        {isExporting === "backup" ? "Backing up..." : "Backup Data"}
       </Button>
     </div>
   );
