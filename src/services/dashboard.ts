@@ -1,6 +1,6 @@
 import { eq, sql, sum } from "drizzle-orm";
 import { db } from "@/db";
-import { transactions } from "@/db/schema";
+import { accounts, categories, transactions } from "@/db/schema";
 
 export async function getTotalBalance(userId: number) {
   const result = await db
@@ -14,28 +14,49 @@ export async function getTotalBalance(userId: number) {
 export async function getMonthlySummary(userId: number) {
   const currentMonth = sql`date_trunc('month', now())`;
 
-  const incomeResult = await db
+  const [incomeResult] = await db
     .select({ total: sum(transactions.amount) })
     .from(transactions)
     .where(
       sql`${transactions.userId} = ${userId} AND ${transactions.type} = 'INCOME' AND date_trunc('month', ${transactions.date}) = ${currentMonth}`,
     );
 
-  const expenseResult = await db
+  const [expenseResult] = await db
     .select({ total: sum(transactions.amount) })
     .from(transactions)
     .where(
       sql`${transactions.userId} = ${userId} AND ${transactions.type} = 'EXPENSE' AND date_trunc('month', ${transactions.date}) = ${currentMonth}`,
     );
 
-  const income = incomeResult[0]?.total
-    ? Math.abs(parseFloat(incomeResult[0].total))
+  const income = incomeResult?.total
+    ? Math.abs(parseFloat(incomeResult.total))
     : 0;
-  const expense = expenseResult[0]?.total
-    ? Math.abs(parseFloat(expenseResult[0].total))
+  const expense = expenseResult?.total
+    ? Math.abs(parseFloat(expenseResult.total))
     : 0;
 
   return { income, expense };
+}
+
+export async function getMonthlyExpenseByCategory(userId: number) {
+  const currentMonth = sql`date_trunc('month', now())`;
+
+  const result = await db
+    .select({
+      categoryName: categories.name,
+      total: sum(transactions.amount),
+    })
+    .from(transactions)
+    .innerJoin(categories, eq(transactions.categoryId, categories.id))
+    .where(
+      sql`${transactions.userId} = ${userId} AND ${transactions.type} = 'EXPENSE' AND date_trunc('month', ${transactions.date}) = ${currentMonth}`,
+    )
+    .groupBy(categories.name);
+
+  return result.map((row) => ({
+    name: row.categoryName,
+    value: Math.abs(parseFloat(row.total || "0")),
+  }));
 }
 
 export async function getMonthlyTrendData(
@@ -48,7 +69,7 @@ export async function getMonthlyTrendData(
     const monthStart = sql`date_trunc('month', now() - interval '${i} months')`;
     const monthEnd = sql`date_trunc('month', now() - interval '${i - 1} months')`;
 
-    const [incomeResult] = await db
+    const incomeResult = await db
       .select({
         month: sql<string>`to_char(${monthStart}, 'YYYY-MM')`,
         income: sum(transactions.amount),
@@ -58,7 +79,7 @@ export async function getMonthlyTrendData(
         sql`${transactions.userId} = ${userId} AND ${transactions.type} = 'INCOME' AND ${transactions.date} >= ${monthStart} AND ${transactions.date} < ${monthEnd}`,
       );
 
-    const [expenseResult] = await db
+    const expenseResult = await db
       .select({
         month: sql<string>`to_char(${monthStart}, 'YYYY-MM')`,
         expense: sum(transactions.amount),
@@ -70,11 +91,11 @@ export async function getMonthlyTrendData(
 
     results.push({
       month:
-        incomeResult?.month ||
-        expenseResult?.month ||
+        incomeResult[0]?.month ||
+        expenseResult[0]?.month ||
         `2024-${String(i + 1).padStart(2, "0")}`,
-      income: Math.abs(parseFloat(incomeResult?.income || "0")),
-      expense: Math.abs(parseFloat(expenseResult?.expense || "0")),
+      income: Math.abs(parseFloat(incomeResult[0]?.income || "0")),
+      expense: Math.abs(parseFloat(expenseResult[0]?.expense || "0")),
     });
   }
 

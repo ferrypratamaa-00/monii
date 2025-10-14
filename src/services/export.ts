@@ -7,7 +7,17 @@ export async function generateTransactionCSV(
   startDate?: Date,
   endDate?: Date,
 ) {
-  let query = db
+  const whereConditions = [eq(transactions.userId, userId)];
+
+  if (startDate) {
+    whereConditions.push(sql`${transactions.date} >= ${startDate}`);
+  }
+
+  if (endDate) {
+    whereConditions.push(sql`${transactions.date} <= ${endDate}`);
+  }
+
+  const result = await db
     .select({
       date: transactions.date,
       type: transactions.type,
@@ -17,17 +27,8 @@ export async function generateTransactionCSV(
     })
     .from(transactions)
     .innerJoin(categories, eq(transactions.categoryId, categories.id))
-    .where(eq(transactions.userId, userId));
-
-  if (startDate) {
-    query = query.where(sql`${transactions.date} >= ${startDate}`);
-  }
-
-  if (endDate) {
-    query = query.where(sql`${transactions.date} <= ${endDate}`);
-  }
-
-  const result = await query.orderBy(transactions.date);
+    .where(sql.join(whereConditions, sql` AND `))
+    .orderBy(transactions.date);
 
   // Convert to CSV format
   const headers = ["Date", "Type", "Amount", "Description", "Category"];
