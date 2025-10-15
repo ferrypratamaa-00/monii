@@ -17,6 +17,9 @@ export interface AuditLogData {
 
 export class AuditService {
   static async logEvent(data: AuditLogData): Promise<void> {
+    // Only log on server side
+    if (typeof window !== "undefined") return;
+
     try {
       await db.insert(auditLogs).values({
         userId: data.userId,
@@ -97,6 +100,8 @@ export class AuditService {
     limit: number = 100,
     offset: number = 0,
   ): Promise<any[]> {
+    if (typeof window !== "undefined") return [];
+
     const conditions = [];
 
     if (userId) {
@@ -119,6 +124,8 @@ export class AuditService {
   }
 
   static async getRecentSecurityEvents(hours: number = 24): Promise<any[]> {
+    if (typeof window !== "undefined") return [];
+
     const since = new Date(Date.now() - hours * 60 * 60 * 1000);
 
     return await db

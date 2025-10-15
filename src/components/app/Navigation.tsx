@@ -12,7 +12,6 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import LanguageSwitcher from "../LanguageSwitcher";
 import NotificationBell from "../NotificationBell";
 import ThemeToggle from "../ThemeToggle";
 
@@ -68,7 +67,6 @@ export default function Navigation() {
             role="toolbar"
             aria-label="User actions"
           >
-            <LanguageSwitcher />
             <ThemeToggle />
             <NotificationBell />
           </div>

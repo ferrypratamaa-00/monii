@@ -1,38 +1,23 @@
-"use client";
-
-import { useQuery } from "@tanstack/react-query";
+import { getCurrentUser } from "@/app/actions/auth";
+import { getMonthlyExpenseByCategory, getMonthlySummary, getMonthlyTrendData, getTotalBalance } from "@/services/dashboard";
 import { AISuggestionsPanel } from "@/components/app/dashboard/AISuggestionsPanel";
 import { ExpensePieChart } from "@/components/app/dashboard/ExpensePieChart";
 import { ExportButtons } from "@/components/app/dashboard/ExportButtons";
 import { TrendChart } from "@/components/app/dashboard/TrendChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
-import {
-  getMonthlyExpenseByCategory,
-  getMonthlySummary,
-  getTotalBalance,
-} from "@/services/dashboard";
 
-export default function DashboardPage() {
-  const { data: user } = useCurrentUser();
+export default async function DashboardPage() {
+  const userId = await getCurrentUser();
+  if (!userId) {
+    return <div>Not authenticated</div>;
+  }
 
-  const { data: totalBalance } = useQuery({
-    queryKey: ["totalBalance", user?.userId],
-    queryFn: () => getTotalBalance(user?.userId),
-    enabled: !!user,
-  });
-
-  const { data: monthlySummary } = useQuery({
-    queryKey: ["monthlySummary", user?.userId],
-    queryFn: () => getMonthlySummary(user?.userId),
-    enabled: !!user,
-  });
-
-  const { data: expenseByCategory } = useQuery({
-    queryKey: ["expenseByCategory", user?.userId],
-    queryFn: () => getMonthlyExpenseByCategory(user?.userId),
-    enabled: !!user,
-  });
+  const [totalBalance, monthlySummary, expenseByCategory, trendData] = await Promise.all([
+    getTotalBalance(userId),
+    getMonthlySummary(userId),
+    getMonthlyExpenseByCategory(userId),
+    getMonthlyTrendData(userId),
+  ]);
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -45,7 +30,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold">
-              Rp {totalBalance?.toLocaleString() || 0}
+              Rp {totalBalance.toLocaleString()}
             </p>
           </CardContent>
         </Card>
@@ -56,7 +41,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-green-600">
-              Rp {monthlySummary?.income.toLocaleString() || 0}
+              Rp {monthlySummary.income.toLocaleString()}
             </p>
           </CardContent>
         </Card>
@@ -67,7 +52,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <p className="text-2xl font-bold text-red-600">
-              Rp {monthlySummary?.expense.toLocaleString() || 0}
+              Rp {monthlySummary.expense.toLocaleString()}
             </p>
           </CardContent>
         </Card>
@@ -78,13 +63,13 @@ export default function DashboardPage() {
           <CardTitle>Pengeluaran per Kategori (Bulan Ini)</CardTitle>
         </CardHeader>
         <CardContent>
-          <ExpensePieChart data={expenseByCategory || []} />
+          <ExpensePieChart data={expenseByCategory} />
         </CardContent>
       </Card>
 
-      <TrendChart />
+      <TrendChart data={trendData} />
 
-      <AISuggestionsPanel userId={user?.userId} />
+      <AISuggestionsPanel userId={userId} />
 
       <Card>
         <CardHeader>

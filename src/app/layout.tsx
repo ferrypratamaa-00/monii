@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   description: "Catat keuangan pribadi & keluarga, simpel dan cerdas.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -22,6 +22,7 @@ export default function RootLayout({
   return (
     <html lang="id">
       <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#0B1220" />
       </head>

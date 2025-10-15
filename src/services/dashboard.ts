@@ -1,4 +1,4 @@
-import { eq, sql, sum } from "drizzle-orm";
+import { and, eq, gte, lt, sql, sum } from "drizzle-orm";
 import { db } from "@/db";
 import { accounts, categories, transactions } from "@/db/schema";
 
@@ -64,36 +64,44 @@ export async function getMonthlyTrendData(
   numMonths: number = 12,
 ) {
   const results = [];
+  const now = new Date();
 
   for (let i = numMonths - 1; i >= 0; i--) {
-    const monthStart = sql`date_trunc('month', now() - interval '${i} months')`;
-    const monthEnd = sql`date_trunc('month', now() - interval '${i - 1} months')`;
+    const monthStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
 
     const incomeResult = await db
       .select({
-        month: sql<string>`to_char(${monthStart}, 'YYYY-MM')`,
         income: sum(transactions.amount),
       })
       .from(transactions)
       .where(
-        sql`${transactions.userId} = ${userId} AND ${transactions.type} = 'INCOME' AND ${transactions.date} >= ${monthStart} AND ${transactions.date} < ${monthEnd}`,
+        and(
+          eq(transactions.userId, userId),
+          eq(transactions.type, "INCOME"),
+          gte(transactions.date, monthStart),
+          lt(transactions.date, monthEnd),
+        ),
       );
 
     const expenseResult = await db
       .select({
-        month: sql<string>`to_char(${monthStart}, 'YYYY-MM')`,
         expense: sum(transactions.amount),
       })
       .from(transactions)
       .where(
-        sql`${transactions.userId} = ${userId} AND ${transactions.type} = 'EXPENSE' AND ${transactions.date} >= ${monthStart} AND ${transactions.date} < ${monthEnd}`,
+        and(
+          eq(transactions.userId, userId),
+          eq(transactions.type, "EXPENSE"),
+          gte(transactions.date, monthStart),
+          lt(transactions.date, monthEnd),
+        ),
       );
 
+    const monthStr = monthStart.toISOString().slice(0, 7); // YYYY-MM
+
     results.push({
-      month:
-        incomeResult[0]?.month ||
-        expenseResult[0]?.month ||
-        `2024-${String(i + 1).padStart(2, "0")}`,
+      month: monthStr,
       income: Math.abs(parseFloat(incomeResult[0]?.income || "0")),
       expense: Math.abs(parseFloat(expenseResult[0]?.expense || "0")),
     });

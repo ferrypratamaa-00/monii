@@ -43,7 +43,7 @@ function getClientIP(request: NextRequest): string {
   return "unknown";
 }
 
-export function middleware(request: NextRequest) {
+export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Skip rate limiting for static assets and API routes that need high throughput

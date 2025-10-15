@@ -3,7 +3,16 @@ import { useQuery } from "@tanstack/react-query";
 import { Bell } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/lib/auth";
-import { getUnreadNotifications } from "@/services/notification";
+
+type Notification = {
+  id: number;
+  userId: number;
+  type: string;
+  title: string;
+  message: string;
+  isRead: boolean;
+  createdAt: string;
+};
 
 export default function NotificationBell() {
   const { user } = useAuth();
@@ -11,7 +20,7 @@ export default function NotificationBell() {
 
   const { data: notifications = [] } = useQuery({
     queryKey: ["notifications", "unread", user?.id],
-    queryFn: () => getUnreadNotifications(parseInt(user?.id || "0", 10)),
+    queryFn: () => fetch("/api/notifications/unread").then((res) => res.json()),
     enabled: !!user?.id,
   });
 
@@ -47,7 +56,7 @@ export default function NotificationBell() {
               </div>
             ) : (
               <div className="max-h-64 overflow-y-auto">
-                {notifications.map((notification) => (
+                {notifications.map((notification: Notification) => (
                   <div
                     key={notification.id}
                     className="px-4 py-3 border-b border-gray-100 hover:bg-gray-50"

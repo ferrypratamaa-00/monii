@@ -7,7 +7,6 @@ import { useState } from "react";
 import type { z } from "zod";
 import AdvancedSearchForm from "@/components/AdvancedSearchForm";
 import type { SearchFiltersSchema } from "@/lib/validations/search";
-import { getFilteredTransactions } from "@/services/transaction";
 import TransactionModal from "./TransactionModal";
 
 type SearchFilters = z.infer<typeof SearchFiltersSchema>;
@@ -29,8 +28,14 @@ export default function TransactionList() {
     queryKey: ["transactions", filters],
     queryFn: async () => {
       if (filters && Object.keys(filters).length > 0) {
-        // Use filtered transactions service
-        return getFilteredTransactions(1, filters); // TODO: Get userId from auth
+        // Use filtered transactions API
+        const response = await fetch("/api/transactions/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(filters),
+        });
+        if (!response.ok) throw new Error("Failed to fetch filtered transactions");
+        return response.json();
       } else {
         // Use regular API for all transactions
         const response = await fetch("/api/transactions");

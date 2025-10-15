@@ -13,7 +13,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import type { categories } from "@/db/schema";
-import { getCategories } from "@/services/category";
 import CategoryForm from "./CategoryForm";
 
 type Category = typeof categories.$inferSelect;
@@ -24,7 +23,11 @@ export function CategoryManager() {
 
   const { data: categories, isLoading } = useQuery({
     queryKey: ["categories"],
-    queryFn: () => getCategories(1), // TODO: get userId
+    queryFn: async () => {
+      const response = await fetch("/api/categories");
+      if (!response.ok) throw new Error("Failed to fetch categories");
+      return response.json();
+    },
   });
 
   const handleAdd = () => {
@@ -75,7 +78,7 @@ export function CategoryManager() {
         </Dialog>
       </div>
       <div className="grid gap-4">
-        {categories?.map((category) => (
+        {categories?.map((category:any) => (
           <Card key={category.id}>
             <CardHeader>
               <CardTitle className="flex justify-between">

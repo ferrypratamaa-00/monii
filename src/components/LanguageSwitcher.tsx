@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { usePathname, useRouter } from "@/i18n";
+import { usePathname, useRouter } from "next-intl/client";
 import { cn } from "@/lib/utils";
 
 const languages = [

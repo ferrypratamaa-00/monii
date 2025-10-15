@@ -1,3 +1,5 @@
+"use client";
+
 import { useMutation } from "@tanstack/react-query";
 import { CheckCircle, Lock } from "lucide-react";
 import Link from "next/link";
