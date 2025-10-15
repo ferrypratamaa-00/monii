@@ -1,7 +1,7 @@
 import { desc, eq } from "drizzle-orm";
 import { getCurrentUser } from "@/app/actions/auth";
 import { db } from "@/db";
-import { transactions } from "@/db/schema";
+import { categories, transactions } from "@/db/schema";
 import {
   getMonthlyExpenseByCategory,
   getMonthlySummary,
@@ -28,20 +28,44 @@ export default async function DashboardPage() {
     getMonthlyExpenseByCategory(userId),
     getMonthlyTrendData(userId),
     db
-      .select()
+      .select({
+        id: transactions.id,
+        type: transactions.type,
+        amount: transactions.amount,
+        description: transactions.description,
+        date: transactions.date,
+        categoryName: categories.name,
+      })
       .from(transactions)
+      .leftJoin(categories, eq(transactions.categoryId, categories.id))
       .where(eq(transactions.userId, userId))
       .orderBy(desc(transactions.date))
       .limit(5),
   ]);
 
+  const transformedExpenseByCategory = expenseByCategory.map((item) => ({
+    category: item.name,
+    total: item.value,
+  }));
+
+  const transformedRecentTransactions = recentTransactions.map(
+    (transaction) => ({
+      id: transaction.id,
+      type: transaction.type,
+      amount: parseFloat(transaction.amount),
+      description: transaction.description,
+      category: transaction.categoryName,
+      date: transaction.date,
+    }),
+  );
+
   return (
     <DashboardClient
       totalBalance={totalBalance}
       monthlySummary={monthlySummary}
-      expenseByCategory={expenseByCategory}
+      expenseByCategory={transformedExpenseByCategory}
       trendData={trendData}
-      recentTransactions={recentTransactions}
+      recentTransactions={transformedRecentTransactions}
       userId={userId}
     />
   );

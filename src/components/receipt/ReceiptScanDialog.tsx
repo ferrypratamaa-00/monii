@@ -8,6 +8,7 @@ import {
   Loader2,
   Receipt,
 } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
 import { createTransactionAction } from "@/app/actions/transaction";
@@ -37,25 +38,19 @@ import { ReceiptScanner } from "./ReceiptScanner";
 interface ReceiptScanDialogProps {
   accounts: Array<{ id: number; name: string; balance: number }>;
   categories: Array<{ id: number; name: string; type: "INCOME" | "EXPENSE" }>;
-  onTransactionCreate?: (transaction: {
-    accountId: number;
-    categoryId: number;
-    amount: number;
-    description: string;
-    date: string;
-    type: "INCOME" | "EXPENSE";
-  }) => void;
 }
 
 export function ReceiptScanDialog({
   accounts,
   categories,
-  onTransactionCreate,
 }: ReceiptScanDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [parsedData, setParsedData] = useState<ParsedReceipt | null>(null);
+  const [cameraPermission, setCameraPermission] = useState<
+    "granted" | "denied" | "prompt" | "unknown"
+  >("unknown");
   const [manualData, setManualData] = useState({
     amount: "",
     description: "",
@@ -175,6 +170,57 @@ export function ReceiptScanDialog({
     });
   };
 
+  const checkCameraPermission = async () => {
+    if (navigator.permissions) {
+      try {
+        const permissionStatus = await navigator.permissions.query({
+          name: "camera",
+        });
+        setCameraPermission(permissionStatus.state);
+      } catch (error: unknown) {
+        const err = error as Error;
+        if (err.message?.includes("Permissions policy")) {
+          setCameraPermission("denied");
+        } else {
+          setCameraPermission("unknown");
+        }
+      }
+    } else {
+      setCameraPermission("unknown");
+    }
+  };
+
+  const requestCameraPermission = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      // biome-ignore lint/suspicious/useIterableCallbackReturn: <>
+      stream.getTracks().forEach((track) => track.stop());
+      setCameraPermission("granted");
+      toast.success("Camera permission granted!");
+    } catch (error: unknown) {
+      const err = error as Error;
+      if (err.name === "NotAllowedError") {
+        setCameraPermission("denied");
+        toast.error(
+          "Camera permission denied. Please enable camera access in your browser settings.",
+        );
+      } else if (err.name === "NotFoundError") {
+        setCameraPermission("denied");
+        toast.error("No camera found on this device.");
+      } else if (err.message?.includes("Permissions policy")) {
+        setCameraPermission("denied");
+        toast.error(
+          "Camera access is blocked by your browser's security policy. Please check your site settings or try a different browser.",
+        );
+      } else {
+        setCameraPermission("denied");
+        toast.error(
+          "Unable to access camera. Please check your device settings.",
+        );
+      }
+    }
+  };
+
   const resetScan = () => {
     setCapturedImage(null);
     setParsedData(null);
@@ -182,7 +228,15 @@ export function ReceiptScanDialog({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        setIsOpen(open);
+        if (open) {
+          checkCameraPermission();
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button className="gap-2">
           <Receipt className="h-4 w-4" />
@@ -202,19 +256,35 @@ export function ReceiptScanDialog({
           {/* Scan Options */}
           {!capturedImage && !showScanner && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card
-                className="cursor-pointer hover:shadow-md transition-shadow"
-                onClick={() => setShowScanner(true)}
-              >
-                <CardContent className="p-6 text-center">
-                  <Camera className="h-12 w-12 mx-auto mb-4 text-blue-500" />
-                  <h3 className="font-semibold mb-2">Scan Receipt</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Use your camera to scan a receipt and automatically extract
-                    transaction details.
-                  </p>
-                </CardContent>
-              </Card>
+              {cameraPermission === "denied" ? (
+                <Card
+                  className="cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={requestCameraPermission}
+                >
+                  <CardContent className="p-6 text-center">
+                    <Camera className="h-12 w-12 mx-auto mb-4 text-orange-500" />
+                    <h3 className="font-semibold mb-2">Enable Camera</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Camera access is required to scan receipts. Click to grant
+                      permission or check your browser settings.
+                    </p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card
+                  className="cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => setShowScanner(true)}
+                >
+                  <CardContent className="p-6 text-center">
+                    <Camera className="h-12 w-12 mx-auto mb-4 text-blue-500" />
+                    <h3 className="font-semibold mb-2">Scan Receipt</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Use your camera to scan a receipt and automatically
+                      extract transaction details.
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
 
               <Card
                 className="cursor-pointer hover:shadow-md transition-shadow"
@@ -262,10 +332,11 @@ export function ReceiptScanDialog({
                 </CardHeader>
                 <CardContent>
                   <div className="relative aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden mb-4">
-                    <img
+                    <Image
                       src={capturedImage}
                       alt="Captured receipt"
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
                     />
                   </div>
                   <Button variant="outline" onClick={resetScan} size="sm">
