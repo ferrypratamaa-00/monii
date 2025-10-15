@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "@/styles/globals.css";
 import "@/styles/themes.css";
-import OfflineIndicator from "@/components/OfflineIndicator";
+import { LanguageProvider } from "@/components/LanguageProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { reportWebVitals } from "@/lib/performance";
 import { QueryClientProvider } from "../components/QueryClientProvider";
@@ -29,8 +29,7 @@ export default async function RootLayout({
       <body className={inter.className}>
         <QueryClientProvider>
           <ThemeProvider>
-            {children}
-            <OfflineIndicator />
+            <LanguageProvider>{children}</LanguageProvider>
           </ThemeProvider>
         </QueryClientProvider>
       </body>

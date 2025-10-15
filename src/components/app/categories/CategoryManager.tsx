@@ -78,7 +78,7 @@ export function CategoryManager() {
         </Dialog>
       </div>
       <div className="grid gap-4">
-        {categories?.map((category:any) => (
+        {categories?.map((category: Category) => (
           <Card key={category.id}>
             <CardHeader>
               <CardTitle className="flex justify-between">

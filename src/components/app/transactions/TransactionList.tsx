@@ -34,7 +34,8 @@ export default function TransactionList() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(filters),
         });
-        if (!response.ok) throw new Error("Failed to fetch filtered transactions");
+        if (!response.ok)
+          throw new Error("Failed to fetch filtered transactions");
         return response.json();
       } else {
         // Use regular API for all transactions
@@ -62,10 +63,6 @@ export default function TransactionList() {
       return response.json();
     },
   });
-
-  const handleSearch = async (newFilters: SearchFilters) => {
-    setFilters(newFilters);
-  };
 
   if (isLoading) {
     return <div className="text-center py-8">Loading transactions...</div>;
@@ -103,7 +100,7 @@ export default function TransactionList() {
         {transactions.map((transaction: Transaction) => (
           <div
             key={transaction.id}
-            className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-inset"
+            className="flex items-center justify-between p-4 border rounded-lg hover:bg-primary/5 focus-within:ring-2 focus-within:ring-primary focus-within:ring-inset"
             role="listitem"
             // biome-ignore lint/a11y/noNoninteractiveTabindex: <>
             tabIndex={0}

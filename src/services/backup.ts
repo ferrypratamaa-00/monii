@@ -1,6 +1,6 @@
+import fs from "node:fs/promises";
+import path from "node:path";
 import { eq } from "drizzle-orm";
-import fs from "fs/promises";
-import path from "path";
 import { db } from "@/db";
 import {
   accounts,
@@ -134,7 +134,7 @@ export class BackupService {
       await fs.writeFile(backupPath, backupContent, "utf-8");
 
       // Calculate checksum
-      const crypto = await import("crypto");
+      const crypto = await import("node:crypto");
       const checksum = crypto.default
         .createHash("sha256")
         .update(backupContent)
@@ -260,7 +260,7 @@ export class BackupService {
         const stats = await fs.stat(filePath);
         const content = await fs.readFile(filePath, "utf-8");
 
-        const crypto = await import("crypto");
+        const crypto = await import("node:crypto");
         const checksum = crypto.default
           .createHash("sha256")
           .update(content)

@@ -1,8 +1,11 @@
 "use client";
+import { WifiOff } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useLanguage } from "./LanguageProvider";
 
 export default function OfflineIndicator() {
   const [isOnline, setIsOnline] = useState(true);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -23,12 +26,13 @@ export default function OfflineIndicator() {
   if (isOnline) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 bg-yellow-500 text-white px-4 py-2 rounded-lg shadow-lg z-50">
-      <div className="flex items-center space-x-2">
-        <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-        <span className="text-sm font-medium">
-          Offline - Beberapa fitur terbatas
-        </span>
+    <div className="fixed bottom-24 md:bottom-6 left-1/2 -translate-x-1/2 bg-destructive text-destructive-foreground px-4 py-3 rounded-xl shadow-2xl z-50 max-w-sm mx-auto">
+      <div className="flex items-center gap-3">
+        <WifiOff className="w-5 h-5 flex-shrink-0" />
+        <div>
+          <p className="text-sm font-semibold">{t("offline.message")}</p>
+          <p className="text-xs opacity-90">{t("offline.description")}</p>
+        </div>
       </div>
     </div>
   );

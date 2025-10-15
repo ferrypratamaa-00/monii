@@ -1,6 +1,5 @@
 import { and, eq, gte } from "drizzle-orm";
 import { db } from "@/db";
-import type { auditEventTypeEnum } from "@/db/schema";
 import { auditLogs } from "@/db/schema";
 
 export type AuditEventType = "auth" | "transaction" | "security" | "system";

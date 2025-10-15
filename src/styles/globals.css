@@ -3,71 +3,99 @@
 
 @custom-variant dark (&:is(.dark *));
 
-:root {
-  /* Custom KANTONG Color Palette */
-  --color-primary-50: #e7f2ef; /* E7F2EF - Lightest */
-  --color-primary-100: #a1c2bd; /* A1C2BD - Light */
-  --color-primary-200: #708993; /* 708993 - Medium */
-  --color-primary-300: #1b3c53; /* 1B3C53 - Dark */
+/* Theme 1: Pink Pastel (Default) */
+:root,
+[data-theme="pink"] {
+  --color-pink-bg: #f5e6e8;
+  --color-lavender: #d4a5c4;
+  --color-light-accent: #f8b4d9;
+  --color-cream: #fff9f5;
+  --color-text-dark: #4a4a4a;
+  --color-text-muted: #9b9b9b;
 
-  /* Background and foreground */
-  --background: var(--color-primary-50);
-  --foreground: var(--color-primary-300);
+  --background: var(--color-pink-bg);
+  --foreground: var(--color-text-dark);
+  --card: var(--color-cream);
+  --card-foreground: var(--color-text-dark);
+  --popover: var(--color-cream);
+  --popover-foreground: var(--color-text-dark);
+  --primary: var(--color-lavender);
+  --primary-foreground: #ffffff;
+  --secondary: #f8d7e8;
+  --secondary-foreground: var(--color-text-dark);
+  --muted: #f0e8ec;
+  --muted-foreground: var(--color-text-muted);
+  --accent: var(--color-light-accent);
+  --accent-foreground: #ffffff;
+  --destructive: #e88b8b;
+  --destructive-foreground: #ffffff;
+  --border: #e0d0d8;
+  --input: var(--color-cream);
+  --ring: var(--color-lavender);
+  --chart-1: #f8b4d9;
+  --chart-2: #d4a5c4;
+  --chart-3: #b88ba8;
+  --chart-4: #e8c5d8;
+  --chart-5: #d8b5c8;
+  --radius: 1rem;
+}
 
-  /* Card and surface colors */
-  --card: oklch(from var(--color-primary-50) l c h / 1);
-  --card-foreground: var(--color-primary-300);
+/* Theme 2: Blue Ocean */
+[data-theme="blue"] {
+  --background: #e8f4f8;
+  --foreground: #2c3e50;
+  --card: #ffffff;
+  --card-foreground: #2c3e50;
+  --popover: #ffffff;
+  --popover-foreground: #2c3e50;
+  --primary: #5dade2;
+  --primary-foreground: #ffffff;
+  --secondary: #aed6f1;
+  --secondary-foreground: #2c3e50;
+  --muted: #d6eaf8;
+  --muted-foreground: #566573;
+  --accent: #3498db;
+  --accent-foreground: #ffffff;
+  --destructive: #e74c3c;
+  --destructive-foreground: #ffffff;
+  --border: #bdc3c7;
+  --input: #ffffff;
+  --ring: #5dade2;
+  --chart-1: #5dade2;
+  --chart-2: #3498db;
+  --chart-3: #2e86c1;
+  --chart-4: #85c1e9;
+  --chart-5: #aed6f1;
+  --radius: 1rem;
+}
 
-  /* Popover */
-  --popover: oklch(from var(--color-primary-50) l c h / 1);
-  --popover-foreground: var(--color-primary-300);
-
-  /* Primary brand colors */
-  --primary: var(--color-primary-300);
-  --primary-foreground: var(--color-primary-50);
-
-  /* Secondary colors */
-  --secondary: var(--color-primary-100);
-  --secondary-foreground: var(--color-primary-300);
-
-  /* Muted colors */
-  --muted: var(--color-primary-50);
-  --muted-foreground: oklch(from var(--color-primary-300) l c h / 0.6);
-
-  /* Accent colors */
-  --accent: var(--color-primary-100);
-  --accent-foreground: var(--color-primary-300);
-
-  /* Destructive */
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: var(--color-primary-50);
-
-  /* Border and input */
-  --border: oklch(from var(--color-primary-200) l c h / 0.2);
-  --input: oklch(from var(--color-primary-50) l c h / 0.8);
-
-  /* Ring */
-  --ring: var(--color-primary-200);
-
-  /* Chart colors using the palette */
-  --chart-1: var(--color-primary-300);
-  --chart-2: var(--color-primary-200);
-  --chart-3: var(--color-primary-100);
-  --chart-4: oklch(from var(--color-primary-300) l c h / 0.8);
-  --chart-5: oklch(from var(--color-primary-200) l c h / 0.6);
-
-  /* Sidebar colors */
-  --sidebar: var(--color-primary-50);
-  --sidebar-foreground: var(--color-primary-300);
-  --sidebar-primary: var(--color-primary-300);
-  --sidebar-primary-foreground: var(--color-primary-50);
-  --sidebar-accent: var(--color-primary-100);
-  --sidebar-accent-foreground: var(--color-primary-300);
-  --sidebar-border: oklch(from var(--color-primary-200) l c h / 0.2);
-  --sidebar-ring: var(--color-primary-200);
-
-  /* Radius */
-  --radius: 0.625rem;
+/* Theme 3: Purple Dream */
+[data-theme="purple"] {
+  --background: #f4ecf7;
+  --foreground: #4a235a;
+  --card: #ffffff;
+  --card-foreground: #4a235a;
+  --popover: #ffffff;
+  --popover-foreground: #4a235a;
+  --primary: #9b59b6;
+  --primary-foreground: #ffffff;
+  --secondary: #d7bde2;
+  --secondary-foreground: #4a235a;
+  --muted: #e8daef;
+  --muted-foreground: #76448a;
+  --accent: #8e44ad;
+  --accent-foreground: #ffffff;
+  --destructive: #c0392b;
+  --destructive-foreground: #ffffff;
+  --border: #c39bd3;
+  --input: #ffffff;
+  --ring: #9b59b6;
+  --chart-1: #9b59b6;
+  --chart-2: #8e44ad;
+  --chart-3: #7d3c98;
+  --chart-4: #bb8fce;
+  --chart-5: #d7bde2;
+  --radius: 1rem;
 }
 
 @theme inline {
@@ -110,13 +138,6 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
@@ -124,37 +145,38 @@ body {
 }
 
 .dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
-  --primary-foreground: oklch(0.208 0.042 265.755);
-  --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: oklch(0.984 0.003 247.858);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.208 0.042 265.755);
-  --sidebar-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.279 0.041 260.031);
-  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.551 0.027 264.364);
+  --background: #2d2433;
+  --foreground: #f5f5f5;
+  --card: #3a3545;
+  --card-foreground: #f5f5f5;
+  --popover: #3a3545;
+  --popover-foreground: #f5f5f5;
+  --primary: #b8a4c9;
+  --primary-foreground: #ffffff;
+  --secondary: #4a4556;
+  --secondary-foreground: #f5f5f5;
+  --muted: #4a4556;
+  --muted-foreground: #b8b8b8;
+  --accent: #b8a4c9;
+  --accent-foreground: #ffffff;
+  --destructive: #e88b8b;
+  --destructive-foreground: #ffffff;
+  --border: #4a4556;
+  --input: #3a3545;
+  --ring: #b8a4c9;
+  --chart-1: #a8d5e2;
+  --chart-2: #93c5d5;
+  --chart-3: #b8a4c9;
+  --chart-4: #d5b8c9;
+  --chart-5: #c8a8b8;
+  --sidebar: #2d2433;
+  --sidebar-foreground: #f5f5f5;
+  --sidebar-primary: #b8a4c9;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #4a4556;
+  --sidebar-accent-foreground: #f5f5f5;
+  --sidebar-border: #4a4556;
+  --sidebar-ring: #b8a4c9;
 }
 
 @layer base {

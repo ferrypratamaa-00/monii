@@ -141,7 +141,7 @@ export default function AdvancedSearchForm({
                   value={filters.categoryId?.toString() || ""}
                   onValueChange={(value) =>
                     updateFilters({
-                      categoryId: value ? parseInt(value) : undefined,
+                      categoryId: value ? parseInt(value, 10) : undefined,
                     })
                   }
                 >
@@ -169,7 +169,7 @@ export default function AdvancedSearchForm({
                   value={filters.accountId?.toString() || ""}
                   onValueChange={(value) =>
                     updateFilters({
-                      accountId: value ? parseInt(value) : undefined,
+                      accountId: value ? parseInt(value, 10) : undefined,
                     })
                   }
                 >

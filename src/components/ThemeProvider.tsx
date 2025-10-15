@@ -10,19 +10,27 @@ import {
 interface ThemeContextType {
   theme: string;
   setTheme: (theme: string) => void;
+  colorMode: "light" | "dark";
+  toggleColorMode: () => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState("light");
+  const [theme, setThemeState] = useState("pink");
+  const [colorMode, setColorMode] = useState<"light" | "dark">("light");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Get saved theme or default to light
-    const savedTheme = localStorage.getItem("theme") || "light";
+    // Get saved theme or default to pink
+    const savedTheme = localStorage.getItem("theme") || "pink";
+    const savedMode =
+      (localStorage.getItem("color-mode") as "light" | "dark") || "light";
+
     setThemeState(savedTheme);
+    setColorMode(savedMode);
     document.documentElement.setAttribute("data-theme", savedTheme);
+    document.documentElement.classList.toggle("dark", savedMode === "dark");
     setMounted(true);
   }, []);
 
@@ -32,13 +40,22 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     document.documentElement.setAttribute("data-theme", newTheme);
   };
 
+  const toggleColorMode = () => {
+    const newMode = colorMode === "light" ? "dark" : "light";
+    setColorMode(newMode);
+    localStorage.setItem("color-mode", newMode);
+    document.documentElement.classList.toggle("dark", newMode === "dark");
+  };
+
   // Prevent hydration mismatch
   if (!mounted) {
     return <div style={{ visibility: "hidden" }}>{children}</div>;
   }
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
+    <ThemeContext.Provider
+      value={{ theme, setTheme, colorMode, toggleColorMode }}
+    >
       {children}
     </ThemeContext.Provider>
   );
