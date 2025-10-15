@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
-import "./styles/themes.css";
+import "@/styles/globals.css";
+import "@/styles/themes.css";
 import OfflineIndicator from "@/components/OfflineIndicator";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { reportWebVitals } from "@/lib/performance";
