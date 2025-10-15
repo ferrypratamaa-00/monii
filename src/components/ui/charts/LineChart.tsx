@@ -42,11 +42,11 @@ export function LineChart({ data, height = 300 }: LineChartProps) {
         />
         <YAxis
           tick={{ fontSize: 12 }}
-          tickFormatter={(value) => `$${value.toLocaleString()}`}
+          tickFormatter={(value) => `Rp ${value.toLocaleString()}`}
         />
         <Tooltip
           formatter={(value: number, name: string) => [
-            `$${value.toLocaleString()}`,
+            `Rp ${value.toLocaleString()}`,
             name === "income" ? "Income" : "Expense",
           ]}
           labelFormatter={(label) => {

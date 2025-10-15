@@ -11,10 +11,10 @@ export function useAuth() {
     // In a real app, you'd validate the session on the client side
     const checkAuth = async () => {
       try {
-        const response = await fetch("/api/auth/check");
+        const response = await fetch("/api/auth/me");
         if (response.ok) {
           const data = await response.json();
-          setUser(data.user);
+          setUser({ id: data.userId });
         }
       } catch (error) {
         console.error("Auth check failed:", error);

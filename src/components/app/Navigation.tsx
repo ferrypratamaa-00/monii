@@ -13,7 +13,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import NotificationBell from "../NotificationBell";
-import ThemeToggle from "../ThemeToggle";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
@@ -67,7 +66,6 @@ export default function Navigation() {
             role="toolbar"
             aria-label="User actions"
           >
-            <ThemeToggle />
             <NotificationBell />
           </div>
         </div>
