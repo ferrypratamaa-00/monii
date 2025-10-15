@@ -1,6 +1,7 @@
 "use server";
 
 import { TransactionSchema } from "@/lib/validations/transaction";
+import { updateFileTransactionId } from "@/services/file";
 import { createTransaction } from "@/services/transaction";
 import { getCurrentUser } from "./auth";
 
@@ -29,7 +30,27 @@ export async function createTransactionAction(formData: FormData) {
   }
 
   try {
-    await createTransaction(result.data);
+    const transaction = await createTransaction(result.data);
+    return { success: true, id: transaction.id };
+  } catch (error: unknown) {
+    const err = error as Error;
+    return { success: false, error: err.message };
+  }
+}
+
+export async function associateFilesWithTransactionAction(
+  transactionId: number,
+  fileIds: number[],
+) {
+  const userId = await getCurrentUser();
+  if (!userId) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  try {
+    for (const fileId of fileIds) {
+      await updateFileTransactionId(fileId, transactionId, userId);
+    }
     return { success: true };
   } catch (error: unknown) {
     const err = error as Error;

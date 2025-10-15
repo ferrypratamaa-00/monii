@@ -186,6 +186,21 @@ export const notifications = pgTable("notifications", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const files = pgTable("files", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .references(() => users.id)
+    .notNull(),
+  transactionId: integer("transaction_id").references(() => transactions.id),
+  filename: varchar("filename", { length: 255 }).notNull(),
+  originalName: varchar("original_name", { length: 255 }).notNull(),
+  mimeType: varchar("mime_type", { length: 100 }).notNull(),
+  sizeBytes: integer("size_bytes").notNull(),
+  filePath: text("file_path").notNull(),
+  fileType: varchar("file_type", { length: 50 }).default("receipt").notNull(), // receipt, avatar
+  uploadedAt: timestamp("uploaded_at").defaultNow().notNull(),
+});
+
 // relations (opsional, untuk eager typed)
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
@@ -199,6 +214,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   passwordResets: many(passwordResets),
   auditLogs: many(auditLogs),
   notifications: many(notifications),
+  files: many(files),
 }));
 
 export const accountsRelations = relations(accounts, ({ one, many }) => ({
@@ -295,5 +311,16 @@ export const notificationsRelations = relations(notifications, ({ one }) => ({
   user: one(users, {
     fields: [notifications.userId],
     references: [users.id],
+  }),
+}));
+
+export const filesRelations = relations(files, ({ one }) => ({
+  user: one(users, {
+    fields: [files.userId],
+    references: [users.id],
+  }),
+  transaction: one(transactions, {
+    fields: [files.transactionId],
+    references: [transactions.id],
   }),
 }));

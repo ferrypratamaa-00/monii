@@ -42,15 +42,19 @@ self.addEventListener("fetch", (event) => {
     "/api/accounts",
     "/api/budgets",
     "/api/user",
-    "/api/export"
+    "/api/export",
   ];
 
-  const isSensitive = sensitiveEndpoints.some(endpoint =>
-    event.request.url.includes(endpoint)
+  const isSensitive = sensitiveEndpoints.some((endpoint) =>
+    event.request.url.includes(endpoint),
   );
 
   // Only cache non-sensitive API requests
-  if (event.request.url.includes("/api/") && event.request.method === "GET" && !isSensitive) {
+  if (
+    event.request.url.includes("/api/") &&
+    event.request.method === "GET" &&
+    !isSensitive
+  ) {
     event.respondWith(
       caches.match(event.request).then((response) => {
         return (
@@ -76,8 +80,10 @@ self.addEventListener("fetch", (event) => {
         if (!isSensitive) {
           return caches.match(event.request);
         }
-        return new Response("Offline - request requires network connection", { status: 503 });
-      })
+        return new Response("Offline - request requires network connection", {
+          status: 503,
+        });
+      }),
     );
   }
 });

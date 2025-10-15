@@ -2,10 +2,17 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Receipt, X } from "lucide-react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
-import { createTransactionAction } from "@/app/actions/transaction";
+import {
+  associateFilesWithTransactionAction,
+  createTransactionAction,
+} from "@/app/actions/transaction";
+import FileUpload from "@/components/FileUpload";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -24,6 +31,14 @@ import {
 } from "@/components/ui/select";
 import { TransactionSchema } from "@/lib/validations/transaction";
 
+interface UploadedFile {
+  id: number;
+  filename: string;
+  originalName: string;
+  filePath: string;
+  fileType: string;
+}
+
 // Placeholder data - in real app, fetch from API
 const accounts = [{ id: 1, name: "Bank" }];
 const categories = [{ id: 1, name: "Food", type: "EXPENSE" }];
@@ -36,6 +51,8 @@ export default function TransactionForm({
   onSuccess,
 }: TransactionFormProps = {}) {
   const queryClient = useQueryClient();
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+
   const form = useForm({
     resolver: zodResolver(TransactionSchema),
     defaultValues: {
@@ -51,10 +68,23 @@ export default function TransactionForm({
 
   const mutation = useMutation({
     mutationFn: createTransactionAction,
-    onSuccess: () => {
+    onSuccess: async (data) => {
+      // Associate uploaded files with the new transaction
+      if (uploadedFiles.length > 0 && data?.id) {
+        try {
+          await associateFilesWithTransactionAction(
+            data.id,
+            uploadedFiles.map((f) => f.id),
+          );
+        } catch (error) {
+          console.error("Failed to associate files:", error);
+        }
+      }
+
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
       form.reset();
+      setUploadedFiles([]);
       onSuccess?.();
     },
     onError: (error) => {
@@ -73,6 +103,14 @@ export default function TransactionForm({
     formData.append("date", data.date.toISOString());
     formData.append("isRecurring", data.isRecurring.toString());
     mutation.mutate(formData);
+  };
+
+  const handleFileUpload = (file: UploadedFile) => {
+    setUploadedFiles((prev) => [...prev, file]);
+  };
+
+  const removeFile = (fileId: number) => {
+    setUploadedFiles((prev) => prev.filter((f) => f.id !== fileId));
   };
 
   return (
@@ -205,6 +243,52 @@ export default function TransactionForm({
         <Button type="submit" disabled={mutation.isPending}>
           Add Transaction
         </Button>
+
+        {/* File Upload Section */}
+        <div className="space-y-4 pt-4 border-t">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <Receipt className="h-5 w-5" />
+            Receipt Upload (Optional)
+          </h3>
+
+          {uploadedFiles.length > 0 && (
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium">Uploaded Files:</h4>
+              {uploadedFiles.map((file) => (
+                <Card key={file.id} className="p-3">
+                  <CardContent className="p-0">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <Receipt className="h-4 w-4 text-green-500" />
+                        <div>
+                          <p className="text-sm font-medium">
+                            {file.originalName}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {file.fileType}
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeFile(file.id)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+
+          <FileUpload
+            onUploadSuccess={handleFileUpload}
+            accept="image/*,.pdf"
+            maxSizeText="Max 5MB (JPEG, PNG, WebP, PDF)"
+          />
+        </div>
       </form>
     </Form>
   );

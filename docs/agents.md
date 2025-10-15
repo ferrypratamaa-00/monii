@@ -868,7 +868,7 @@ src/
 
 * [x] **Zod** di boundaries (actions/API). Tolak input di luar skema.
 * [x] Hindari XSS: encode output, tidak inject HTML dari user.
-* [ ] File upload: validasi MIME/ukuran, scan jika perlu, simpan privat.
+* [x] File upload: validasi MIME/ukuran, scan jika perlu, simpan privat.
 
 **Transport & Headers**
 
