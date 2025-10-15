@@ -5,6 +5,7 @@ import "@/styles/themes.css";
 import OfflineIndicator from "@/components/OfflineIndicator";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { reportWebVitals } from "@/lib/performance";
+import { QueryClientProvider } from "../components/QueryClientProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,10 +26,12 @@ export default function RootLayout({
         <meta name="theme-color" content="#0B1220" />
       </head>
       <body className={inter.className}>
-        <ThemeProvider>
-          {children}
-          <OfflineIndicator />
-        </ThemeProvider>
+        <QueryClientProvider>
+          <ThemeProvider>
+            {children}
+            <OfflineIndicator />
+          </ThemeProvider>
+        </QueryClientProvider>
       </body>
     </html>
   );

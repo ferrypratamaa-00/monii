@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { files } from "@/db/schema";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth-server";
 import { generateUniqueFilename, validateFile } from "@/lib/validations/file";
 
 export async function POST(request: NextRequest) {

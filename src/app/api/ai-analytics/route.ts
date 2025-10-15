@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth-server";
 import { AIAnalyticsService } from "@/services/ai-analytics";
 
 export async function GET() {

@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth-server";
 import { getUserBadges } from "@/services/goal";
 
 export async function GET(_request: NextRequest) {
