@@ -7,6 +7,7 @@ import {
   goals,
   transactions,
 } from "@/db/schema";
+import { createNotification } from "./notification";
 
 export interface CreateGoalData {
   userId: number;
@@ -332,4 +333,69 @@ export async function getUserBadges(userId: number): Promise<
   });
 }
 
-//# sourceMappingURL=goalService.js.map
+/**
+ * Check for goals approaching deadline and create notifications
+ */
+export async function checkGoalDeadlines(): Promise<void> {
+  const now = new Date();
+  const warningDate = new Date();
+  warningDate.setDate(now.getDate() + 7); // 7 days warning
+
+  // Find goals with deadlines within 7 days
+  const approachingGoals = await db.query.goals.findMany({
+    where: and(
+      sql`${goals.deadline} <= ${warningDate}`,
+      sql`${goals.deadline} >= ${now}`,
+      sql`${goals.savedAmount} < ${goals.targetAmount}`
+    ),
+    with: {
+      members: true,
+    },
+  });
+
+  for (const goal of approachingGoals) {
+    const daysLeft = Math.ceil(
+      (new Date(goal.deadline!).getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    // Notify all members of the goal
+    const memberIds = goal.members?.map(m => m.userId) || [goal.userId];
+
+    for (const memberId of memberIds) {
+      await createNotification(
+        memberId,
+        "GOAL_REMINDER",
+        "Goal Deadline Approaching",
+        `Your goal "${goal.name}" is due in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}. Current progress: Rp ${parseFloat(goal.savedAmount).toLocaleString('id-ID')} of Rp ${parseFloat(goal.targetAmount).toLocaleString('id-ID')}.`
+      );
+    }
+  }
+}
+
+/**
+ * Check for completed goals and create achievement notifications
+ */
+export async function checkCompletedGoals(): Promise<void> {
+  const completedGoals = await db.query.goals.findMany({
+    where: sql`${goals.savedAmount} >= ${goals.targetAmount}`,
+    with: {
+      members: true,
+    },
+  });
+
+  for (const goal of completedGoals) {
+    // Check if we already notified about this completion
+    // For now, we'll notify every time (could add a completed_at field to avoid duplicates)
+
+    const memberIds = goal.members?.map(m => m.userId) || [goal.userId];
+
+    for (const memberId of memberIds) {
+      await createNotification(
+        memberId,
+        "GOAL_REMINDER",
+        "Goal Achieved! 🎉",
+        `Congratulations! You've successfully achieved your goal "${goal.name}". Target: Rp ${parseFloat(goal.targetAmount).toLocaleString('id-ID')} - Saved: Rp ${parseFloat(goal.savedAmount).toLocaleString('id-ID')}.`
+      );
+    }
+  }
+}

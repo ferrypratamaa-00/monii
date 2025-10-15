@@ -1,6 +1,6 @@
 import { eq, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { budgets } from "@/db/schema";
+import { budgets, categories } from "@/db/schema";
 
 export type BudgetInput = {
   categoryId: number;
@@ -60,17 +60,51 @@ export async function updateBudgetSpending(
   categoryId: number,
   amount: number,
 ) {
-  // Update currentSpending untuk budget monthly yang aktif
+  // Get current budget before update
+  const result = await db
+    .select()
+    .from(budgets)
+    .where(
+      eq(budgets.userId, userId) &&
+        eq(budgets.categoryId, categoryId) &&
+        eq(budgets.period, "MONTHLY"),
+    )
+    .leftJoin(categories, eq(budgets.categoryId, categories.id))
+    .limit(1);
+
+  if (!result || result.length === 0) return null;
+
+  const currentBudget = result[0].budgets;
+  const category = result[0].categories;
+
+  const currentSpending = parseFloat(currentBudget.currentSpending || "0");
+  const limitAmount = parseFloat(currentBudget.limitAmount);
+  const newSpending = currentSpending + amount;
+
+  // Update currentSpending
   await db
     .update(budgets)
     .set({
-      currentSpending: sql`${budgets.currentSpending} + ${amount}`,
+      currentSpending: newSpending.toString(),
     })
     .where(
       eq(budgets.userId, userId) &&
         eq(budgets.categoryId, categoryId) &&
         eq(budgets.period, "MONTHLY"),
     );
+
+  // Check if budget exceeded
+  if (newSpending > limitAmount) {
+    return {
+      exceeded: true,
+      categoryName: category?.name || "Unknown Category",
+      currentSpending: newSpending,
+      limitAmount,
+      overAmount: newSpending - limitAmount,
+    };
+  }
+
+  return null;
 }
 
 export async function resetMonthlyBudgets(userId: number) {

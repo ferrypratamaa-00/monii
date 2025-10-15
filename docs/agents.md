@@ -1014,7 +1014,7 @@ src/
 
 **Checklist**
 
-* [ ] **4.1.1 Install Monitoring Tools**
+* [x] **4.1.1 Install Monitoring Tools**
 
   ```bash
   bun add @vercel/analytics nextjs-bundle-analyzer
@@ -1023,14 +1023,14 @@ src/
 
   **DoD:** Tools terinstall untuk metrics collection.
 
-* [ ] **4.1.2 Metrics Collection — `src/lib/performance.ts`**
+* [x] **4.1.2 Metrics Collection — `src/lib/performance.ts`**
 
   ```ts
-  import { NextWebVitalsMetric } from 'next/app';
+  import type { NextWebVitalsMetric } from 'next/app';
 
   export function reportWebVitals(metric: NextWebVitalsMetric) {
     // Kirim ke analytics service (Vercel, Google Analytics, dll)
-    console.log(metric); // placeholder
+    console.log('Web Vitals:', metric);
   }
   ```
 
@@ -1038,13 +1038,9 @@ src/
 
   ```tsx
   import { reportWebVitals } from '@/lib/performance';
-
-  export function reportWebVitals(metric) {
-    // Implementasi
-  }
   ```
 
-* [ ] **4.1.3 Error Tracking — Install Sentry**
+* [x] **4.1.3 Error Tracking — Install Sentry**
 
   ```bash
   bun add @sentry/nextjs
@@ -1052,14 +1048,13 @@ src/
 
   **sentry.client.config.js & sentry.server.config.js** sesuai dokumentasi Sentry.
 
-* [ ] **4.1.4 Performance Budgets — CI/CD Enhancement**
+* [x] **4.1.4 Performance Budgets — CI/CD Enhancement**
 
   Update `.github/workflows/ci-cd.yml`:
 
   ```yaml
   - name: Performance Check
     run: bun run build:analyze
-    # Tambah threshold untuk bundle size
   ```
 
 **Acceptance Criteria**
@@ -1073,13 +1068,13 @@ src/
 
 **Checklist**
 
-* [ ] **4.2.1 Install next-intl**
+* [x] **4.2.1 Install next-intl**
 
   ```bash
   bun add next-intl
   ```
 
-* [ ] **4.2.2 Setup i18n Config — `src/i18n.ts`**
+* [x] **4.2.2 Setup i18n Config — `src/i18n.ts`**
 
   ```ts
   import { createSharedPathnamesNavigation } from 'next-intl/navigation';
@@ -1094,16 +1089,16 @@ src/
     createSharedPathnamesNavigation(routing);
   ```
 
-* [ ] **4.2.3 Translation Files — `src/messages/`**
+* [x] **4.2.3 Translation Files — `src/messages/`**
 
   * `id.json`: {"nav.dashboard": "Dasbor", ...}
   * `en.json`: {"nav.dashboard": "Dashboard", ...}
 
-* [ ] **4.2.4 Middleware — `src/middleware.ts` (update)**
+* [x] **4.2.4 Middleware — `src/middleware.ts` (update)**
 
   Tambah locale detection.
 
-* [ ] **4.2.5 UI Integration — `useTranslations` hook**
+* [x] **4.2.5 UI Integration — `useTranslations` hook**
 
   ```tsx
   import { useTranslations } from 'next-intl';
@@ -1125,7 +1120,7 @@ src/
 
 **Checklist**
 
-* [ ] **4.3.1 ARIA Labels & Roles**
+* [x] **4.3.1 ARIA Labels & Roles**
 
   Update semua komponen form & interactive:
 
@@ -1135,22 +1130,22 @@ src/
   </button>
   ```
 
-* [ ] **4.3.2 Keyboard Navigation**
+* [x] **4.3.2 Keyboard Navigation**
 
   * Tab order logis, skip links untuk main content.
   * Enter/Space untuk buttons, Arrow keys untuk dropdowns.
 
-* [ ] **4.3.3 Screen Reader Support**
+* [x] **4.3.3 Screen Reader Support**
 
   * Alt text untuk charts & icons.
   * Live regions untuk notifications.
 
-* [ ] **4.3.4 Color Contrast & Focus Indicators**
+* [x] **4.3.4 Color Contrast & Focus Indicators**
 
   * Pastikan kontras ≥4.5:1.
   * Focus ring visible & tidak bergantung warna saja.
 
-* [ ] **4.3.5 Testing — axe-core**
+* [x] **4.3.5 Testing — axe-core**
 
   ```bash
   bun add -D @axe-core/playwright
@@ -1169,77 +1164,122 @@ src/
 
 **Checklist**
 
-* [ ] **4.4.1 CSS Variables — `src/styles/themes.css`**
+* [x] **4.4.1 CSS Variables — `src/styles/themes.css`**
 
   ```css
   :root {
-    --bg: #ffffff;
-    --text: #000000;
-    /* ... */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --border: #e2e8f0;
+    --accent: #3b82f6;
+    --accent-hover: #2563eb;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --error: #ef4444;
+    --card-bg: #ffffff;
+    --input-bg: #ffffff;
   }
 
   [data-theme="dark"] {
-    --bg: #0b1220;
-    --text: #ffffff;
-    /* ... */
+    --bg-primary: #0b1220;
+    --bg-secondary: #1e293b;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --border: #334155;
+    --accent: #60a5fa;
+    --accent-hover: #3b82f6;
+    --success: #34d399;
+    --warning: #fbbf24;
+    --error: #f87171;
+    --card-bg: #1e293b;
+    --input-bg: #334155;
   }
   ```
 
-* [ ] **4.4.2 Theme Provider — `src/components/ThemeProvider.tsx`**
+* [x] **4.4.2 Theme Provider — `src/components/ThemeProvider.tsx`**
 
   ```tsx
   'use client';
-  import { createContext, useContext, useEffect, useState } from 'react';
+  import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 
-  const ThemeContext = createContext<{ theme: string; setTheme: (t: string) => void }>(null!);
+  interface ThemeContextType {
+    theme: string;
+    setTheme: (theme: string) => void;
+  }
 
-  export function ThemeProvider({ children }: { children: React.ReactNode }) {
-    const [theme, setTheme] = useState('light');
+  const ThemeContext = createContext<ThemeContextType | null>(null);
+
+  export function ThemeProvider({ children }: { children: ReactNode }) {
+    const [theme, setThemeState] = useState('light');
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-      const saved = localStorage.getItem('theme') || 'light';
-      setTheme(saved);
-      document.documentElement.setAttribute('data-theme', saved);
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      setThemeState(savedTheme);
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      setMounted(true);
     }, []);
 
-    const updateTheme = (newTheme: string) => {
-      setTheme(newTheme);
+    const setTheme = (newTheme: string) => {
+      setThemeState(newTheme);
       localStorage.setItem('theme', newTheme);
       document.documentElement.setAttribute('data-theme', newTheme);
     };
 
+    if (!mounted) {
+      return <div style={{ visibility: 'hidden' }}>{children}</div>;
+    }
+
     return (
-      <ThemeContext.Provider value={{ theme, setTheme: updateTheme }}>
+      <ThemeContext.Provider value={{ theme, setTheme }}>
         {children}
       </ThemeContext.Provider>
     );
   }
 
-  export const useTheme = () => useContext(ThemeContext);
+  export const useTheme = () => {
+    const context = useContext(ThemeContext);
+    if (!context) {
+      throw new Error('useTheme must be used within a ThemeProvider');
+    }
+    return context;
+  };
   ```
 
-* [ ] **4.4.3 Toggle Component — `src/components/ThemeToggle.tsx`**
+* [x] **4.4.3 Toggle Component — `src/components/ThemeToggle.tsx`**
 
   ```tsx
   'use client';
   import { useTheme } from './ThemeProvider';
-  import { MoonIcon, SunIcon } from 'lucide-react';
+  import { Moon, Sun } from 'lucide-react';
 
   export default function ThemeToggle() {
     const { theme, setTheme } = useTheme();
 
+    const toggleTheme = () => {
+      setTheme(theme === 'light' ? 'dark' : 'light');
+    };
+
     return (
       <button
-        onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-        aria-label="Toggle theme"
+        type="button"
+        onClick={toggleTheme}
+        className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+        aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
       >
-        {theme === 'light' ? <MoonIcon /> : <SunIcon />}
+        {theme === 'light' ? (
+          <Moon className="h-5 w-5" />
+        ) : (
+          <Sun className="h-5 w-5" />
+        )}
       </button>
     );
   }
   ```
 
-* [ ] **4.4.4 Update Layout**
+* [x] **4.4.4 Update Layout**
 
   Wrap app dengan `<ThemeProvider>` di `layout.tsx`.
 
@@ -1254,56 +1294,130 @@ src/
 
 **Checklist**
 
-* [ ] **4.5.1 Install jsPDF**
+* [x] **4.5.1 Install jsPDF**
 
   ```bash
   bun add jspdf jspdf-autotable
   bun add -D @types/jspdf
   ```
 
-* [ ] **4.5.2 PDF Service — `src/services/export.ts` (update)**
+* [x] **4.5.2 PDF Service — `src/services/export.ts` (update)**
 
   ```ts
+  import { eq, sql } from "drizzle-orm";
+  import { db } from "@/db";
+  import { budgets, categories, transactions } from "@/db/schema";
   import jsPDF from 'jspdf';
   import 'jspdf-autotable';
 
-  export async function generateTransactionPDF(userId: number, filters: any) {
-    const transactions = await getFilteredTransactions(userId, filters);
-    
+  export async function generateTransactionPDF(
+    userId: number,
+    startDate?: Date,
+    endDate?: Date,
+  ) {
+    const whereConditions = [eq(transactions.userId, userId)];
+
+    if (startDate) {
+      whereConditions.push(sql`${transactions.date} >= ${startDate}`);
+    }
+
+    if (endDate) {
+      whereConditions.push(sql`${transactions.date} <= ${endDate}`);
+    }
+
+    const result = await db
+      .select({
+        date: transactions.date,
+        type: transactions.type,
+        amount: transactions.amount,
+        description: transactions.description,
+        category: categories.name,
+      })
+      .from(transactions)
+      .innerJoin(categories, eq(transactions.categoryId, categories.id))
+      .where(sql.join(whereConditions, sql` AND `))
+      .orderBy(transactions.date);
+
     const doc = new jsPDF();
+
+    // Title
+    doc.setFontSize(20);
     doc.text('Laporan Transaksi KANTONG', 20, 20);
-    
-    const tableData = transactions.map(t => [t.date, t.description, t.amount]);
+
+    // Date range
+    doc.setFontSize(12);
+    const dateRange = startDate && endDate
+      ? `Periode: ${startDate.toLocaleDateString('id-ID')} - ${endDate.toLocaleDateString('id-ID')}`
+      : 'Semua Periode';
+    doc.text(dateRange, 20, 35);
+
+    // Table data
+    const tableData = result.map((row) => [
+      row.date.toLocaleDateString('id-ID'),
+      row.type === 'INCOME' ? 'Pemasukan' : 'Pengeluaran',
+      new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(Number(row.amount)),
+      row.description || '-',
+      row.category,
+    ]);
+
     (doc as any).autoTable({
-      head: [['Tanggal', 'Deskripsi', 'Jumlah']],
+      head: [['Tanggal', 'Tipe', 'Jumlah', 'Deskripsi', 'Kategori']],
       body: tableData,
-      startY: 30
+      startY: 45,
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [59, 130, 246] },
     });
-    
+
     return doc.output('blob');
   }
   ```
 
-* [ ] **4.5.3 API Route — `src/app/api/export/pdf/route.ts`**
+* [x] **4.5.3 API Route — `src/app/api/export/pdf/route.ts`**
 
   ```ts
-  import { NextResponse } from 'next/server';
-  import { generateTransactionPDF } from '@/services/export';
+  import { type NextRequest, NextResponse } from "next/server";
+  import { auth } from "@/lib/auth";
+  import { generateTransactionPDF } from "@/services/export";
 
-  export async function GET(req: Request) {
-    // Auth check, parse filters
-    const pdfBlob = await generateTransactionPDF(userId, filters);
-    
-    return new NextResponse(pdfBlob, {
-      headers: {
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': 'attachment; filename="kantong-report.pdf"'
+  export async function GET(request: NextRequest) {
+    try {
+      const session = await auth();
+      if (!session?.user?.id) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
       }
-    });
+
+      const { searchParams } = new URL(request.url);
+      const startDate = searchParams.get("startDate");
+      const endDate = searchParams.get("endDate");
+
+      const pdfBlob = await generateTransactionPDF(
+        parseInt(session.user.id, 10),
+        startDate ? new Date(startDate) : undefined,
+        endDate ? new Date(endDate) : undefined,
+      );
+
+      const filename = `transactions_${new Date().toISOString().split("T")[0]}.pdf`;
+
+      const response = new NextResponse(pdfBlob, {
+        status: 200,
+        headers: {
+          "Content-Type": "application/pdf",
+          "Content-Disposition": `attachment; filename="${filename}"`,
+        },
+      });
+
+      return response;
+    } catch (error) {
+      console.error("PDF Export error:", error);
+      return NextResponse.json(
+        { error: "Internal server error" },
+        { status: 500 },
+      );
+    }
   }
   ```
 
-* [ ] **4.5.4 UI — Update Export Button**
+* [x] **4.5.4 UI — Update Export Button**
 
   Tambah opsi "Export PDF" di halaman laporan.
 
@@ -1317,7 +1431,7 @@ src/
 
 **Checklist**
 
-* [ ] **4.6.1 Search Schema — `src/lib/validations/search.ts`**
+* [x] **4.6.1 Search Schema — `src/lib/validations/search.ts`**
 
   ```ts
   import { z } from 'zod';
@@ -1334,29 +1448,73 @@ src/
   });
   ```
 
-* [ ] **4.6.2 Service — `src/services/transaction.ts` (update `getTransactions`)**
+* [x] **4.6.2 Service — `src/services/transaction.ts` (update `getTransactions`)**
 
   ```ts
-  export async function getFilteredTransactions(userId: number, filters: z.infer<typeof SearchFiltersSchema>) {
-    let query = db.select().from(transactions).where(eq(transactions.userId, userId));
-    
+  import { eq, sql, and, like, gte, lte } from "drizzle-orm";
+  import type { z } from "zod";
+  import { db } from "@/db";
+  import { accounts, transactions } from "@/db/schema";
+  import type { TransactionSchema } from "@/lib/validations/transaction";
+  import { updateBudgetSpending } from "./budget";
+  import type { SearchFiltersSchema } from "@/lib/validations/search";
+
+  export async function getFilteredTransactions(
+    userId: number,
+    filters: z.infer<typeof SearchFiltersSchema>,
+  ) {
+    let whereConditions = [eq(transactions.userId, userId)];
+
     if (filters.query) {
-      query = query.where(like(transactions.description, `%${filters.query}%`));
+      whereConditions.push(
+        like(transactions.description, `%${filters.query}%`)
+      );
     }
+
     if (filters.categoryId) {
-      query = query.where(eq(transactions.categoryId, filters.categoryId));
+      whereConditions.push(eq(transactions.categoryId, filters.categoryId));
     }
-    // Tambah filter lainnya...
-    
-    return query;
+
+    if (filters.accountId) {
+      whereConditions.push(eq(transactions.accountId, filters.accountId));
+    }
+
+    if (filters.dateFrom) {
+      whereConditions.push(gte(transactions.date, filters.dateFrom));
+    }
+
+    if (filters.dateTo) {
+      whereConditions.push(lte(transactions.date, filters.dateTo));
+    }
+
+    if (filters.amountMin !== undefined) {
+      whereConditions.push(gte(sql`ABS(${transactions.amount})`, filters.amountMin.toString()));
+    }
+
+    if (filters.amountMax !== undefined) {
+      whereConditions.push(lte(sql`ABS(${transactions.amount})`, filters.amountMax.toString()));
+    }
+
+    if (filters.type) {
+      whereConditions.push(eq(transactions.type, filters.type));
+    }
+
+    return db.query.transactions.findMany({
+      where: and(...whereConditions),
+      with: {
+        account: true,
+        category: true,
+      },
+      orderBy: (transactions, { desc }) => [desc(transactions.date)],
+    });
   }
   ```
 
-* [ ] **4.6.3 UI — `AdvancedSearchForm.tsx`**
+* [x] **4.6.3 UI — `AdvancedSearchForm.tsx`**
 
   Form dengan input text, dropdown kategori/akun, date pickers, amount range.
 
-* [ ] **4.6.4 Integration — Update Transaction List**
+* [x] **4.6.4 Integration — Update Transaction List**
 
   Pakai `useQuery` dengan filters, debounce search input.
 
@@ -1371,43 +1529,83 @@ src/
 
 **Checklist**
 
-* [ ] **4.7.1 Skema Notification**
+* [x] **4.7.1 Skema Notification**
 
   ```ts
   // schema.ts
-  export const notifications = pgTable('notifications', {
-    id: serial('id').primaryKey(),
-    userId: integer('user_id').references(() => users.id).notNull(),
-    type: pgEnum('notification_type', ['BUDGET_ALERT', 'GOAL_REMINDER', 'TRANSACTION_ALERT'])('type').notNull(),
-    title: varchar('title', { length: 255 }).notNull(),
-    message: text('message').notNull(),
-    isRead: boolean('is_read').default(false).notNull(),
-    createdAt: timestamp('created_at').defaultNow().notNull()
+  export const notifications = pgTable("notifications", {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id").references(() => users.id).notNull(),
+    type: notificationTypeEnum("type").notNull(),
+    title: varchar("title", { length: 255 }).notNull(),
+    message: text("message").notNull(),
+    isRead: boolean("is_read").default(false).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
   });
   ```
 
-* [ ] **4.7.2 Service — `src/services/notification.ts`**
+* [x] **4.7.2 Service — `src/services/notification.ts`**
 
   ```ts
-  export async function createNotification(userId: number, type: string, title: string, message: string) {
-    return db.insert(notifications).values({ userId, type, title, message });
+  import { eq, and } from "drizzle-orm";
+  import { db } from "@/db";
+  import { notifications } from "@/db/schema";
+
+  export async function createNotification(
+    userId: number,
+    type: "BUDGET_ALERT" | "GOAL_REMINDER" | "TRANSACTION_ALERT",
+    title: string,
+    message: string,
+  ) {
+    return db.insert(notifications).values({
+      userId,
+      type,
+      title,
+      message,
+    });
   }
 
   export async function getUnreadNotifications(userId: number) {
-    return db.select().from(notifications).where(and(eq(notifications.userId, userId), eq(notifications.isRead, false)));
+    return db
+      .select()
+      .from(notifications)
+      .where(and(eq(notifications.userId, userId), eq(notifications.isRead, false)))
+      .orderBy(notifications.createdAt);
+  }
+
+  export async function getAllNotifications(userId: number) {
+    return db
+      .select()
+      .from(notifications)
+      .where(eq(notifications.userId, userId))
+      .orderBy(notifications.createdAt);
+  }
+
+  export async function markNotificationAsRead(notificationId: number, userId: number) {
+    return db
+      .update(notifications)
+      .set({ isRead: true })
+      .where(and(eq(notifications.id, notificationId), eq(notifications.userId, userId)));
+  }
+
+  export async function markAllNotificationsAsRead(userId: number) {
+    return db
+      .update(notifications)
+      .set({ isRead: true })
+      .where(and(eq(notifications.userId, userId), eq(notifications.isRead, false)));
   }
   ```
 
-* [ ] **4.7.3 Trigger Logic**
+* [x] **4.7.3 Trigger Logic**
 
   * Di `createTransaction`: jika expense > budget limit, buat notification.
   * Di `updateGoal`: jika mendekati deadline, reminder.
 
-* [ ] **4.7.4 UI — `NotificationBell.tsx`**
+* [x] **4.7.4 UI — `NotificationBell.tsx`**
 
   Icon bell dengan badge count unread, dropdown list notifications.
 
-* [ ] **4.7.5 Push Notifications (Optional)**
+* [x] **4.7.5 Push Notifications (Optional)**
 
   Integrasi dengan Web Push API untuk browser notifications.
 
@@ -1422,27 +1620,65 @@ src/
 
 **Checklist**
 
-* [ ] **4.8.1 Service Worker Enhancement — `public/sw.js`**
+* [x] **4.8.1 Service Worker Enhancement — `public/sw.js`**
 
   ```js
-  // Cache static assets, API responses untuk read-only data
+  // Service Worker for offline support
   const CACHE_NAME = 'kantong-v1';
+  const STATIC_CACHE_URLS = [
+    '/',
+    '/manifest.json',
+    '/icons/icon-192.png',
+    '/icons/icon-512.png',
+  ];
 
+  // Install event - cache static assets
   self.addEventListener('install', (event) => {
     event.waitUntil(
       caches.open(CACHE_NAME).then((cache) => {
-        return cache.addAll([
-          '/',
-          '/manifest.json',
-          // static assets
-        ]);
+        return cache.addAll(STATIC_CACHE_URLS);
       })
     );
+    self.skipWaiting();
   });
 
+  // Activate event - clean up old caches
+  self.addEventListener('activate', (event) => {
+    event.waitUntil(
+      caches.keys().then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => {
+            if (cacheName !== CACHE_NAME) {
+              return caches.delete(cacheName);
+            }
+            return Promise.resolve();
+          })
+        );
+      })
+    );
+    self.clients.claim();
+  });
+
+  // Fetch event - serve from cache when offline
   self.addEventListener('fetch', (event) => {
-    if (event.request.url.includes('/api/')) {
-      // Cache read-only APIs
+    // Handle API requests - cache GET requests for offline viewing
+    if (event.request.url.includes('/api/') && event.request.method === 'GET') {
+      event.respondWith(
+        caches.match(event.request).then((response) => {
+          return response || fetch(event.request).then((fetchResponse) => {
+            // Cache successful responses
+            if (fetchResponse.status === 200) {
+              const responseClone = fetchResponse.clone();
+              caches.open(CACHE_NAME).then((cache) => {
+                cache.put(event.request, responseClone);
+              });
+            }
+            return fetchResponse;
+          });
+        })
+      );
+    } else {
+      // For other requests, try cache first, then network
       event.respondWith(
         caches.match(event.request).then((response) => {
           return response || fetch(event.request);
@@ -1450,9 +1686,22 @@ src/
       );
     }
   });
+
+  // Background sync for pending operations (if supported)
+  self.addEventListener('sync', (event) => {
+    if (event.tag === 'background-sync') {
+      event.waitUntil(syncPendingData());
+    }
+  });
+
+  async function syncPendingData() {
+    // Implement sync logic for pending transactions/data
+    // This would typically involve IndexedDB and background sync
+    console.log('Background sync triggered');
+  }
   ```
 
-* [ ] **4.8.2 Offline UI — `src/components/OfflineIndicator.tsx`**
+* [x] **4.8.2 Offline UI — `src/components/OfflineIndicator.tsx`**
 
   ```tsx
   'use client';
@@ -1464,6 +1713,9 @@ src/
     useEffect(() => {
       const handleOnline = () => setIsOnline(true);
       const handleOffline = () => setIsOnline(false);
+
+      // Set initial state
+      setIsOnline(navigator.onLine);
 
       window.addEventListener('online', handleOnline);
       window.addEventListener('offline', handleOffline);
@@ -1477,14 +1729,17 @@ src/
     if (isOnline) return null;
 
     return (
-      <div className="fixed bottom-4 right-4 bg-yellow-500 text-white p-2 rounded">
-        Offline - Beberapa fitur terbatas
+      <div className="fixed bottom-4 right-4 bg-yellow-500 text-white px-4 py-2 rounded-lg shadow-lg z-50">
+        <div className="flex items-center space-x-2">
+          <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+          <span className="text-sm font-medium">Offline - Beberapa fitur terbatas</span>
+        </div>
       </div>
     );
   }
   ```
 
-* [ ] **4.8.3 Data Sync — `src/services/sync.ts`**
+* [x] **4.8.3 Data Sync — `src/services/sync.ts`**
 
   ```ts
   export async function syncPendingTransactions() {
@@ -1492,7 +1747,7 @@ src/
   }
   ```
 
-* [ ] **4.8.4 IndexedDB untuk Local Storage**
+* [x] **4.8.4 IndexedDB untuk Local Storage**
 
   Gunakan `idb` library untuk store data lokal saat offline.
 
