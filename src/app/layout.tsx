@@ -1,16 +1,16 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import './globals.css';
-import './styles/themes.css';
-import { reportWebVitals } from '@/lib/performance';
-import { ThemeProvider } from '@/components/ThemeProvider';
-import OfflineIndicator from '@/components/OfflineIndicator';
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import "./styles/themes.css";
+import OfflineIndicator from "@/components/OfflineIndicator";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { reportWebVitals } from "@/lib/performance";
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'KANTONG - Personal Finance Manager',
-  description: 'Catat keuangan pribadi & keluarga, simpel dan cerdas.',
+  title: "KANTONG - Personal Finance Manager",
+  description: "Catat keuangan pribadi & keluarga, simpel dan cerdas.",
 };
 
 export default function RootLayout({

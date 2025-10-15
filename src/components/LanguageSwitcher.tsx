@@ -1,14 +1,19 @@
-'use client';
-import { useLocale } from 'next-intl';
-import { useRouter, usePathname } from '@/i18n';
-import { Languages } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { cn } from '@/lib/utils';
+"use client";
+import { Languages } from "lucide-react";
+import { useLocale } from "next-intl";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { usePathname, useRouter } from "@/i18n";
+import { cn } from "@/lib/utils";
 
 const languages = [
-  { code: 'id', name: 'Bahasa Indonesia', flag: '🇮🇩' },
-  { code: 'en', name: 'English', flag: '🇺🇸' },
+  { code: "id", name: "Bahasa Indonesia", flag: "🇮🇩" },
+  { code: "en", name: "English", flag: "🇺🇸" },
 ];
 
 export default function LanguageSwitcher() {
@@ -20,7 +25,7 @@ export default function LanguageSwitcher() {
     router.replace(pathname, { locale: newLocale });
   };
 
-  const currentLanguage = languages.find(lang => lang.code === locale);
+  const currentLanguage = languages.find((lang) => lang.code === locale);
 
   return (
     <DropdownMenu>
@@ -36,10 +41,7 @@ export default function LanguageSwitcher() {
           <DropdownMenuItem
             key={language.code}
             onClick={() => handleLanguageChange(language.code)}
-            className={cn(
-              "gap-2",
-              locale === language.code && "bg-accent"
-            )}
+            className={cn("gap-2", locale === language.code && "bg-accent")}
           >
             <span>{language.flag}</span>
             <span>{language.name}</span>

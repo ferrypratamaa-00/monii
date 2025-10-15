@@ -1,48 +1,66 @@
-'use client';
-import { useState } from 'react';
-import { Download, FileText, File } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
+"use client";
+import { format } from "date-fns";
+import { Download, File, FileText } from "lucide-react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 export default function ReportsPage() {
   const [dateRange, setDateRange] = useState<{
     from?: Date;
     to?: Date;
   }>({});
-  const [exportFormat, setExportFormat] = useState<'csv' | 'pdf'>('csv');
+  const [exportFormat, setExportFormat] = useState<"csv" | "pdf">("csv");
   const [isExporting, setIsExporting] = useState(false);
 
   const handleExport = async () => {
     setIsExporting(true);
     try {
       const params = new URLSearchParams();
-      if (dateRange.from) params.append('startDate', dateRange.from.toISOString());
-      if (dateRange.to) params.append('endDate', dateRange.to.toISOString());
+      if (dateRange.from)
+        params.append("startDate", dateRange.from.toISOString());
+      if (dateRange.to) params.append("endDate", dateRange.to.toISOString());
 
-      const endpoint = exportFormat === 'pdf'
-        ? `/api/export/pdf?${params.toString()}`
-        : `/api/export?${params.toString()}`;
+      const endpoint =
+        exportFormat === "pdf"
+          ? `/api/export/pdf?${params.toString()}`
+          : `/api/export?${params.toString()}`;
 
       const response = await fetch(endpoint);
-      if (!response.ok) throw new Error('Export failed');
+      if (!response.ok) throw new Error("Export failed");
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
-      a.download = `transactions_${format(new Date(), 'yyyy-MM-dd')}.${exportFormat}`;
+      a.download = `transactions_${format(new Date(), "yyyy-MM-dd")}.${exportFormat}`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (error) {
-      console.error('Export error:', error);
+      console.error("Export error:", error);
       // TODO: Show error toast
     } finally {
       setIsExporting(false);
@@ -53,7 +71,9 @@ export default function ReportsPage() {
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold" id="reports-heading">Reports</h1>
+          <h1 className="text-3xl font-bold" id="reports-heading">
+            Reports
+          </h1>
           <p className="text-muted-foreground">
             Export your transaction data in various formats
           </p>
@@ -80,22 +100,22 @@ export default function ReportsPage() {
                     variant="outline"
                     className={cn(
                       "w-full justify-start text-left font-normal",
-                      !dateRange.from && "text-muted-foreground"
+                      !dateRange.from && "text-muted-foreground",
                     )}
                     aria-describedby="start-date-desc"
                   >
-                    {dateRange.from ? (
-                      format(dateRange.from, "PPP")
-                    ) : (
-                      "Pick start date"
-                    )}
+                    {dateRange.from
+                      ? format(dateRange.from, "PPP")
+                      : "Pick start date"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
                     selected={dateRange.from}
-                    onSelect={(date: Date | undefined) => setDateRange(prev => ({ ...prev, from: date }))}
+                    onSelect={(date: Date | undefined) =>
+                      setDateRange((prev) => ({ ...prev, from: date }))
+                    }
                     initialFocus
                   />
                 </PopoverContent>
@@ -114,22 +134,22 @@ export default function ReportsPage() {
                     variant="outline"
                     className={cn(
                       "w-full justify-start text-left font-normal",
-                      !dateRange.to && "text-muted-foreground"
+                      !dateRange.to && "text-muted-foreground",
                     )}
                     aria-describedby="end-date-desc"
                   >
-                    {dateRange.to ? (
-                      format(dateRange.to, "PPP")
-                    ) : (
-                      "Pick end date"
-                    )}
+                    {dateRange.to
+                      ? format(dateRange.to, "PPP")
+                      : "Pick end date"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
                     selected={dateRange.to}
-                    onSelect={(date: Date | undefined) => setDateRange(prev => ({ ...prev, to: date }))}
+                    onSelect={(date: Date | undefined) =>
+                      setDateRange((prev) => ({ ...prev, to: date }))
+                    }
                     initialFocus
                   />
                 </PopoverContent>
@@ -143,8 +163,15 @@ export default function ReportsPage() {
           {/* Export Format Selection */}
           <div className="space-y-2">
             <Label htmlFor="export-format">Export Format</Label>
-            <Select value={exportFormat} onValueChange={(value: 'csv' | 'pdf') => setExportFormat(value)}>
-              <SelectTrigger id="export-format" className="w-full md:w-48" aria-describedby="format-desc">
+            <Select
+              value={exportFormat}
+              onValueChange={(value: "csv" | "pdf") => setExportFormat(value)}
+            >
+              <SelectTrigger
+                id="export-format"
+                className="w-full md:w-48"
+                aria-describedby="format-desc"
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -175,7 +202,9 @@ export default function ReportsPage() {
             aria-describedby="export-desc"
           >
             <Download className="h-4 w-4 mr-2" aria-hidden="true" />
-            {isExporting ? 'Exporting...' : `Export as ${exportFormat.toUpperCase()}`}
+            {isExporting
+              ? "Exporting..."
+              : `Export as ${exportFormat.toUpperCase()}`}
           </Button>
           <div id="export-desc" className="sr-only">
             Download your transaction data in the selected format and date range
@@ -187,7 +216,9 @@ export default function ReportsPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Transactions</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Transactions
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">-</div>
@@ -207,7 +238,9 @@ export default function ReportsPage() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Expenses
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">Rp -</div>

@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 export const SearchFiltersSchema = z.object({
   query: z.string().optional(),
@@ -8,5 +8,5 @@ export const SearchFiltersSchema = z.object({
   dateTo: z.coerce.date().optional(),
   amountMin: z.number().optional(),
   amountMax: z.number().optional(),
-  type: z.enum(['INCOME', 'EXPENSE']).optional(),
+  type: z.enum(["INCOME", "EXPENSE"]).optional(),
 });

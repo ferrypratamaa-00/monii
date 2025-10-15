@@ -1,8 +1,8 @@
 import { eq, sql } from "drizzle-orm";
+import jsPDF from "jspdf";
 import { db } from "@/db";
 import { budgets, categories, transactions } from "@/db/schema";
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import "jspdf-autotable";
 
 export async function generateTransactionCSV(
   userId: number,
@@ -81,33 +81,37 @@ export async function generateTransactionPDF(
 
   // Title
   doc.setFontSize(20);
-  doc.text('Laporan Transaksi KANTONG', 20, 20);
+  doc.text("Laporan Transaksi KANTONG", 20, 20);
 
   // Date range
   doc.setFontSize(12);
-  const dateRange = startDate && endDate
-    ? `Periode: ${startDate.toLocaleDateString('id-ID')} - ${endDate.toLocaleDateString('id-ID')}`
-    : 'Semua Periode';
+  const dateRange =
+    startDate && endDate
+      ? `Periode: ${startDate.toLocaleDateString("id-ID")} - ${endDate.toLocaleDateString("id-ID")}`
+      : "Semua Periode";
   doc.text(dateRange, 20, 35);
 
   // Table data
   const tableData = result.map((row) => [
-    row.date.toLocaleDateString('id-ID'),
-    row.type === 'INCOME' ? 'Pemasukan' : 'Pengeluaran',
-    new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(Number(row.amount)),
-    row.description || '-',
+    row.date.toLocaleDateString("id-ID"),
+    row.type === "INCOME" ? "Pemasukan" : "Pengeluaran",
+    new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+    }).format(Number(row.amount)),
+    row.description || "-",
     row.category,
   ]);
 
   (doc as any).autoTable({
-    head: [['Tanggal', 'Tipe', 'Jumlah', 'Deskripsi', 'Kategori']],
+    head: [["Tanggal", "Tipe", "Jumlah", "Deskripsi", "Kategori"]],
     body: tableData,
     startY: 45,
     styles: { fontSize: 8 },
     headStyles: { fillColor: [59, 130, 246] },
   });
 
-  return doc.output('blob');
+  return doc.output("blob");
 }
 
 export async function generateBudgetCSV(userId: number) {

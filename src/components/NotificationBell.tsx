@@ -1,17 +1,17 @@
-'use client';
-import { useQuery } from '@tanstack/react-query';
-import { Bell } from 'lucide-react';
-import { useState } from 'react';
-import { getUnreadNotifications } from '@/services/notification';
-import { useAuth } from '@/lib/auth';
+"use client";
+import { useQuery } from "@tanstack/react-query";
+import { Bell } from "lucide-react";
+import { useState } from "react";
+import { useAuth } from "@/lib/auth";
+import { getUnreadNotifications } from "@/services/notification";
 
 export default function NotificationBell() {
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
 
   const { data: notifications = [] } = useQuery({
-    queryKey: ['notifications', 'unread', user?.id],
-    queryFn: () => getUnreadNotifications(parseInt(user?.id || '0')),
+    queryKey: ["notifications", "unread", user?.id],
+    queryFn: () => getUnreadNotifications(parseInt(user?.id || "0", 10)),
     enabled: !!user?.id,
   });
 
@@ -20,7 +20,7 @@ export default function NotificationBell() {
   return (
     <div className="relative">
       <button
-      type="button"
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
         className="relative p-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
         aria-label={`Notifications (${unreadCount} unread)`}
@@ -28,7 +28,7 @@ export default function NotificationBell() {
         <Bell className="h-6 w-6" />
         {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">
-            {unreadCount > 99 ? '99+' : unreadCount}
+            {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         )}
       </button>
@@ -37,7 +37,9 @@ export default function NotificationBell() {
         <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50">
           <div className="py-1">
             <div className="px-4 py-2 border-b border-gray-200">
-              <h3 className="text-sm font-medium text-gray-900">Notifications</h3>
+              <h3 className="text-sm font-medium text-gray-900">
+                Notifications
+              </h3>
             </div>
             {notifications.length === 0 ? (
               <div className="px-4 py-3 text-sm text-gray-500">
@@ -59,7 +61,9 @@ export default function NotificationBell() {
                           {notification.message}
                         </p>
                         <p className="text-xs text-gray-400 mt-1">
-                          {new Date(notification.createdAt).toLocaleDateString()}
+                          {new Date(
+                            notification.createdAt,
+                          ).toLocaleDateString()}
                         </p>
                       </div>
                     </div>

@@ -1,10 +1,10 @@
-import { eq, sql, and, like, gte, lte } from "drizzle-orm";
+import { and, eq, gte, like, lte, sql } from "drizzle-orm";
 import type { z } from "zod";
 import { db } from "@/db";
 import { accounts, transactions } from "@/db/schema";
+import type { SearchFiltersSchema } from "@/lib/validations/search";
 import type { TransactionSchema } from "@/lib/validations/transaction";
 import { updateBudgetSpending } from "./budget";
-import type { SearchFiltersSchema } from "@/lib/validations/search";
 import { createNotification } from "./notification";
 
 export async function createTransaction(
@@ -39,7 +39,7 @@ export async function createTransaction(
           input.userId,
           "BUDGET_ALERT",
           "Budget Alert",
-          `You've exceeded your budget for ${budgetAlert.categoryName} by Rp ${budgetAlert.overAmount.toLocaleString('id-ID')}. Current spending: Rp ${budgetAlert.currentSpending.toLocaleString('id-ID')} of Rp ${budgetAlert.limitAmount.toLocaleString('id-ID')}.`
+          `You've exceeded your budget for ${budgetAlert.categoryName} by Rp ${budgetAlert.overAmount.toLocaleString("id-ID")}. Current spending: Rp ${budgetAlert.currentSpending.toLocaleString("id-ID")} of Rp ${budgetAlert.limitAmount.toLocaleString("id-ID")}.`,
         );
       }
     }
@@ -66,9 +66,7 @@ export async function getFilteredTransactions(
   const whereConditions = [eq(transactions.userId, userId)];
 
   if (filters.query) {
-    whereConditions.push(
-      like(transactions.description, `%${filters.query}%`)
-    );
+    whereConditions.push(like(transactions.description, `%${filters.query}%`));
   }
 
   if (filters.categoryId) {
@@ -88,11 +86,15 @@ export async function getFilteredTransactions(
   }
 
   if (filters.amountMin !== undefined) {
-    whereConditions.push(gte(sql`ABS(${transactions.amount})`, filters.amountMin.toString()));
+    whereConditions.push(
+      gte(sql`ABS(${transactions.amount})`, filters.amountMin.toString()),
+    );
   }
 
   if (filters.amountMax !== undefined) {
-    whereConditions.push(lte(sql`ABS(${transactions.amount})`, filters.amountMax.toString()));
+    whereConditions.push(
+      lte(sql`ABS(${transactions.amount})`, filters.amountMax.toString()),
+    );
   }
 
   if (filters.type) {

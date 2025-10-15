@@ -12,9 +12,9 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import ThemeToggle from "../ThemeToggle";
-import NotificationBell from "../NotificationBell";
 import LanguageSwitcher from "../LanguageSwitcher";
+import NotificationBell from "../NotificationBell";
+import ThemeToggle from "../ThemeToggle";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
@@ -30,7 +30,10 @@ export default function Navigation() {
   const pathname = usePathname();
 
   return (
-    <nav className="bg-white border-b border-gray-200" aria-label="Main navigation">
+    <nav
+      className="bg-white border-b border-gray-200"
+      aria-label="Main navigation"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex">
@@ -60,7 +63,11 @@ export default function Navigation() {
               })}
             </div>
           </div>
-          <div className="flex items-center space-x-2" role="toolbar" aria-label="User actions">
+          <div
+            className="flex items-center space-x-2"
+            role="toolbar"
+            aria-label="User actions"
+          >
             <LanguageSwitcher />
             <ThemeToggle />
             <NotificationBell />

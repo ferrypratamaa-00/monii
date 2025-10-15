@@ -4,12 +4,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { useState } from "react";
-
-import TransactionModal from "./TransactionModal";
+import type { z } from "zod";
 import AdvancedSearchForm from "@/components/AdvancedSearchForm";
-import { getFilteredTransactions } from "@/services/transaction";
 import type { SearchFiltersSchema } from "@/lib/validations/search";
-import { z } from "zod";
+import { getFilteredTransactions } from "@/services/transaction";
+import TransactionModal from "./TransactionModal";
 
 type SearchFilters = z.infer<typeof SearchFiltersSchema>;
 
@@ -79,7 +78,9 @@ export default function TransactionList() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold" id="transactions-heading">Transactions</h2>
+        <h2 className="text-2xl font-bold" id="transactions-heading">
+          Transactions
+        </h2>
         <TransactionModal />
       </div>
 
@@ -89,7 +90,11 @@ export default function TransactionList() {
         accounts={accounts}
       />
 
-      <div className="space-y-2" role="list" aria-labelledby="transactions-heading">
+      <div
+        className="space-y-2"
+        role="list"
+        aria-labelledby="transactions-heading"
+      >
         {transactions.map((transaction: Transaction) => (
           <div
             key={transaction.id}

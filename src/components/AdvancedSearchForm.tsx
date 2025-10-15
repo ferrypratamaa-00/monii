@@ -1,22 +1,32 @@
-'use client';
-import { useState } from 'react';
-import { Search, Filter, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
-import { z } from 'zod';
-import { SearchFiltersSchema } from '@/lib/validations/search';
+"use client";
+import { format } from "date-fns";
+import { Filter, Search, X } from "lucide-react";
+import { useState } from "react";
+import type { z } from "zod";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { cn } from "@/lib/utils";
+import type { SearchFiltersSchema } from "@/lib/validations/search";
 
 type SearchFilters = z.infer<typeof SearchFiltersSchema>;
 
 interface AdvancedSearchFormProps {
   onFiltersChange: (filters: Partial<SearchFilters>) => void;
-  categories: Array<{ id: number; name: string; type: 'INCOME' | 'EXPENSE' }>;
+  categories: Array<{ id: number; name: string; type: "INCOME" | "EXPENSE" }>;
   accounts: Array<{ id: number; name: string }>;
 }
 
@@ -27,7 +37,7 @@ export default function AdvancedSearchForm({
 }: AdvancedSearchFormProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useState<Partial<SearchFilters>>({
-    query: '',
+    query: "",
     categoryId: undefined,
     accountId: undefined,
     dateFrom: undefined,
@@ -45,7 +55,7 @@ export default function AdvancedSearchForm({
 
   const clearFilters = () => {
     const cleared = {
-      query: '',
+      query: "",
       categoryId: undefined,
       accountId: undefined,
       dateFrom: undefined,
@@ -59,7 +69,7 @@ export default function AdvancedSearchForm({
   };
 
   const hasActiveFilters = Object.values(filters).some(
-    (value) => value !== undefined && value !== '' && value !== null
+    (value) => value !== undefined && value !== "" && value !== null,
   );
 
   return (
@@ -70,14 +80,17 @@ export default function AdvancedSearchForm({
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
             placeholder="Search transactions..."
-            value={filters.query || ''}
+            value={filters.query || ""}
             onChange={(e) => updateFilters({ query: e.target.value })}
             className="pl-10"
           />
         </div>
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
-            <Button variant="outline" className={cn(hasActiveFilters && "border-blue-500")}>
+            <Button
+              variant="outline"
+              className={cn(hasActiveFilters && "border-blue-500")}
+            >
               <Filter className="h-4 w-4 mr-2" />
               Filters
               {hasActiveFilters && (
@@ -103,9 +116,11 @@ export default function AdvancedSearchForm({
               <div className="space-y-2">
                 <Label htmlFor="type">Transaction Type</Label>
                 <Select
-                  value={filters.type || ''}
+                  value={filters.type || ""}
                   onValueChange={(value) =>
-                    updateFilters({ type: value as 'INCOME' | 'EXPENSE' | undefined })
+                    updateFilters({
+                      type: value as "INCOME" | "EXPENSE" | undefined,
+                    })
                   }
                 >
                   <SelectTrigger>
@@ -123,9 +138,11 @@ export default function AdvancedSearchForm({
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
                 <Select
-                  value={filters.categoryId?.toString() || ''}
+                  value={filters.categoryId?.toString() || ""}
                   onValueChange={(value) =>
-                    updateFilters({ categoryId: value ? parseInt(value) : undefined })
+                    updateFilters({
+                      categoryId: value ? parseInt(value) : undefined,
+                    })
                   }
                 >
                   <SelectTrigger>
@@ -134,7 +151,10 @@ export default function AdvancedSearchForm({
                   <SelectContent>
                     <SelectItem value="">All categories</SelectItem>
                     {categories.map((category) => (
-                      <SelectItem key={category.id} value={category.id.toString()}>
+                      <SelectItem
+                        key={category.id}
+                        value={category.id.toString()}
+                      >
                         {category.name}
                       </SelectItem>
                     ))}
@@ -146,9 +166,11 @@ export default function AdvancedSearchForm({
               <div className="space-y-2">
                 <Label htmlFor="account">Account</Label>
                 <Select
-                  value={filters.accountId?.toString() || ''}
+                  value={filters.accountId?.toString() || ""}
                   onValueChange={(value) =>
-                    updateFilters({ accountId: value ? parseInt(value) : undefined })
+                    updateFilters({
+                      accountId: value ? parseInt(value) : undefined,
+                    })
                   }
                 >
                   <SelectTrigger>
@@ -157,7 +179,10 @@ export default function AdvancedSearchForm({
                   <SelectContent>
                     <SelectItem value="">All accounts</SelectItem>
                     {accounts.map((account) => (
-                      <SelectItem key={account.id} value={account.id.toString()}>
+                      <SelectItem
+                        key={account.id}
+                        value={account.id.toString()}
+                      >
                         {account.name}
                       </SelectItem>
                     ))}
@@ -170,56 +195,60 @@ export default function AdvancedSearchForm({
                 <Label>Date Range</Label>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <Label htmlFor="dateFrom" className="text-xs">From</Label>
+                    <Label htmlFor="dateFrom" className="text-xs">
+                      From
+                    </Label>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
                           variant="outline"
                           className={cn(
                             "w-full justify-start text-left font-normal",
-                            !filters.dateFrom && "text-muted-foreground"
+                            !filters.dateFrom && "text-muted-foreground",
                           )}
                         >
-                          {filters.dateFrom ? (
-                            format(filters.dateFrom, "MMM dd, yyyy")
-                          ) : (
-                            "Pick date"
-                          )}
+                          {filters.dateFrom
+                            ? format(filters.dateFrom, "MMM dd, yyyy")
+                            : "Pick date"}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
                           mode="single"
                           selected={filters.dateFrom}
-                          onSelect={(date: Date | undefined) => updateFilters({ dateFrom: date })}
+                          onSelect={(date: Date | undefined) =>
+                            updateFilters({ dateFrom: date })
+                          }
                           initialFocus
                         />
                       </PopoverContent>
                     </Popover>
                   </div>
                   <div>
-                    <Label htmlFor="dateTo" className="text-xs">To</Label>
+                    <Label htmlFor="dateTo" className="text-xs">
+                      To
+                    </Label>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
                           variant="outline"
                           className={cn(
                             "w-full justify-start text-left font-normal",
-                            !filters.dateTo && "text-muted-foreground"
+                            !filters.dateTo && "text-muted-foreground",
                           )}
                         >
-                          {filters.dateTo ? (
-                            format(filters.dateTo, "MMM dd, yyyy")
-                          ) : (
-                            "Pick date"
-                          )}
+                          {filters.dateTo
+                            ? format(filters.dateTo, "MMM dd, yyyy")
+                            : "Pick date"}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
                           mode="single"
                           selected={filters.dateTo}
-                          onSelect={(date: Date | undefined) => updateFilters({ dateTo: date })}
+                          onSelect={(date: Date | undefined) =>
+                            updateFilters({ dateTo: date })
+                          }
                           initialFocus
                         />
                       </PopoverContent>
@@ -233,29 +262,37 @@ export default function AdvancedSearchForm({
                 <Label>Amount Range (Rp)</Label>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <Label htmlFor="amountMin" className="text-xs">Min</Label>
+                    <Label htmlFor="amountMin" className="text-xs">
+                      Min
+                    </Label>
                     <Input
                       id="amountMin"
                       type="number"
                       placeholder="0"
-                      value={filters.amountMin || ''}
+                      value={filters.amountMin || ""}
                       onChange={(e) =>
                         updateFilters({
-                          amountMin: e.target.value ? parseFloat(e.target.value) : undefined,
+                          amountMin: e.target.value
+                            ? parseFloat(e.target.value)
+                            : undefined,
                         })
                       }
                     />
                   </div>
                   <div>
-                    <Label htmlFor="amountMax" className="text-xs">Max</Label>
+                    <Label htmlFor="amountMax" className="text-xs">
+                      Max
+                    </Label>
                     <Input
                       id="amountMax"
                       type="number"
                       placeholder="No limit"
-                      value={filters.amountMax || ''}
+                      value={filters.amountMax || ""}
                       onChange={(e) =>
                         updateFilters({
-                          amountMax: e.target.value ? parseFloat(e.target.value) : undefined,
+                          amountMax: e.target.value
+                            ? parseFloat(e.target.value)
+                            : undefined,
                         })
                       }
                     />

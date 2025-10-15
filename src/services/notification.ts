@@ -1,4 +1,4 @@
-import { eq, and } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { notifications } from "@/db/schema";
 
@@ -20,7 +20,9 @@ export async function getUnreadNotifications(userId: number) {
   return db
     .select()
     .from(notifications)
-    .where(and(eq(notifications.userId, userId), eq(notifications.isRead, false)))
+    .where(
+      and(eq(notifications.userId, userId), eq(notifications.isRead, false)),
+    )
     .orderBy(notifications.createdAt);
 }
 
@@ -32,16 +34,26 @@ export async function getAllNotifications(userId: number) {
     .orderBy(notifications.createdAt);
 }
 
-export async function markNotificationAsRead(notificationId: number, userId: number) {
+export async function markNotificationAsRead(
+  notificationId: number,
+  userId: number,
+) {
   return db
     .update(notifications)
     .set({ isRead: true })
-    .where(and(eq(notifications.id, notificationId), eq(notifications.userId, userId)));
+    .where(
+      and(
+        eq(notifications.id, notificationId),
+        eq(notifications.userId, userId),
+      ),
+    );
 }
 
 export async function markAllNotificationsAsRead(userId: number) {
   return db
     .update(notifications)
     .set({ isRead: true })
-    .where(and(eq(notifications.userId, userId), eq(notifications.isRead, false)));
+    .where(
+      and(eq(notifications.userId, userId), eq(notifications.isRead, false)),
+    );
 }
