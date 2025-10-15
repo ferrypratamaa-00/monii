@@ -36,8 +36,21 @@ self.addEventListener("activate", (event) => {
 
 // Fetch event - serve from cache when offline
 self.addEventListener("fetch", (event) => {
-  // Handle API requests - cache GET requests for offline viewing
-  if (event.request.url.includes("/api/") && event.request.method === "GET") {
+  // Skip caching for sensitive API endpoints
+  const sensitiveEndpoints = [
+    "/api/transactions",
+    "/api/accounts",
+    "/api/budgets",
+    "/api/user",
+    "/api/export"
+  ];
+
+  const isSensitive = sensitiveEndpoints.some(endpoint =>
+    event.request.url.includes(endpoint)
+  );
+
+  // Only cache non-sensitive API requests
+  if (event.request.url.includes("/api/") && event.request.method === "GET" && !isSensitive) {
     event.respondWith(
       caches.match(event.request).then((response) => {
         return (
@@ -56,11 +69,15 @@ self.addEventListener("fetch", (event) => {
       }),
     );
   } else {
-    // For other requests, try cache first, then network
+    // For sensitive requests or other requests, try network first
     event.respondWith(
-      caches.match(event.request).then((response) => {
-        return response || fetch(event.request);
-      }),
+      fetch(event.request).catch(() => {
+        // Fallback to cache only for non-sensitive requests
+        if (!isSensitive) {
+          return caches.match(event.request);
+        }
+        return new Response("Offline - request requires network connection", { status: 503 });
+      })
     );
   }
 });

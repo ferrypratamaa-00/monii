@@ -867,7 +867,7 @@ src/
 **Validasi & Sanitasi**
 
 * [x] **Zod** di boundaries (actions/API). Tolak input di luar skema.
-* [ ] Hindari XSS: encode output, tidak inject HTML dari user.
+* [x] Hindari XSS: encode output, tidak inject HTML dari user.
 * [ ] File upload: validasi MIME/ukuran, scan jika perlu, simpan privat.
 
 **Transport & Headers**
@@ -883,8 +883,8 @@ src/
 
 **PWA & SW**
 
-* [ ] Service Worker tidak meng-cache response sensitif.
-* [ ] Offline UI tidak membeberkan data user jika tidak ter-enkripsi lokal.
+* [x] Service Worker tidak meng-cache response sensitif.
+* [x] Offline UI tidak membeberkan data user jika tidak ter-enkripsi lokal.
 
 **DB & Transaksi**
 
@@ -898,7 +898,7 @@ src/
 
 **Email & Reset**
 
-* [ ] Token reset: acak kriptografis, sekali pakai, kadaluarsa (≤ 30 menit).
+* [x] Token reset: acak kriptografis, sekali pakai, kadaluarsa (≤ 30 menit).
 * [x] Jangan leak apakah email terdaftar (pesan generik).
 
 ---
