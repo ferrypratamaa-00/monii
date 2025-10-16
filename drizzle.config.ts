@@ -9,6 +9,7 @@ export default defineConfig({
       ? { url: "./.data/monii.db" }
       : {
           url: process.env.DATABASE_URL || "", // postgres connection url
+          ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
         },
   strict: true,
   verbose: true,
