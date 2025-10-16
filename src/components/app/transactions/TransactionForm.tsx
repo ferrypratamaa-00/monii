@@ -1,8 +1,9 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Receipt, X } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
@@ -29,7 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { TransactionSchema } from "@/lib/validations/transaction";
+import { TransactionFormSchema } from "@/lib/validations/transaction";
 
 interface UploadedFile {
   id: number;
@@ -38,10 +39,6 @@ interface UploadedFile {
   filePath: string;
   fileType: string;
 }
-
-// Placeholder data - in real app, fetch from API
-const accounts = [{ id: 1, name: "Bank" }];
-const categories = [{ id: 1, name: "Food", type: "EXPENSE" }];
 
 interface TransactionFormProps {
   onSuccess?: () => void;
@@ -53,19 +50,63 @@ export default function TransactionForm({
   const queryClient = useQueryClient();
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
 
+  // Fetch accounts and categories
+  const { data: accounts = [], isLoading: accountsLoading } = useQuery({
+    queryKey: ["accounts"],
+    queryFn: async () => {
+      const response = await fetch("/api/accounts");
+      if (!response.ok) throw new Error("Failed to fetch accounts");
+      return response.json();
+    },
+  });
+
+  const { data: categories = [], isLoading: categoriesLoading } = useQuery({
+    queryKey: ["categories"],
+    queryFn: async () => {
+      const response = await fetch("/api/categories");
+      if (!response.ok) throw new Error("Failed to fetch categories");
+      return response.json();
+    },
+  });
+
   const form = useForm({
-    resolver: zodResolver(TransactionSchema),
+    resolver: zodResolver(TransactionFormSchema),
     defaultValues: {
-      accountId: 0,
+      accountId: undefined as number | undefined,
       categoryId: undefined,
       type: "EXPENSE" as "INCOME" | "EXPENSE",
-      amount: 0,
+      amount: undefined as number | undefined,
       description: "",
       date: new Date(),
       isRecurring: false,
     },
   });
 
+  if (accountsLoading || categoriesLoading) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-muted-foreground">Loading form data...</p>
+      </div>
+    );
+  }
+
+  if (accounts.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-muted-foreground mb-4">
+          You need to create an account first before adding transactions.
+        </p>
+        <Button asChild>
+          <Link href="/accounts">Go to Accounts</Link>
+        </Button>
+      </div>
+    );
+  }
+
+  const transactionType = form.watch("type");
+  const filteredCategories = categories.filter(
+    (cat: { type: string }) => cat.type === transactionType,
+  ); // biome-ignore lint/correctness/useHookAtTopLevel: <>
   const mutation = useMutation({
     mutationFn: createTransactionAction,
     onSuccess: async (data) => {
@@ -92,13 +133,16 @@ export default function TransactionForm({
     },
   });
 
-  const onSubmit = (data: z.infer<typeof TransactionSchema>) => {
+  const onSubmit = (data: z.infer<typeof TransactionFormSchema>) => {
+    // Convert amount based on transaction type
+    const adjustedAmount =
+      data.type === "EXPENSE" ? -Math.abs(data.amount) : Math.abs(data.amount);
     const formData = new FormData();
     formData.append("accountId", data.accountId.toString());
     if (data.categoryId)
       formData.append("categoryId", data.categoryId.toString());
     formData.append("type", data.type);
-    formData.append("amount", data.amount.toString());
+    formData.append("amount", adjustedAmount.toString());
     if (data.description) formData.append("description", data.description);
     formData.append("date", data.date.toISOString());
     formData.append("isRecurring", data.isRecurring.toString());
@@ -122,7 +166,7 @@ export default function TransactionForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Type</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select type" />
@@ -145,15 +189,22 @@ export default function TransactionForm({
               <FormLabel>Account</FormLabel>
               <Select
                 onValueChange={(value) => field.onChange(parseInt(value, 10))}
-                defaultValue={field.value.toString()}
+                value={field.value?.toString() || ""}
+                disabled={accountsLoading}
               >
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select account" />
+                    <SelectValue
+                      placeholder={
+                        accountsLoading
+                          ? "Loading accounts..."
+                          : "Select account"
+                      }
+                    />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {accounts.map((acc) => (
+                  {accounts.map((acc: { id: number; name: string }) => (
                     <SelectItem key={acc.id} value={acc.id.toString()}>
                       {acc.name}
                     </SelectItem>
@@ -171,20 +222,33 @@ export default function TransactionForm({
             <FormItem>
               <FormLabel>Category (Optional)</FormLabel>
               <Select
-                onValueChange={(value) => field.onChange(parseInt(value, 10))}
-                defaultValue={field.value?.toString()}
+                onValueChange={(value) =>
+                  field.onChange(value ? parseInt(value, 10) : undefined)
+                }
+                value={field.value?.toString() || ""}
+                disabled={categoriesLoading}
               >
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
+                    <SelectValue
+                      placeholder={
+                        categoriesLoading
+                          ? "Loading categories..."
+                          : filteredCategories.length === 0
+                            ? `No categories available for ${transactionType.toLowerCase()}`
+                            : "Select category"
+                      }
+                    />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.id.toString()}>
-                      {cat.name}
-                    </SelectItem>
-                  ))}
+                  {filteredCategories.map(
+                    (cat: { id: number; name: string }) => (
+                      <SelectItem key={cat.id} value={cat.id.toString()}>
+                        {cat.name}
+                      </SelectItem>
+                    ),
+                  )}
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -201,8 +265,15 @@ export default function TransactionForm({
                 <Input
                   type="number"
                   step="0.01"
+                  placeholder="Enter positive amount"
                   {...field}
-                  onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                  value={field.value || ""}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    field.onChange(
+                      value === "" ? undefined : parseFloat(value) || 0,
+                    );
+                  }}
                 />
               </FormControl>
               <FormMessage />
@@ -240,8 +311,16 @@ export default function TransactionForm({
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={mutation.isPending}>
-          Add Transaction
+        <Button
+          type="submit"
+          disabled={
+            mutation.isPending ||
+            accountsLoading ||
+            categoriesLoading ||
+            accounts.length === 0
+          }
+        >
+          {mutation.isPending ? "Creating..." : "Add Transaction"}
         </Button>
 
         {/* File Upload Section */}
