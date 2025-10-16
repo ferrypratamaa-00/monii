@@ -34,7 +34,8 @@ export async function createTransactionAction(formData: FormData) {
     return { success: true, id: transaction.id };
   } catch (error: unknown) {
     const err = error as Error;
-    return { success: false, error: err.message };
+    console.error("Create transaction error:", err.message);
+    return { success: false, error: "Gagal membuat transaksi. Silakan coba lagi." };
   }
 }
 
@@ -54,6 +55,7 @@ export async function associateFilesWithTransactionAction(
     return { success: true };
   } catch (error: unknown) {
     const err = error as Error;
-    return { success: false, error: err.message };
+    console.error("Associate files error:", err.message);
+    return { success: false, error: "Gagal mengasosiasikan file. Silakan coba lagi." };
   }
 }
