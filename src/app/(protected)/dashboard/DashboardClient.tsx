@@ -24,6 +24,7 @@ interface DashboardClientProps {
     date: Date;
   }>;
   userId: number;
+  userName: string | null;
 }
 
 export default function DashboardClient({
@@ -33,6 +34,7 @@ export default function DashboardClient({
   trendData,
   recentTransactions,
   userId,
+  userName,
 }: DashboardClientProps) {
   const { t } = useLanguage();
 
@@ -42,7 +44,7 @@ export default function DashboardClient({
         {/* Greeting Header */}
         <div>
           <h1 className="text-xl md:text-2xl font-bold text-foreground mb-1">
-            {t("dashboard.greeting")} 👋
+            {userName ? `Hai ${userName}` : t("dashboard.greeting")} 👋
           </h1>
           <p className="text-sm text-muted-foreground">
             {t("dashboard.balanceLabel")}
@@ -151,20 +153,20 @@ export default function DashboardClient({
                           {transaction.type === "INCOME"
                             ? "💰"
                             : transaction.category === "Makan"
-                            ? "🍔"
-                            : transaction.category === "Transport"
-                            ? "�"
-                            : transaction.category === "Belanja"
-                            ? "🛒"
-                            : transaction.category === "Tagihan"
-                            ? "📄"
-                            : transaction.category === "Hiburan"
-                            ? "🎬"
-                            : transaction.category === "Kesehatan"
-                            ? "🏥"
-                            : transaction.category === "Pendidikan"
-                            ? "📚"
-                            : "💸"}
+                              ? "🍔"
+                              : transaction.category === "Transport"
+                                ? "�"
+                                : transaction.category === "Belanja"
+                                  ? "🛒"
+                                  : transaction.category === "Tagihan"
+                                    ? "📄"
+                                    : transaction.category === "Hiburan"
+                                      ? "🎬"
+                                      : transaction.category === "Kesehatan"
+                                        ? "🏥"
+                                        : transaction.category === "Pendidikan"
+                                          ? "📚"
+                                          : "💸"}
                         </span>
                       </div>
                       <div>

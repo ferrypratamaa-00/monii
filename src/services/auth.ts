@@ -13,6 +13,7 @@ export async function registerUser(data: z.infer<typeof SignupSchema>) {
     const [user] = await db
       .insert(users)
       .values({
+        name: data.name,
         email,
         passwordHash: hash,
       })

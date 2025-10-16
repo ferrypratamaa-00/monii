@@ -235,7 +235,9 @@ export default function GoalsPage() {
                 Mulai dengan membuat goal pertama dan kontribusi secara rutin.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                {users && <GoalsGuide onCreateGoal={() => setActiveTab("goals")} />}
+                {users && (
+                  <GoalsGuide onCreateGoal={() => setActiveTab("goals")} />
+                )}
                 {users && <CreateGoalDialog users={users} />}
               </div>
             </Card>

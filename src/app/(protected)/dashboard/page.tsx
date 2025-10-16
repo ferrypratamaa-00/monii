@@ -1,7 +1,7 @@
 import { desc, eq } from "drizzle-orm";
 import { getCurrentUser } from "@/app/actions/auth";
 import { db } from "@/db";
-import { categories, transactions } from "@/db/schema";
+import { categories, transactions, users } from "@/db/schema";
 import {
   getMonthlyExpenseByCategory,
   getMonthlySummary,
@@ -22,6 +22,7 @@ export default async function DashboardPage() {
     expenseByCategory,
     trendData,
     recentTransactions,
+    user,
   ] = await Promise.all([
     getTotalBalance(userId),
     getMonthlySummary(userId),
@@ -41,6 +42,10 @@ export default async function DashboardPage() {
       .where(eq(transactions.userId, userId))
       .orderBy(desc(transactions.date))
       .limit(5),
+    db.query.users.findFirst({
+      where: eq(users.id, userId),
+      columns: { name: true },
+    }),
   ]);
 
   const transformedExpenseByCategory = expenseByCategory.map((item) => ({
@@ -67,6 +72,7 @@ export default async function DashboardPage() {
       trendData={trendData}
       recentTransactions={transformedRecentTransactions}
       userId={userId}
+      userName={user?.name || null}
     />
   );
 }

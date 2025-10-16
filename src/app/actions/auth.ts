@@ -10,6 +10,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "secret"; // in production, use str
 
 export async function signUpAction(formData: FormData) {
   const data = {
+    name: formData.get("name") as string,
     email: formData.get("email") as string,
     password: formData.get("password") as string,
     confirmPassword: formData.get("confirmPassword") as string,

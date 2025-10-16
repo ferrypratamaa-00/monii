@@ -108,8 +108,14 @@ function Calendar({
           "rounded-l-md bg-primary/10",
           defaultClassNames.range_start,
         ),
-        range_middle: cn("rounded-none bg-primary/5", defaultClassNames.range_middle),
-        range_end: cn("rounded-r-md bg-primary/10", defaultClassNames.range_end),
+        range_middle: cn(
+          "rounded-none bg-primary/5",
+          defaultClassNames.range_middle,
+        ),
+        range_end: cn(
+          "rounded-r-md bg-primary/10",
+          defaultClassNames.range_end,
+        ),
         today: cn(
           "bg-primary/5 text-primary rounded-md data-[selected=true]:rounded-none",
           defaultClassNames.today,

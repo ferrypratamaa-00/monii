@@ -22,6 +22,7 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [name, setName] = useState("");
   const [message, setMessage] = useState("");
 
   const router = useRouter();
@@ -48,6 +49,7 @@ export default function SignupPage() {
     formData.append("email", email);
     formData.append("password", password);
     formData.append("confirmPassword", confirmPassword);
+    formData.append("name", name);
     mutation.mutate(formData);
   };
 
@@ -65,6 +67,23 @@ export default function SignupPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Nama Lengkap</Label>
+              <Input
+                id="name"
+                type="text"
+                placeholder="Masukkan nama lengkap Anda"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+              {mutation.data?.errors?.name && (
+                <p className="text-sm text-red-600">
+                  {mutation.data.errors.name[0]}
+                </p>
+              )}
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input

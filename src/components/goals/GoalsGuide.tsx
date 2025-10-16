@@ -1,20 +1,20 @@
 "use client";
 
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
-  Target,
-  Plus,
-  TrendingUp,
   Calendar,
-  Trophy,
-  Lightbulb,
   CheckCircle,
   Clock,
   DollarSign,
+  Lightbulb,
+  Plus,
+  Target,
+  TrendingUp,
+  Trophy,
 } from "lucide-react";
+import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -32,24 +32,30 @@ export function GoalsGuide({ onCreateGoal }: GoalsGuideProps) {
 
   const steps = [
     {
+      id: "set-target",
       icon: Target,
       title: "1. Tetapkan Target",
-      description: "Buat goal dengan nama, jumlah target, dan deadline opsional",
-      details: "Misal: 'Tabungan Liburan Bali - Rp 5.000.000' dengan deadline 6 bulan",
+      description:
+        "Buat goal dengan nama, jumlah target, dan deadline opsional",
+      details:
+        "Misal: 'Tabungan Liburan Bali - Rp 5.000.000' dengan deadline 6 bulan",
     },
     {
+      id: "contribute",
       icon: DollarSign,
       title: "2. Kontribusi Rutin",
       description: "Transfer uang dari rekening kamu ke goal secara berkala",
       details: "Setiap bulan/gajian, alokasikan sebagian untuk goal ini",
     },
     {
+      id: "monitor",
       icon: TrendingUp,
       title: "3. Pantau Progress",
       description: "Lihat progress bar dan persentase pencapaian goal",
       details: "Sistem akan tracking otomatis berapa yang sudah terkumpul",
     },
     {
+      id: "achieve",
       icon: Trophy,
       title: "4. Raih Achievement",
       description: "Dapatkan badge dan reward saat goal tercapai",
@@ -59,21 +65,25 @@ export function GoalsGuide({ onCreateGoal }: GoalsGuideProps) {
 
   const tips = [
     {
+      id: "realistic-deadline",
       icon: Calendar,
       title: "Deadline Realistis",
       tip: "Set deadline yang masuk akal. Goal jangka panjang (1-2 tahun) lebih sustainable",
     },
     {
+      id: "regular-contribution",
       icon: TrendingUp,
       title: "Kontribusi Rutin",
       tip: "Lebih baik sedikit tapi rutin, daripada banyak tapi jarang. Konsistensi adalah kunci",
     },
     {
+      id: "break-down",
       icon: Lightbulb,
       title: "Break Down Goal",
       tip: "Bagi goal besar jadi milestone kecil. Misal: Rp 5jt = 10 milestone Rp 500rb",
     },
     {
+      id: "track-celebrate",
       icon: CheckCircle,
       title: "Track & Celebrate",
       tip: "Rayakan setiap milestone! Ini akan memotivasi kamu untuk lanjut",
@@ -104,8 +114,8 @@ export function GoalsGuide({ onCreateGoal }: GoalsGuideProps) {
               Flow Goals Lengkap
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {steps.map((step, index) => (
-                <Card key={index} className="relative">
+              {steps.map((step) => (
+                <Card key={step.id} className="relative">
                   <CardHeader className="pb-3">
                     <CardTitle className="flex items-center gap-2 text-base">
                       <step.icon className="h-5 w-5 text-primary" />
@@ -132,8 +142,8 @@ export function GoalsGuide({ onCreateGoal }: GoalsGuideProps) {
               Tips Sukses Capai Goals
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {tips.map((tip, index) => (
-                <Card key={index}>
+              {tips.map((tip) => (
+                <Card key={tip.id}>
                   <CardContent className="pt-4">
                     <div className="flex items-start gap-3">
                       <tip.icon className="h-5 w-5 text-primary mt-0.5" />
@@ -166,12 +176,16 @@ export function GoalsGuide({ onCreateGoal }: GoalsGuideProps) {
                     <p>• Target: Rp 15.000.000</p>
                     <p>• Deadline: 12 bulan (1 tahun)</p>
                     <p>• Kontribusi bulanan: Rp 1.250.000 (dari gaji)</p>
-                    <p>• Progress tracking: Lihat setiap bulan berapa yang sudah terkumpul</p>
+                    <p>
+                      • Progress tracking: Lihat setiap bulan berapa yang sudah
+                      terkumpul
+                    </p>
                   </div>
                   <div className="bg-muted p-3 rounded-md">
                     <p className="text-sm">
-                      <strong>Flow:</strong> Setiap tanggal 25 (gajian) → Transfer Rp 1.250.000 ke goal →
-                      Sistem otomatis update progress → Dapat badge milestone setiap Rp 3jt
+                      <strong>Flow:</strong> Setiap tanggal 25 (gajian) →
+                      Transfer Rp 1.250.000 ke goal → Sistem otomatis update
+                      progress → Dapat badge milestone setiap Rp 3jt
                     </p>
                   </div>
                 </div>

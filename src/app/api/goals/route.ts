@@ -1,4 +1,7 @@
+import { inArray } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
+import { db } from "@/db";
+import { users } from "@/db/schema";
 import { auth } from "@/lib/auth-server";
 import {
   ContributeToGoalSchema,
@@ -13,9 +16,6 @@ import {
   deleteGoal,
   getUserGoals,
 } from "@/services/goal";
-import { db } from "@/db";
-import { users } from "@/db/schema";
-import { eq, inArray } from "drizzle-orm";
 
 export async function GET(_request: NextRequest) {
   try {
@@ -29,6 +29,7 @@ export async function GET(_request: NextRequest) {
     // Get all unique user IDs from goal members
     const userIds = new Set<number>();
     goals.forEach((goal) => {
+      // biome-ignore lint/suspicious/useIterableCallbackReturn: <>
       goal.members?.forEach((member) => userIds.add(member.userId));
     });
 
@@ -40,11 +41,14 @@ export async function GET(_request: NextRequest) {
         .from(users)
         .where(inArray(users.id, Array.from(userIds)));
 
-      userMap = new Map(userRecords.map((user) => [user.id, user.name || user.email]));
-    } catch (error) {
+      userMap = new Map(
+        userRecords.map((user) => [user.id, user.name || user.email]),
+      );
+    } catch (_error) {
       // If name column doesn't exist yet, just use "User" as placeholder
-      userIds.forEach(id => userMap.set(id, "User"));
-    }    // Transform the data to match frontend expectations
+      // biome-ignore lint/suspicious/useIterableCallbackReturn: <>
+      userIds.forEach((id) => userMap.set(id, "User"));
+    } // Transform the data to match frontend expectations
     const transformedGoals = goals.map((goal) => ({
       id: goal.id,
       name: goal.name,

@@ -201,57 +201,55 @@ export function GoalProgressCard({ goal, accounts }: GoalProgressCardProps) {
                 Kontribusi
               </Button>
             </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Kontribusi ke {goal.name}</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="amount">Jumlah Kontribusi</Label>
-                <Input
-                  id="amount"
-                  type="number"
-                  placeholder="0.00"
-                  value={contributionAmount}
-                  onChange={(e) => setContributionAmount(e.target.value)}
-                />
-              </div>
-              <div>
-                <Label htmlFor="account">Dari Rekening</Label>
-                <Select
-                  value={selectedAccountId}
-                  onValueChange={setSelectedAccountId}
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Kontribusi ke {goal.name}</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="amount">Jumlah Kontribusi</Label>
+                  <Input
+                    id="amount"
+                    type="number"
+                    placeholder="0.00"
+                    value={contributionAmount}
+                    onChange={(e) => setContributionAmount(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="account">Dari Rekening</Label>
+                  <Select
+                    value={selectedAccountId}
+                    onValueChange={setSelectedAccountId}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Pilih rekening" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {accounts.map((account) => (
+                        <SelectItem
+                          key={account.id}
+                          value={account.id.toString()}
+                        >
+                          {account.name} (${account.balance.toLocaleString()})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  Sisa target: ${remaining.toLocaleString()}
+                </div>
+                <Button
+                  onClick={handleContribute}
+                  disabled={contributeMutation.isPending}
+                  className="w-full"
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Pilih rekening" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {accounts.map((account) => (
-                      <SelectItem
-                        key={account.id}
-                        value={account.id.toString()}
-                      >
-                        {account.name} (${account.balance.toLocaleString()})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  {contributeMutation.isPending ? "Memproses..." : "Kontribusi"}
+                </Button>
               </div>
-              <div className="text-sm text-muted-foreground">
-                Sisa target: ${remaining.toLocaleString()}
-              </div>
-              <Button
-                onClick={handleContribute}
-                disabled={contributeMutation.isPending}
-                className="w-full"
-              >
-                {contributeMutation.isPending
-                  ? "Memproses..."
-                  : "Kontribusi"}
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
         </div>
       </CardContent>
     </Card>

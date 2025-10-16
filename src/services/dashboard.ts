@@ -127,22 +127,12 @@ export async function getSummaryByDateRange(
   const [incomeResult] = await db
     .select({ total: sum(transactions.amount) })
     .from(transactions)
-    .where(
-      and(
-        ...conditions,
-        eq(transactions.type, "INCOME"),
-      ),
-    );
+    .where(and(...conditions, eq(transactions.type, "INCOME")));
 
   const [expenseResult] = await db
     .select({ total: sum(transactions.amount) })
     .from(transactions)
-    .where(
-      and(
-        ...conditions,
-        eq(transactions.type, "EXPENSE"),
-      ),
-    );
+    .where(and(...conditions, eq(transactions.type, "EXPENSE")));
 
   const [transactionCount] = await db
     .select({ count: sql<number>`count(*)` })

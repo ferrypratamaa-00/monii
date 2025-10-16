@@ -193,13 +193,13 @@ body {
   * {
     @apply border-border;
   }
-  
+
   /* Ensure all focus states use theme colors */
   *:focus-visible {
     outline: 2px solid hsl(var(--ring));
     outline-offset: 2px;
   }
-  
+
   body {
     @apply bg-background text-foreground;
   }

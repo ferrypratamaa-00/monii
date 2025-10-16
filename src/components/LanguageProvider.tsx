@@ -99,7 +99,8 @@ const translations = {
     "reports.title": "Laporan",
     "reports.description": "Export data transaksi Anda dalam berbagai format",
     "reports.exportTransactions": "Export Transaksi",
-    "reports.exportDescription": "Download riwayat transaksi Anda sebagai file CSV atau PDF",
+    "reports.exportDescription":
+      "Download riwayat transaksi Anda sebagai file CSV atau PDF",
     "reports.totalTransactions": "Total Transaksi",
     "reports.totalIncome": "Total Pemasukan",
     "reports.totalExpenses": "Total Pengeluaran",
@@ -187,7 +188,8 @@ const translations = {
     "reports.title": "Reports",
     "reports.description": "Export your transaction data in various formats",
     "reports.exportTransactions": "Export Transactions",
-    "reports.exportDescription": "Download your transaction history as CSV or PDF file",
+    "reports.exportDescription":
+      "Download your transaction history as CSV or PDF file",
     "reports.totalTransactions": "Total Transactions",
     "reports.totalIncome": "Total Income",
     "reports.totalExpenses": "Total Expenses",
