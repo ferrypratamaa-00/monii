@@ -46,7 +46,8 @@ export async function signUpAction(formData: FormData) {
     return { success: true };
   } catch (error: unknown) {
     const err = error as Error;
-    return { success: false, error: err.message };
+    console.error("Signup error:", err.message);
+    return { success: false, error: "Terjadi kesalahan server. Silakan coba lagi." };
   }
 }
 
@@ -102,7 +103,8 @@ export async function loginAction(formData: FormData) {
     return { success: true };
   } catch (error: unknown) {
     const err = error as Error;
-    return { success: false, error: err.message };
+    console.error("Login error:", err.message);
+    return { success: false, error: "Terjadi kesalahan server. Silakan coba lagi." };
   }
 }
 
@@ -145,7 +147,8 @@ export async function logoutAction() {
     return { success: true };
   } catch (error: unknown) {
     const err = error as Error;
-    return { success: false, error: err.message };
+    console.error("Logout error:", err.message);
+    return { success: false, error: "Terjadi kesalahan server. Silakan coba lagi." };
   }
 }
 
