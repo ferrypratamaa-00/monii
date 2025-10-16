@@ -1,9 +1,9 @@
 "use client";
-import { WifiOff, Database, RefreshCw } from "lucide-react";
+import { Database, RefreshCw, WifiOff } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useLanguage } from "./LanguageProvider";
 import { localStorageService } from "@/services/localStorage";
 import { syncService } from "@/services/sync";
+import { useLanguage } from "./LanguageProvider";
 
 export default function OfflineIndicator() {
   const [isOnline, setIsOnline] = useState(true);

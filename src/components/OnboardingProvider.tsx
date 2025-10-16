@@ -2,10 +2,10 @@
 
 import {
   createContext,
+  type ReactNode,
   useContext,
   useEffect,
   useState,
-  type ReactNode,
 } from "react";
 
 interface OnboardingContextType {
@@ -25,8 +25,8 @@ const OnboardingContext = createContext<OnboardingContextType | undefined>(
   undefined,
 );
 
-const ONBOARDING_KEY = 'monii_onboarding_seen';
-const GUIDE_KEY = 'monii_guide_seen';
+const ONBOARDING_KEY = "monii_onboarding_seen";
+const GUIDE_KEY = "monii_guide_seen";
 
 export function OnboardingProvider({ children }: { children: ReactNode }) {
   const [hasSeenOnboarding, setHasSeenOnboardingState] = useState(false);
@@ -38,8 +38,8 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
 
   // Load onboarding state from localStorage on mount
   useEffect(() => {
-    const seenOnboarding = localStorage.getItem(ONBOARDING_KEY) === 'true';
-    const seenGuide = localStorage.getItem(GUIDE_KEY) === 'true';
+    const seenOnboarding = localStorage.getItem(ONBOARDING_KEY) === "true";
+    const seenGuide = localStorage.getItem(GUIDE_KEY) === "true";
 
     setHasSeenOnboardingState(seenOnboarding);
     setHasSeenGuideState(seenGuide);

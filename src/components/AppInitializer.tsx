@@ -1,9 +1,9 @@
 "use client";
 
+import { OnboardingGuide } from "@/components/OnboardingGuide";
 import { useOnboarding } from "@/components/OnboardingProvider";
 import { SplashScreen } from "@/components/SplashScreen";
 import { WelcomeSlides } from "@/components/WelcomeSlides";
-import { OnboardingGuide } from "@/components/OnboardingGuide";
 
 interface AppInitializerProps {
   children: React.ReactNode;
@@ -50,9 +50,7 @@ export function AppInitializer({ children }: AppInitializerProps) {
   return (
     <>
       {/* Show splash screen first */}
-      {showSplash && (
-        <SplashScreen onComplete={handleSplashComplete} />
-      )}
+      {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
 
       {/* Show welcome slides if user hasn't seen onboarding */}
       {showWelcome && !hasSeenOnboarding && (

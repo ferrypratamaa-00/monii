@@ -5,14 +5,16 @@ import {
   CreditCard,
   DollarSign,
   Home,
+  LogOut,
   Menu,
   Target,
   TrendingUp,
   Wallet,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { logoutAction } from "@/app/actions/auth";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "../LanguageProvider";
 import LanguageSwitcher from "../LanguageSwitcher";
@@ -39,6 +41,7 @@ const mobileNavigation = [
 
 export default function Navigation() {
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   let t: (key: string) => string;
@@ -51,11 +54,20 @@ export default function Navigation() {
     t = (key: string) => key;
   }
 
+  const handleLogout = async () => {
+    const result = await logoutAction();
+    if (result.success) {
+      router.push("/login");
+    } else {
+      console.error("Logout failed:", result.error);
+    }
+  };
+
   return (
     <>
       {/* Desktop Navigation */}
       <nav
-        className="bg-card border-b border-border hidden md:block sticky top-0 z-50 backdrop-blur-sm bg-card/95"
+        className="border-b border-border hidden md:block sticky top-0 z-50 backdrop-blur-sm bg-card/95"
         aria-label="Main navigation"
         data-onboarding="navigation"
       >
@@ -100,6 +112,14 @@ export default function Navigation() {
               <LanguageSwitcher />
               <ThemeSwitcher />
               <NotificationBell />
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-foreground bg-muted hover:bg-muted/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
+                aria-label={t("nav.logout")}
+              >
+                <LogOut className="w-4 h-4" aria-hidden="true" />
+              </button>
             </div>
           </div>
         </div>
@@ -198,6 +218,17 @@ export default function Navigation() {
                   </Link>
                 );
               })}
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  handleLogout();
+                }}
+                className="flex flex-col items-center p-4 rounded-xl transition-colors border text-muted-foreground hover:bg-primary/5 border-border"
+              >
+                <LogOut className="w-6 h-6 mb-2" />
+                <span className="text-sm font-medium">{t("nav.logout")}</span>
+              </button>
             </div>
           </div>
         </button>

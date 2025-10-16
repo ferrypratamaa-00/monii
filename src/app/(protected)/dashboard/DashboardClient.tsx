@@ -8,11 +8,11 @@ import { ExpensePieChart } from "@/components/app/dashboard/ExpensePieChart";
 import { ExportButtons } from "@/components/app/dashboard/ExportButtons";
 import { TrendChart } from "@/components/app/dashboard/TrendChart";
 import { useLanguage } from "@/components/LanguageProvider";
+import OfflineDashboard from "@/components/OfflineDashboard";
 import QuickActionButton from "@/components/QuickActionButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import OfflineDashboard from "@/components/OfflineDashboard";
-import { localStorageService } from "@/services/localStorage";
 import { useOnboardingGuide } from "@/hooks/useOnboardingGuide";
+import { localStorageService } from "@/services/localStorage";
 
 interface DashboardClientProps {
   totalBalance: number;
@@ -95,7 +95,10 @@ export default function DashboardClient({
         </div>
 
         {/* Balance Card */}
-        <Card className="shadow-lg border-0 bg-gradient-to-br from-card to-card/80" data-onboarding="dashboard-balance">
+        <Card
+          className="shadow-lg border-0 bg-gradient-to-br from-card to-card/80"
+          data-onboarding="dashboard-balance"
+        >
           <CardContent className="pt-6 pb-6">
             <p className="text-4xl md:text-5xl font-bold text-foreground mb-6">
               Rp{totalBalance.toLocaleString("id-ID")}
@@ -158,7 +161,10 @@ export default function DashboardClient({
         </div>
 
         {/* Recent Transactions */}
-        <Card className="shadow-md border-0" data-onboarding="recent-transactions">
+        <Card
+          className="shadow-md border-0"
+          data-onboarding="recent-transactions"
+        >
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base md:text-lg font-semibold text-foreground">

@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "@/styles/globals.css";
 import "@/styles/themes.css";
+import { AppInitializer } from "@/components/AppInitializer";
 import { LanguageProvider } from "@/components/LanguageProvider";
+import { OnboardingProvider } from "@/components/OnboardingProvider";
 import { PWAProvider } from "@/components/PWAProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { OnboardingProvider } from "@/components/OnboardingProvider";
-import { AppInitializer } from "@/components/AppInitializer";
 import { reportWebVitals } from "@/lib/performance";
 import { QueryClientProvider } from "../components/QueryClientProvider";
 

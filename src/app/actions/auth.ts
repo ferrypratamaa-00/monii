@@ -106,6 +106,49 @@ export async function loginAction(formData: FormData) {
   }
 }
 
+export async function logoutAction() {
+  try {
+    const c = await cookies();
+    const token = c.get("session")?.value;
+
+    // Get user ID before clearing cookie for audit logging
+    let userId: number | undefined;
+    if (token) {
+      try {
+        const payload = jwt.verify(token, JWT_SECRET) as { userId: number };
+        userId = payload.userId;
+      } catch {
+        // Token invalid, continue with logout
+      }
+    }
+
+    // Clear the session cookie
+    c.set("session", "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 0,
+    });
+
+    // Audit logging for logout
+    if (userId) {
+      const h = await headers();
+      await AuditService.logAuthEvent(
+        userId,
+        "logout",
+        {},
+        h.get("x-forwarded-for") || h.get("x-real-ip") || "unknown",
+        h.get("user-agent") || undefined,
+      );
+    }
+
+    return { success: true };
+  } catch (error: unknown) {
+    const err = error as Error;
+    return { success: false, error: err.message };
+  }
+}
+
 export async function getCurrentUser() {
   const c = await cookies();
   const token = c.get("session")?.value;

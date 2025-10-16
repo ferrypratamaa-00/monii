@@ -1,7 +1,7 @@
 import { desc, eq } from "drizzle-orm";
 import { getCurrentUser } from "@/app/actions/auth";
 import { db } from "@/db";
-import { categories, transactions, users, accounts } from "@/db/schema";
+import { accounts, categories, transactions, users } from "@/db/schema";
 import {
   getMonthlyExpenseByCategory,
   getMonthlySummary,

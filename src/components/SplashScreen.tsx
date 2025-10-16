@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 interface SplashScreenProps {
   onComplete: () => void;
@@ -40,7 +40,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center bg-background transition-all duration-400 ${!isVisible ? "opacity-0" : "opacity-100"}`}
+      className={`fixed inset-0 z-99 flex items-center justify-center bg-background transition-all duration-400 ${!isVisible ? "opacity-0" : "opacity-100"}`}
     >
       <div className="text-center">
         {/* App Logo/Icon */}

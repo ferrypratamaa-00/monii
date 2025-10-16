@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
 import { useLanguage } from "@/components/LanguageProvider";
+import { Button } from "@/components/ui/button";
 
 interface WelcomeSlide {
   id: number;
@@ -123,18 +123,21 @@ export function WelcomeSlides({ onComplete, onSkip }: WelcomeSlidesProps) {
 
       {/* Navigation dots */}
       <div className="flex justify-center space-x-2 mb-8">
-        {slides.map((_, index) => (
+        {slides.map((_, index) => {
+          let idx= index;
+          return (
           <button
             type="button"
-            key={`slide-${index}`}
-            onClick={() => goToSlide(index)}
+            key={`slide-${idx}`}
+            onClick={() => goToSlide(idx++)}
             className={`transition-all duration-300 ${
               index === currentSlide
                 ? "w-6 h-2 bg-primary rounded-full"
                 : "w-2 h-2 bg-white border border-primary/50 rounded-full hover:bg-muted-foreground/50"
             }`}
           />
-        ))}
+        )
+        })}
       </div>
 
       {/* Navigation buttons */}
