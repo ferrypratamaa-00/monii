@@ -31,7 +31,7 @@ export default function LoginPage() {
       if (data.success) {
         router.push("/dashboard");
       } else if (data.errors) {
-        setMessage("Mohon perbaiki kesalahan di bawah ini.");
+        setMessage("Mohon perbaiki kesalahan, kemudian coba kembali.");
       } else {
         setMessage(data.error || "Email atau password salah.");
       }
@@ -53,8 +53,8 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
-            <LogIn className="h-6 w-6 text-blue-600" />
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/20">
+            <LogIn className="h-6 w-6 text-primary" />
           </div>
           <CardTitle className="text-2xl">Masuk ke Monii</CardTitle>
           <CardDescription>
@@ -74,7 +74,7 @@ export default function LoginPage() {
                 required
               />
               {mutation.data?.errors?.email && (
-                <p className="text-sm text-red-600">
+                <p className="text-sm text-red-500/80">
                   {mutation.data.errors.email[0]}
                 </p>
               )}
@@ -91,7 +91,7 @@ export default function LoginPage() {
                 required
               />
               {mutation.data?.errors?.password && (
-                <p className="text-sm text-red-600">
+                <p className="text-sm text-red-500/80">
                   {mutation.data.errors.password[0]}
                 </p>
               )}
@@ -115,7 +115,7 @@ export default function LoginPage() {
           <div className="mt-6 text-center space-y-2">
             <Link
               href="/forgot-password"
-              className="text-sm text-blue-600 hover:text-blue-800"
+              className="text-sm text-primary hover:text-primary/80"
             >
               Lupa password?
             </Link>
@@ -123,7 +123,7 @@ export default function LoginPage() {
               Belum punya akun?{" "}
               <Link
                 href="/signup"
-                className="text-blue-600 hover:text-blue-800"
+                className="text-primary hover:text-primary/80"
               >
                 Daftar di sini
               </Link>
