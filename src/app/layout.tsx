@@ -30,6 +30,7 @@ export default async function RootLayout({
         <meta name="theme-color" content="#0B1220" />
       </head>
       <body className={inter.className}>
+        
         <QueryClientProvider>
           <ThemeProvider>
             <LanguageProvider>
