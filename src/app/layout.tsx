@@ -5,6 +5,8 @@ import "@/styles/themes.css";
 import { LanguageProvider } from "@/components/LanguageProvider";
 import { PWAProvider } from "@/components/PWAProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { OnboardingProvider } from "@/components/OnboardingProvider";
+import { AppInitializer } from "@/components/AppInitializer";
 import { reportWebVitals } from "@/lib/performance";
 import { QueryClientProvider } from "../components/QueryClientProvider";
 
@@ -23,7 +25,7 @@ export default async function RootLayout({
   return (
     <html lang="id">
       <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/icons/new icon-non-bg.png" sizes="any" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#0B1220" />
       </head>
@@ -31,8 +33,12 @@ export default async function RootLayout({
         <QueryClientProvider>
           <ThemeProvider>
             <LanguageProvider>
-              <PWAProvider />
-              {children}
+              <OnboardingProvider>
+                <AppInitializer>
+                  <PWAProvider />
+                  {children}
+                </AppInitializer>
+              </OnboardingProvider>
             </LanguageProvider>
           </ThemeProvider>
         </QueryClientProvider>

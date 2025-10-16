@@ -109,6 +109,22 @@ const translations = {
     // Offline
     "offline.message": "Koneksi Terputus",
     "offline.description": "Beberapa fitur terbatas saat offline",
+
+    // Onboarding
+    "onboarding.welcome": "Selamat Datang di Monii",
+    "onboarding.welcomeDesc": "Aplikasi manajemen keuangan pribadi yang simpel dan cerdas untuk membantu Anda mengatur keuangan dengan mudah.",
+    "onboarding.transactions": "Catat Transaksi dengan Mudah",
+    "onboarding.transactionsDesc": "Tambahkan pemasukan dan pengeluaran Anda setiap hari. Gunakan kamera untuk scan receipt otomatis.",
+    "onboarding.accounts": "Kelola Akun & Kategori",
+    "onboarding.accountsDesc": "Atur rekening bank, dompet, dan kategori pengeluaran untuk memudahkan tracking keuangan Anda.",
+    "onboarding.reports": "Pantau Progress Finansial",
+    "onboarding.reportsDesc": "Lihat laporan keuangan, grafik pengeluaran, dan wawasan AI untuk pengelolaan keuangan yang lebih baik.",
+    "onboarding.offline": "Offline Support",
+    "onboarding.offlineDesc": "Akses data keuangan Anda bahkan tanpa koneksi internet. Data tersimpan dan tersinkronisasi otomatis.",
+    "onboarding.skip": "Lewati",
+    "onboarding.next": "Selanjutnya",
+    "onboarding.back": "Kembali",
+    "onboarding.start": "Mulai",
   },
   en: {
     // Navigation
@@ -202,6 +218,22 @@ const translations = {
     // Offline
     "offline.message": "Connection Lost",
     "offline.description": "Some features are limited while offline",
+
+    // Onboarding
+    "onboarding.welcome": "Welcome to Monii",
+    "onboarding.welcomeDesc": "A simple and smart personal finance management app to help you manage your finances easily.",
+    "onboarding.transactions": "Record Transactions Easily",
+    "onboarding.transactionsDesc": "Add your daily income and expenses. Use the camera to automatically scan receipts.",
+    "onboarding.accounts": "Manage Accounts & Categories",
+    "onboarding.accountsDesc": "Set up bank accounts, wallets, and expense categories to make financial tracking easier.",
+    "onboarding.reports": "Monitor Financial Progress",
+    "onboarding.reportsDesc": "View financial reports, expense charts, and AI insights for better financial management.",
+    "onboarding.offline": "Offline Support",
+    "onboarding.offlineDesc": "Access your financial data even without internet connection. Data is stored and synchronized automatically.",
+    "onboarding.skip": "Skip",
+    "onboarding.next": "Next",
+    "onboarding.back": "Back",
+    "onboarding.start": "Start",
   },
 };
 

@@ -1,0 +1,68 @@
+"use client";
+
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+
+interface OnboardingContextType {
+  hasSeenOnboarding: boolean;
+  setHasSeenOnboarding: (seen: boolean) => void;
+  showSplash: boolean;
+  setShowSplash: (show: boolean) => void;
+  showWelcome: boolean;
+  setShowWelcome: (show: boolean) => void;
+}
+
+const OnboardingContext = createContext<OnboardingContextType | undefined>(undefined);
+
+const ONBOARDING_KEY = 'monii_onboarding_seen';
+
+export function OnboardingProvider({ children }: { children: ReactNode }) {
+  const [hasSeenOnboarding, setHasSeenOnboardingState] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Load onboarding state from localStorage on mount
+  useEffect(() => {
+    const seen = localStorage.getItem(ONBOARDING_KEY) === 'true';
+    setHasSeenOnboardingState(seen);
+    setIsLoaded(true);
+
+    // If user hasn't seen onboarding, show welcome slides after splash
+    if (!seen) {
+      setShowWelcome(true);
+    }
+  }, []);
+
+  const setHasSeenOnboarding = (seen: boolean) => {
+    setHasSeenOnboardingState(seen);
+    localStorage.setItem(ONBOARDING_KEY, seen.toString());
+  };
+
+  // Don't render children until we've loaded the onboarding state
+  if (!isLoaded) {
+    return null;
+  }
+
+  return (
+    <OnboardingContext.Provider
+      value={{
+        hasSeenOnboarding,
+        setHasSeenOnboarding,
+        showSplash,
+        setShowSplash,
+        showWelcome,
+        setShowWelcome,
+      }}
+    >
+      {children}
+    </OnboardingContext.Provider>
+  );
+}
+
+export function useOnboarding() {
+  const context = useContext(OnboardingContext);
+  if (context === undefined) {
+    throw new Error('useOnboarding must be used within an OnboardingProvider');
+  }
+  return context;
+}
