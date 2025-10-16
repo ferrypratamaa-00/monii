@@ -2,6 +2,7 @@
 
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { AISuggestionsPanel } from "@/components/app/dashboard/AISuggestionsPanel";
 import { ExpensePieChart } from "@/components/app/dashboard/ExpensePieChart";
 import { ExportButtons } from "@/components/app/dashboard/ExportButtons";
@@ -9,6 +10,8 @@ import { TrendChart } from "@/components/app/dashboard/TrendChart";
 import { useLanguage } from "@/components/LanguageProvider";
 import QuickActionButton from "@/components/QuickActionButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import OfflineDashboard from "@/components/OfflineDashboard";
+import { localStorageService } from "@/services/localStorage";
 
 interface DashboardClientProps {
   totalBalance: number;
@@ -37,6 +40,42 @@ export default function DashboardClient({
   userName,
 }: DashboardClientProps) {
   const { t } = useLanguage();
+  const [isOnline, setIsOnline] = useState(true);
+  const [hasCachedData, setHasCachedData] = useState(false);
+
+  useEffect(() => {
+    // Check initial online status
+    setIsOnline(navigator.onLine);
+
+    // Check if we have cached data
+    const cacheStatus = localStorageService.getCacheStatus();
+    setHasCachedData(cacheStatus.dashboardData || cacheStatus.userData);
+
+    // Listen for online/offline events
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    // Cache current data for offline use
+    if (totalBalance !== undefined && monthlySummary) {
+      localStorageService.saveDashboardData({
+        totalBalance,
+        monthlySummary,
+      });
+    }
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, [totalBalance, monthlySummary]);
+
+  // Show offline dashboard if offline and we have cached data
+  if (!isOnline && hasCachedData) {
+    return <OfflineDashboard userName={userName} />;
+  }
 
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-6">

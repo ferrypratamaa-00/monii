@@ -29,10 +29,11 @@ A modern, secure, and intelligent personal finance management application built 
 - **Error Boundaries**: Graceful error handling throughout the application
 
 ### Progressive Web App (PWA)
-- **Offline Support**: Core functionality works offline
+- **Offline Support**: View cached data offline, sync when back online
 - **Mobile-First Design**: Responsive design optimized for all devices
 - **Installable**: Can be installed as a native app on mobile devices
-- **Push Notifications**: Future-ready for budget alerts and reminders
+- **Background Sync**: Automatic data synchronization when connection restored
+- **Local Data Caching**: Dashboard, accounts, and categories cached for offline viewing
 
 ## 🚀 Quick Start
 
@@ -122,7 +123,35 @@ A modern, secure, and intelligent personal finance management application built 
 - Get AI-powered recommendations for better financial habits
 - Export data for external analysis
 
-## 🛠️ Development
+## � Offline Capabilities
+
+Monii is a Progressive Web App (PWA) that provides comprehensive offline functionality:
+
+### Offline Features
+- **Dashboard Viewing**: View your cached dashboard data, balance, income/expense summaries offline
+- **Account Management**: Access your saved accounts and categories without internet connection
+- **Data Persistence**: Your data is automatically cached locally for offline access
+- **Offline Indicators**: Clear visual feedback about your connection status and available features
+
+### Online-Required Features
+- **Transaction Creation**: Adding new transactions requires an internet connection
+- **Data Synchronization**: Changes sync automatically when you reconnect
+- **Receipt Scanning**: AI-powered receipt scanning needs online connectivity
+- **Account/Category Management**: Creating or editing accounts/categories requires online access
+
+### How It Works
+1. **Install the PWA**: Add Monii to your home screen for the best offline experience
+2. **Automatic Caching**: Your dashboard data is cached locally when online
+3. **Offline Access**: Continue viewing your financial data even without internet
+4. **Background Sync**: Changes sync automatically when connection is restored
+
+### Technical Details
+- **Service Worker**: Intelligent caching of static assets and API responses
+- **Local Storage**: Secure client-side data persistence
+- **Background Sync**: Automatic synchronization of pending operations
+- **Cache Management**: Smart cache invalidation and freshness checks
+
+## �🛠️ Development
 
 ### Available Scripts
 

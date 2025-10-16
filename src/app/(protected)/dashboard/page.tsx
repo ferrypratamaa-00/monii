@@ -1,13 +1,14 @@
 import { desc, eq } from "drizzle-orm";
 import { getCurrentUser } from "@/app/actions/auth";
 import { db } from "@/db";
-import { categories, transactions, users } from "@/db/schema";
+import { categories, transactions, users, accounts } from "@/db/schema";
 import {
   getMonthlyExpenseByCategory,
   getMonthlySummary,
   getMonthlyTrendData,
   getTotalBalance,
 } from "@/services/dashboard";
+import { localStorageService } from "@/services/localStorage";
 import DashboardClient from "./DashboardClient";
 
 export default async function DashboardPage() {
@@ -23,6 +24,8 @@ export default async function DashboardPage() {
     trendData,
     recentTransactions,
     user,
+    allCategories,
+    allAccounts,
   ] = await Promise.all([
     getTotalBalance(userId),
     getMonthlySummary(userId),
@@ -44,9 +47,41 @@ export default async function DashboardPage() {
       .limit(5),
     db.query.users.findFirst({
       where: eq(users.id, userId),
-      columns: { name: true },
+      columns: { name: true, email: true },
+    }),
+    db.query.categories.findMany({
+      where: eq(categories.userId, userId),
+      columns: { id: true, name: true, type: true },
+    }),
+    db.query.accounts.findMany({
+      where: eq(accounts.userId, userId),
+      columns: { id: true, name: true, balance: true },
     }),
   ]);
+
+  // Cache data for offline use
+  if (user) {
+    localStorageService.saveUserData({
+      id: userId,
+      name: user.name ?? undefined,
+      email: user.email || "",
+    });
+  }
+
+  if (allCategories.length > 0) {
+    localStorageService.saveCategoriesData({
+      categories: allCategories,
+    });
+  }
+
+  if (allAccounts.length > 0) {
+    localStorageService.saveAccountsData({
+      accounts: allAccounts.map((account) => ({
+        ...account,
+        balance: parseFloat(account.balance),
+      })),
+    });
+  }
 
   const transformedExpenseByCategory = expenseByCategory.map((item) => ({
     category: item.name,

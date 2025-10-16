@@ -105,6 +105,10 @@ const translations = {
     "reports.totalIncome": "Total Pemasukan",
     "reports.totalExpenses": "Total Pengeluaran",
     "reports.inSelectedPeriod": "Dalam periode yang dipilih",
+
+    // Offline
+    "offline.message": "Koneksi Terputus",
+    "offline.description": "Beberapa fitur terbatas saat offline",
   },
   en: {
     // Navigation
@@ -194,6 +198,10 @@ const translations = {
     "reports.totalIncome": "Total Income",
     "reports.totalExpenses": "Total Expenses",
     "reports.inSelectedPeriod": "In selected period",
+
+    // Offline
+    "offline.message": "Connection Lost",
+    "offline.description": "Some features are limited while offline",
   },
 };
 
