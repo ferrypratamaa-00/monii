@@ -130,6 +130,21 @@ const translations = {
     "onboarding.next": "Selanjutnya",
     "onboarding.back": "Kembali",
     "onboarding.start": "Mulai",
+    "onboarding.close": "Tutup",
+    "onboarding.finish": "Selesai",
+    "onboarding.open": "Buka",
+
+    // Onboarding Guide
+    "onboarding.guide.balance": "Saldo Anda",
+    "onboarding.guide.balanceDesc": "Lihat total saldo Anda di sini. Ini menampilkan ringkasan keuangan Anda saat ini.",
+    "onboarding.guide.addTransaction": "Tambah Transaksi",
+    "onboarding.guide.addTransactionDesc": "Klik tombol ini untuk menambah transaksi pemasukan atau pengeluaran baru.",
+    "onboarding.guide.recentTransactions": "Transaksi Terbaru",
+    "onboarding.guide.recentTransactionsDesc": "Lihat daftar transaksi terbaru Anda di sini untuk memantau aktivitas keuangan.",
+    "onboarding.guide.expenseChart": "Grafik Pengeluaran",
+    "onboarding.guide.expenseChartDesc": "Pantau pengeluaran Anda berdasarkan kategori dengan grafik interaktif ini.",
+    "onboarding.guide.navigation": "Navigasi Menu",
+    "onboarding.guide.navigationDesc": "Gunakan menu navigasi ini untuk berpindah antara Dashboard, Transaksi, Akun, dan fitur lainnya.",
   },
   en: {
     // Navigation
@@ -244,6 +259,21 @@ const translations = {
     "onboarding.next": "Next",
     "onboarding.back": "Back",
     "onboarding.start": "Start",
+    "onboarding.close": "Close",
+    "onboarding.finish": "Finish",
+    "onboarding.open": "Open",
+
+    // Onboarding Guide
+    "onboarding.guide.balance": "Your Balance",
+    "onboarding.guide.balanceDesc": "View your total balance here. This shows a summary of your current finances.",
+    "onboarding.guide.addTransaction": "Add Transaction",
+    "onboarding.guide.addTransactionDesc": "Click this button to add a new income or expense transaction.",
+    "onboarding.guide.recentTransactions": "Recent Transactions",
+    "onboarding.guide.recentTransactionsDesc": "View your recent transactions here to monitor your financial activity.",
+    "onboarding.guide.expenseChart": "Expense Chart",
+    "onboarding.guide.expenseChartDesc": "Monitor your expenses by category with this interactive chart.",
+    "onboarding.guide.navigation": "Navigation Menu",
+    "onboarding.guide.navigationDesc": "Use this navigation menu to switch between Dashboard, Transactions, Accounts, and other features.",
   },
 };
 

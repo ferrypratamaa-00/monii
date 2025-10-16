@@ -57,6 +57,7 @@ export default function Navigation() {
       <nav
         className="bg-card border-b border-border hidden md:block sticky top-0 z-50 backdrop-blur-sm bg-card/95"
         aria-label="Main navigation"
+        data-onboarding="navigation"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
