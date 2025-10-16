@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import withPWA from "next-pwa";
 
 const securityHeaders = [
   {
@@ -23,8 +24,13 @@ const securityHeaders = [
   },
 ];
 
-export const nextConfig: NextConfig = {
+const nextConfig: NextConfig = {
   poweredByHeader: false,
+  reactStrictMode: true,
+  experimental: {
+    serverActions: { allowedOrigins: ["*"] },
+  },
+  serverExternalPackages: ["better-sqlite3"],
   async headers() {
     return [
       {
@@ -33,9 +39,12 @@ export const nextConfig: NextConfig = {
       },
     ];
   },
-  experimental: {
-    serverComponentsExternalPackages: ["better-sqlite3"],
-  },
 };
 
-export default nextConfig;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default withPWA({
+  dest: "public",
+  register: true,
+  skipWaiting: true,
+  disable: process.env.NODE_ENV === "development",
+})(nextConfig);

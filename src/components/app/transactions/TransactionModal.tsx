@@ -71,7 +71,6 @@ export default function TransactionModal() {
             <ReceiptScanDialog
               accounts={accounts || []}
               categories={categories || []}
-              onTransactionCreate={() => {}} // Not used anymore, handled internally
             />
           </TabsContent>
         </Tabs>
