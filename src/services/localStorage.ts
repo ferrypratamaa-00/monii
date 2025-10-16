@@ -27,14 +27,14 @@ interface CachedAccountsData {
 }
 
 class LocalStorageService {
-  private readonly USER_DATA_KEY = 'monii_user_data';
-  private readonly DASHBOARD_DATA_KEY = 'monii_dashboard_data';
-  private readonly CATEGORIES_DATA_KEY = 'monii_categories_data';
-  private readonly ACCOUNTS_DATA_KEY = 'monii_accounts_data';
+  private readonly USER_DATA_KEY = "monii_user_data";
+  private readonly DASHBOARD_DATA_KEY = "monii_dashboard_data";
+  private readonly CATEGORIES_DATA_KEY = "monii_categories_data";
+  private readonly ACCOUNTS_DATA_KEY = "monii_accounts_data";
   private readonly CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
 
   // User Data
-  saveUserData(data: Omit<CachedUserData, 'lastSync'>): void {
+  saveUserData(data: Omit<CachedUserData, "lastSync">): void {
     try {
       const cachedData: CachedUserData = {
         ...data,
@@ -42,7 +42,7 @@ class LocalStorageService {
       };
       localStorage.setItem(this.USER_DATA_KEY, JSON.stringify(cachedData));
     } catch (error) {
-      console.warn('Failed to save user data to localStorage:', error);
+      console.warn("Failed to save user data to localStorage:", error);
     }
   }
 
@@ -52,17 +52,18 @@ class LocalStorageService {
       if (!data) return null;
 
       const parsed = JSON.parse(data) as CachedUserData;
-      const isExpired = Date.now() - new Date(parsed.lastSync).getTime() > this.CACHE_EXPIRY;
+      const isExpired =
+        Date.now() - new Date(parsed.lastSync).getTime() > this.CACHE_EXPIRY;
 
       return isExpired ? null : parsed;
     } catch (error) {
-      console.warn('Failed to get user data from localStorage:', error);
+      console.warn("Failed to get user data from localStorage:", error);
       return null;
     }
   }
 
   // Dashboard Data
-  saveDashboardData(data: Omit<CachedDashboardData, 'lastSync'>): void {
+  saveDashboardData(data: Omit<CachedDashboardData, "lastSync">): void {
     try {
       const cachedData: CachedDashboardData = {
         ...data,
@@ -70,7 +71,7 @@ class LocalStorageService {
       };
       localStorage.setItem(this.DASHBOARD_DATA_KEY, JSON.stringify(cachedData));
     } catch (error) {
-      console.warn('Failed to save dashboard data to localStorage:', error);
+      console.warn("Failed to save dashboard data to localStorage:", error);
     }
   }
 
@@ -80,25 +81,29 @@ class LocalStorageService {
       if (!data) return null;
 
       const parsed = JSON.parse(data) as CachedDashboardData;
-      const isExpired = Date.now() - new Date(parsed.lastSync).getTime() > this.CACHE_EXPIRY;
+      const isExpired =
+        Date.now() - new Date(parsed.lastSync).getTime() > this.CACHE_EXPIRY;
 
       return isExpired ? null : parsed;
     } catch (error) {
-      console.warn('Failed to get dashboard data from localStorage:', error);
+      console.warn("Failed to get dashboard data from localStorage:", error);
       return null;
     }
   }
 
   // Categories Data
-  saveCategoriesData(data: Omit<CachedCategoriesData, 'lastSync'>): void {
+  saveCategoriesData(data: Omit<CachedCategoriesData, "lastSync">): void {
     try {
       const cachedData: CachedCategoriesData = {
         ...data,
         lastSync: new Date().toISOString(),
       };
-      localStorage.setItem(this.CATEGORIES_DATA_KEY, JSON.stringify(cachedData));
+      localStorage.setItem(
+        this.CATEGORIES_DATA_KEY,
+        JSON.stringify(cachedData),
+      );
     } catch (error) {
-      console.warn('Failed to save categories data to localStorage:', error);
+      console.warn("Failed to save categories data to localStorage:", error);
     }
   }
 
@@ -108,17 +113,18 @@ class LocalStorageService {
       if (!data) return null;
 
       const parsed = JSON.parse(data) as CachedCategoriesData;
-      const isExpired = Date.now() - new Date(parsed.lastSync).getTime() > this.CACHE_EXPIRY;
+      const isExpired =
+        Date.now() - new Date(parsed.lastSync).getTime() > this.CACHE_EXPIRY;
 
       return isExpired ? null : parsed;
     } catch (error) {
-      console.warn('Failed to get categories data from localStorage:', error);
+      console.warn("Failed to get categories data from localStorage:", error);
       return null;
     }
   }
 
   // Accounts Data
-  saveAccountsData(data: Omit<CachedAccountsData, 'lastSync'>): void {
+  saveAccountsData(data: Omit<CachedAccountsData, "lastSync">): void {
     try {
       const cachedData: CachedAccountsData = {
         ...data,
@@ -126,7 +132,7 @@ class LocalStorageService {
       };
       localStorage.setItem(this.ACCOUNTS_DATA_KEY, JSON.stringify(cachedData));
     } catch (error) {
-      console.warn('Failed to save accounts data to localStorage:', error);
+      console.warn("Failed to save accounts data to localStorage:", error);
     }
   }
 
@@ -136,11 +142,12 @@ class LocalStorageService {
       if (!data) return null;
 
       const parsed = JSON.parse(data) as CachedAccountsData;
-      const isExpired = Date.now() - new Date(parsed.lastSync).getTime() > this.CACHE_EXPIRY;
+      const isExpired =
+        Date.now() - new Date(parsed.lastSync).getTime() > this.CACHE_EXPIRY;
 
       return isExpired ? null : parsed;
     } catch (error) {
-      console.warn('Failed to get accounts data from localStorage:', error);
+      console.warn("Failed to get accounts data from localStorage:", error);
       return null;
     }
   }
@@ -153,7 +160,7 @@ class LocalStorageService {
       localStorage.removeItem(this.CATEGORIES_DATA_KEY);
       localStorage.removeItem(this.ACCOUNTS_DATA_KEY);
     } catch (error) {
-      console.warn('Failed to clear localStorage data:', error);
+      console.warn("Failed to clear localStorage data:", error);
     }
   }
 

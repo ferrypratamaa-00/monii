@@ -57,7 +57,8 @@ export default function OfflineDashboard({ userName }: OfflineDashboardProps) {
                 Rp{dashboardData.totalBalance?.toLocaleString("id-ID") || "0"}
               </p>
               <div className="text-center text-sm text-muted-foreground">
-                Saldo terakhir ({new Date(dashboardData.lastSync).toLocaleDateString("id-ID")})
+                Saldo terakhir (
+                {new Date(dashboardData.lastSync).toLocaleDateString("id-ID")})
               </div>
             </CardContent>
           </Card>
@@ -77,7 +78,10 @@ export default function OfflineDashboard({ userName }: OfflineDashboardProps) {
                       {t("dashboard.income")}
                     </p>
                     <p className="text-lg md:text-xl font-bold text-income">
-                      +Rp{dashboardData.monthlySummary?.income?.toLocaleString("id-ID") || "0"}
+                      +Rp
+                      {dashboardData.monthlySummary?.income?.toLocaleString(
+                        "id-ID",
+                      ) || "0"}
                     </p>
                   </div>
                 </div>
@@ -95,7 +99,10 @@ export default function OfflineDashboard({ userName }: OfflineDashboardProps) {
                       {t("dashboard.expense")}
                     </p>
                     <p className="text-lg md:text-xl font-bold text-expense">
-                      -Rp{dashboardData.monthlySummary?.expense?.toLocaleString("id-ID") || "0"}
+                      -Rp
+                      {dashboardData.monthlySummary?.expense?.toLocaleString(
+                        "id-ID",
+                      ) || "0"}
                     </p>
                   </div>
                 </div>
@@ -124,7 +131,10 @@ export default function OfflineDashboard({ userName }: OfflineDashboardProps) {
                         {account.name}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        Update terakhir: {new Date(accountsData.lastSync).toLocaleDateString("id-ID")}
+                        Update terakhir:{" "}
+                        {new Date(accountsData.lastSync).toLocaleDateString(
+                          "id-ID",
+                        )}
                       </p>
                     </div>
                     <p className="font-bold text-sm">
@@ -171,8 +181,8 @@ export default function OfflineDashboard({ userName }: OfflineDashboardProps) {
             </div>
             <h3 className="text-lg font-semibold mb-2">Mode Offline</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Anda sedang melihat data yang tersimpan di perangkat ini.
-              Beberapa fitur seperti menambah transaksi atau melihat laporan terbaru
+              Anda sedang melihat data yang tersimpan di perangkat ini. Beberapa
+              fitur seperti menambah transaksi atau melihat laporan terbaru
               memerlukan koneksi internet.
             </p>
             <p className="text-xs text-muted-foreground">

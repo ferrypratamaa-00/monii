@@ -15,7 +15,7 @@ export function AppInitializer({ children }: AppInitializerProps) {
     showSplash,
     setShowSplash,
     showWelcome,
-    setShowWelcome
+    setShowWelcome,
   } = useOnboarding();
 
   const handleSplashComplete = () => {
@@ -39,7 +39,12 @@ export function AppInitializer({ children }: AppInitializerProps) {
 
   // Show welcome slides if user hasn't seen onboarding
   if (showWelcome && !hasSeenOnboarding) {
-    return <WelcomeSlides onComplete={handleWelcomeComplete} onSkip={handleWelcomeSkip} />;
+    return (
+      <WelcomeSlides
+        onComplete={handleWelcomeComplete}
+        onSkip={handleWelcomeSkip}
+      />
+    );
   }
 
   // Show main app

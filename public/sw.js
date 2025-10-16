@@ -141,37 +141,44 @@ self.addEventListener("fetch", (event) => {
           return response;
         }
 
-        return fetch(event.request).then((fetchResponse) => {
-          // Cache successful GET requests for pages and assets
-          if (
-            fetchResponse.status === 200 &&
-            event.request.method === "GET" &&
-            (url.pathname.startsWith("/") ||
-             url.pathname.includes(".") ||
-             url.pathname.includes("manifest"))
-          ) {
-            const responseClone = fetchResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, responseClone);
-              console.log("Cached asset:", url.pathname);
-            });
-          }
-          return fetchResponse;
-        }).catch(() => {
-          // If network fails and we have no cache, show offline page
-          if (url.pathname.startsWith("/dashboard") ||
-              url.pathname.startsWith("/transactions") ||
-              url.pathname.startsWith("/goals")) {
-            return caches.match("/").then((response) => {
-              return response || new Response("Offline - Please check your connection", {
-                status: 503,
+        return fetch(event.request)
+          .then((fetchResponse) => {
+            // Cache successful GET requests for pages and assets
+            if (
+              fetchResponse.status === 200 &&
+              event.request.method === "GET" &&
+              (url.pathname.startsWith("/") ||
+                url.pathname.includes(".") ||
+                url.pathname.includes("manifest"))
+            ) {
+              const responseClone = fetchResponse.clone();
+              caches.open(CACHE_NAME).then((cache) => {
+                cache.put(event.request, responseClone);
+                console.log("Cached asset:", url.pathname);
               });
+            }
+            return fetchResponse;
+          })
+          .catch(() => {
+            // If network fails and we have no cache, show offline page
+            if (
+              url.pathname.startsWith("/dashboard") ||
+              url.pathname.startsWith("/transactions") ||
+              url.pathname.startsWith("/goals")
+            ) {
+              return caches.match("/").then((response) => {
+                return (
+                  response ||
+                  new Response("Offline - Please check your connection", {
+                    status: 503,
+                  })
+                );
+              });
+            }
+            return new Response("Offline - Please check your connection", {
+              status: 503,
             });
-          }
-          return new Response("Offline - Please check your connection", {
-            status: 503,
           });
-        });
       }),
     );
   }

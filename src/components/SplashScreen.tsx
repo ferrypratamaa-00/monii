@@ -14,7 +14,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
   useEffect(() => {
     // Animate progress bar
     const progressInterval = setInterval(() => {
-      setProgress(prev => {
+      setProgress((prev) => {
         if (prev >= 100) {
           clearInterval(progressInterval);
           return 100;
@@ -39,7 +39,9 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
   if (!isVisible) return null;
 
   return (
-    <div className={`fixed inset-0 z-50 flex items-center justify-center bg-background transition-all duration-400 ${!isVisible ? 'opacity-0' : 'opacity-100'}`}>
+    <div
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-background transition-all duration-400 ${!isVisible ? "opacity-0" : "opacity-100"}`}
+    >
       <div className="text-center">
         {/* App Logo/Icon */}
         <div className="mb-4">
@@ -54,9 +56,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
         </div>
 
         {/* App Name */}
-        <h1 className="text-3xl font-bold text-foreground mb-3">
-          Monii
-        </h1>
+        <h1 className="text-3xl font-bold text-foreground mb-3">Monii</h1>
 
         {/* Tagline */}
         <p className="text-muted-foreground text-base mb-8">
@@ -74,9 +74,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
         </div>
 
         {/* Loading text */}
-        <p className="text-xs text-muted-foreground">
-          Loading...
-        </p>
+        <p className="text-xs text-muted-foreground">Loading...</p>
       </div>
     </div>
   );

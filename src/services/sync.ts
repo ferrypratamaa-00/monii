@@ -5,51 +5,57 @@
 
 interface PendingTransaction {
   id: string;
-  type: 'create_transaction' | 'update_transaction' | 'delete_transaction';
+  type: "create_transaction" | "update_transaction" | "delete_transaction";
   data: any;
   timestamp: string;
   retryCount: number;
 }
 
 class SyncService {
-  private readonly PENDING_TRANSACTIONS_KEY = 'monii_pending_transactions';
+  private readonly PENDING_TRANSACTIONS_KEY = "monii_pending_transactions";
   private readonly MAX_RETRY_COUNT = 3;
   private isOnline = navigator.onLine;
 
   constructor() {
     // Listen for online/offline events
-    window.addEventListener('online', this.handleOnline.bind(this));
-    window.addEventListener('offline', this.handleOffline.bind(this));
+    window.addEventListener("online", this.handleOnline.bind(this));
+    window.addEventListener("offline", this.handleOffline.bind(this));
 
     // Register background sync if supported
-    if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
+    if (
+      "serviceWorker" in navigator &&
+      "sync" in window.ServiceWorkerRegistration.prototype
+    ) {
       this.registerBackgroundSync();
     }
   }
 
   private handleOnline() {
-    console.log('Back online - starting sync');
+    console.log("Back online - starting sync");
     this.isOnline = true;
     this.syncPendingData();
   }
 
   private handleOffline() {
-    console.log('Gone offline');
+    console.log("Gone offline");
     this.isOnline = false;
   }
 
   private async registerBackgroundSync() {
     try {
       const registration = await navigator.serviceWorker.ready;
-      await (registration as any).sync.register('background-sync');
-      console.log('Background sync registered');
+      await (registration as any).sync.register("background-sync");
+      console.log("Background sync registered");
     } catch (error) {
-      console.warn('Background sync not supported or failed to register:', error);
+      console.warn(
+        "Background sync not supported or failed to register:",
+        error,
+      );
     }
   }
 
   // Add pending transaction to queue
-  addPendingTransaction(type: PendingTransaction['type'], data: any): string {
+  addPendingTransaction(type: PendingTransaction["type"], data: any): string {
     const transaction: PendingTransaction = {
       id: `pending_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       type,
@@ -60,9 +66,12 @@ class SyncService {
 
     const pending = this.getPendingTransactions();
     pending.push(transaction);
-    localStorage.setItem(this.PENDING_TRANSACTIONS_KEY, JSON.stringify(pending));
+    localStorage.setItem(
+      this.PENDING_TRANSACTIONS_KEY,
+      JSON.stringify(pending),
+    );
 
-    console.log('Added pending transaction:', transaction.id);
+    console.log("Added pending transaction:", transaction.id);
     return transaction.id;
   }
 
@@ -72,7 +81,7 @@ class SyncService {
       const data = localStorage.getItem(this.PENDING_TRANSACTIONS_KEY);
       return data ? JSON.parse(data) : [];
     } catch (error) {
-      console.warn('Failed to get pending transactions:', error);
+      console.warn("Failed to get pending transactions:", error);
       return [];
     }
   }
@@ -80,30 +89,36 @@ class SyncService {
   // Remove completed transaction
   private removePendingTransaction(id: string) {
     const pending = this.getPendingTransactions();
-    const filtered = pending.filter(t => t.id !== id);
-    localStorage.setItem(this.PENDING_TRANSACTIONS_KEY, JSON.stringify(filtered));
+    const filtered = pending.filter((t) => t.id !== id);
+    localStorage.setItem(
+      this.PENDING_TRANSACTIONS_KEY,
+      JSON.stringify(filtered),
+    );
   }
 
   // Update retry count
   private updateRetryCount(id: string) {
     const pending = this.getPendingTransactions();
-    const transaction = pending.find(t => t.id === id);
+    const transaction = pending.find((t) => t.id === id);
     if (transaction) {
       transaction.retryCount++;
-      localStorage.setItem(this.PENDING_TRANSACTIONS_KEY, JSON.stringify(pending));
+      localStorage.setItem(
+        this.PENDING_TRANSACTIONS_KEY,
+        JSON.stringify(pending),
+      );
     }
   }
 
   // Sync pending data
   async syncPendingData(): Promise<void> {
     if (!this.isOnline) {
-      console.log('Skipping sync - offline');
+      console.log("Skipping sync - offline");
       return;
     }
 
     const pending = this.getPendingTransactions();
     if (pending.length === 0) {
-      console.log('No pending transactions to sync');
+      console.log("No pending transactions to sync");
       return;
     }
 
@@ -113,16 +128,19 @@ class SyncService {
       try {
         await this.processTransaction(transaction);
         this.removePendingTransaction(transaction.id);
-        console.log('Successfully synced transaction:', transaction.id);
+        console.log("Successfully synced transaction:", transaction.id);
       } catch (error) {
-        console.warn('Failed to sync transaction:', transaction.id, error);
+        console.warn("Failed to sync transaction:", transaction.id, error);
 
         // Increment retry count
         this.updateRetryCount(transaction.id);
 
         // Remove if max retries exceeded
         if (transaction.retryCount >= this.MAX_RETRY_COUNT) {
-          console.warn('Max retries exceeded, removing transaction:', transaction.id);
+          console.warn(
+            "Max retries exceeded, removing transaction:",
+            transaction.id,
+          );
           this.removePendingTransaction(transaction.id);
         }
       }
@@ -130,13 +148,15 @@ class SyncService {
   }
 
   // Process individual transaction
-  private async processTransaction(transaction: PendingTransaction): Promise<void> {
+  private async processTransaction(
+    transaction: PendingTransaction,
+  ): Promise<void> {
     switch (transaction.type) {
-      case 'create_transaction': {
+      case "create_transaction": {
         // Call transaction creation API
-        const response = await fetch('/api/transactions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        const response = await fetch("/api/transactions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(transaction.data),
         });
 
@@ -146,28 +166,38 @@ class SyncService {
         break;
       }
 
-      case 'update_transaction': {
+      case "update_transaction": {
         // Call transaction update API
-        const updateResponse = await fetch(`/api/transactions/${transaction.data.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(transaction.data),
-        });
+        const updateResponse = await fetch(
+          `/api/transactions/${transaction.data.id}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(transaction.data),
+          },
+        );
 
         if (!updateResponse.ok) {
-          throw new Error(`Failed to update transaction: ${updateResponse.status}`);
+          throw new Error(
+            `Failed to update transaction: ${updateResponse.status}`,
+          );
         }
         break;
       }
 
-      case 'delete_transaction': {
+      case "delete_transaction": {
         // Call transaction delete API
-        const deleteResponse = await fetch(`/api/transactions/${transaction.data.id}`, {
-          method: 'DELETE',
-        });
+        const deleteResponse = await fetch(
+          `/api/transactions/${transaction.data.id}`,
+          {
+            method: "DELETE",
+          },
+        );
 
         if (!deleteResponse.ok) {
-          throw new Error(`Failed to delete transaction: ${deleteResponse.status}`);
+          throw new Error(
+            `Failed to delete transaction: ${deleteResponse.status}`,
+          );
         }
         break;
       }
@@ -184,8 +214,9 @@ class SyncService {
     lastSyncTime: string | null;
   } {
     const pending = this.getPendingTransactions();
-    const lastTransaction = pending.sort((a, b) =>
-      new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    const lastTransaction = pending.sort(
+      (a, b) =>
+        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
     )[0];
 
     return {
@@ -198,7 +229,7 @@ class SyncService {
   // Clear all pending transactions (for testing/debugging)
   clearPendingTransactions(): void {
     localStorage.removeItem(this.PENDING_TRANSACTIONS_KEY);
-    console.log('Cleared all pending transactions');
+    console.log("Cleared all pending transactions");
   }
 }
 

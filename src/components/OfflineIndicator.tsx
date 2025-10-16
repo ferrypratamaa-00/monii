@@ -7,7 +7,9 @@ import { syncService } from "@/services/sync";
 
 export default function OfflineIndicator() {
   const [isOnline, setIsOnline] = useState(true);
-  const [cacheStatus, setCacheStatus] = useState(localStorageService.getCacheStatus());
+  const [cacheStatus, setCacheStatus] = useState(
+    localStorageService.getCacheStatus(),
+  );
   const [syncStatus, setSyncStatus] = useState(syncService.getSyncStatus());
   const { t } = useLanguage();
 
@@ -49,8 +51,11 @@ export default function OfflineIndicator() {
 
   if (isOnline) return null;
 
-  const hasAnyCache = cacheStatus.userData || cacheStatus.dashboardData ||
-                      cacheStatus.categoriesData || cacheStatus.accountsData;
+  const hasAnyCache =
+    cacheStatus.userData ||
+    cacheStatus.dashboardData ||
+    cacheStatus.categoriesData ||
+    cacheStatus.accountsData;
 
   return (
     <div className="fixed bottom-24 md:bottom-6 left-1/2 -translate-x-1/2 bg-destructive text-destructive-foreground px-4 py-3 rounded-xl shadow-2xl z-50 max-w-sm mx-auto">

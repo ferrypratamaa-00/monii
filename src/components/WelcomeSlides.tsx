@@ -24,46 +24,46 @@ const slidesData = [
     titleKey: "onboarding.welcome",
     descriptionKey: "onboarding.welcomeDesc",
     icon: "💰",
-    iconBg: "bg-gradient-to-br from-primary/20 to-accent/20"
+    iconBg: "bg-gradient-to-br from-primary/20 to-accent/20",
   },
   {
     id: 2,
     titleKey: "onboarding.transactions",
     descriptionKey: "onboarding.transactionsDesc",
     icon: "📱",
-    iconBg: "bg-gradient-to-br from-green-500/20 to-emerald-500/20"
+    iconBg: "bg-gradient-to-br from-green-500/20 to-emerald-500/20",
   },
   {
     id: 3,
     titleKey: "onboarding.accounts",
     descriptionKey: "onboarding.accountsDesc",
     icon: "📊",
-    iconBg: "bg-gradient-to-br from-purple-500/20 to-indigo-500/20"
+    iconBg: "bg-gradient-to-br from-purple-500/20 to-indigo-500/20",
   },
   {
     id: 4,
     titleKey: "onboarding.reports",
     descriptionKey: "onboarding.reportsDesc",
     icon: "📈",
-    iconBg: "bg-gradient-to-br from-orange-500/20 to-red-500/20"
+    iconBg: "bg-gradient-to-br from-orange-500/20 to-red-500/20",
   },
   {
     id: 5,
     titleKey: "onboarding.offline",
     descriptionKey: "onboarding.offlineDesc",
     icon: "🔄",
-    iconBg: "bg-gradient-to-br from-teal-500/20 to-cyan-500/20"
-  }
+    iconBg: "bg-gradient-to-br from-teal-500/20 to-cyan-500/20",
+  },
 ];
 
 export function WelcomeSlides({ onComplete, onSkip }: WelcomeSlidesProps) {
   const { t } = useLanguage();
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  const slides: WelcomeSlide[] = slidesData.map(slide => ({
+  const slides: WelcomeSlide[] = slidesData.map((slide) => ({
     ...slide,
     title: t(slide.titleKey),
-    description: t(slide.descriptionKey)
+    description: t(slide.descriptionKey),
   }));
 
   const nextSlide = () => {
@@ -103,7 +103,9 @@ export function WelcomeSlides({ onComplete, onSkip }: WelcomeSlidesProps) {
       <div className="flex-1 flex items-center justify-center px-6">
         <div className="w-full max-w-md text-center">
           {/* Slide icon */}
-          <div className={`w-20 h-20 ${slides[currentSlide].iconBg} rounded-2xl flex items-center justify-center mx-auto mb-8 text-4xl transition-all duration-300 hover:scale-105`}>
+          <div
+            className={`w-20 h-20 ${slides[currentSlide].iconBg} rounded-2xl flex items-center justify-center mx-auto mb-8 text-4xl transition-all duration-300 hover:scale-105`}
+          >
             {slides[currentSlide].icon}
           </div>
 
@@ -124,12 +126,12 @@ export function WelcomeSlides({ onComplete, onSkip }: WelcomeSlidesProps) {
         {slides.map((_, index) => (
           <button
             type="button"
-            key={index + 1}
+            key={`slide-${index}`}
             onClick={() => goToSlide(index)}
             className={`transition-all duration-300 ${
               index === currentSlide
-                ? 'w-6 h-2 bg-primary rounded-full'
-                : 'w-2 h-2 bg-white border border-primary/50 rounded-full hover:bg-muted-foreground/50'
+                ? "w-6 h-2 bg-primary rounded-full"
+                : "w-2 h-2 bg-white border border-primary/50 rounded-full hover:bg-muted-foreground/50"
             }`}
           />
         ))}
@@ -151,8 +153,12 @@ export function WelcomeSlides({ onComplete, onSkip }: WelcomeSlidesProps) {
           onClick={nextSlide}
           className="bg-primary hover:bg-primary/90 text-primary-foreground transition-colors duration-200"
         >
-          {currentSlide === slides.length - 1 ? t("onboarding.start") : t("onboarding.next")}
-          {currentSlide < slides.length - 1 && <ChevronRight className="h-4 w-4 ml-2" />}
+          {currentSlide === slides.length - 1
+            ? t("onboarding.start")
+            : t("onboarding.next")}
+          {currentSlide < slides.length - 1 && (
+            <ChevronRight className="h-4 w-4 ml-2" />
+          )}
         </Button>
       </div>
     </div>

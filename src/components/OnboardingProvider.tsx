@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 
 interface OnboardingContextType {
   hasSeenOnboarding: boolean;
@@ -11,9 +17,11 @@ interface OnboardingContextType {
   setShowWelcome: (show: boolean) => void;
 }
 
-const OnboardingContext = createContext<OnboardingContextType | undefined>(undefined);
+const OnboardingContext = createContext<OnboardingContextType | undefined>(
+  undefined,
+);
 
-const ONBOARDING_KEY = 'monii_onboarding_seen';
+const ONBOARDING_KEY = "monii_onboarding_seen";
 
 export function OnboardingProvider({ children }: { children: ReactNode }) {
   const [hasSeenOnboarding, setHasSeenOnboardingState] = useState(false);
@@ -23,7 +31,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
 
   // Load onboarding state from localStorage on mount
   useEffect(() => {
-    const seen = localStorage.getItem(ONBOARDING_KEY) === 'true';
+    const seen = localStorage.getItem(ONBOARDING_KEY) === "true";
     setHasSeenOnboardingState(seen);
     setIsLoaded(true);
 
@@ -62,7 +70,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
 export function useOnboarding() {
   const context = useContext(OnboardingContext);
   if (context === undefined) {
-    throw new Error('useOnboarding must be used within an OnboardingProvider');
+    throw new Error("useOnboarding must be used within an OnboardingProvider");
   }
   return context;
 }
