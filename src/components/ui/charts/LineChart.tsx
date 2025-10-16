@@ -60,17 +60,17 @@ export function LineChart({ data, height = 300 }: LineChartProps) {
         <Line
           type="monotone"
           dataKey="income"
-          stroke="#10b981"
+          stroke="#66c2a5"
           strokeWidth={2}
-          dot={{ fill: "#10b981", strokeWidth: 2, r: 4 }}
+          dot={{ fill: "#66c2a5", strokeWidth: 2, r: 4 }}
           activeDot={{ r: 6 }}
         />
         <Line
           type="monotone"
           dataKey="expense"
-          stroke="#ef4444"
+          stroke="#fc8d62"
           strokeWidth={2}
-          dot={{ fill: "#ef4444", strokeWidth: 2, r: 4 }}
+          dot={{ fill: "#fc8d62", strokeWidth: 2, r: 4 }}
           activeDot={{ r: 6 }}
         />
       </RechartsLineChart>

@@ -2,6 +2,7 @@
 import { format } from "date-fns";
 import { Download, File, FileText } from "lucide-react";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -25,6 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/components/LanguageProvider";
 
 export default function ReportsPage() {
   const [dateRange, setDateRange] = useState<{
@@ -33,6 +35,22 @@ export default function ReportsPage() {
   }>({});
   const [exportFormat, setExportFormat] = useState<"csv" | "pdf">("csv");
   const [isExporting, setIsExporting] = useState(false);
+  const { t } = useLanguage();
+
+  // Fetch summary data based on date range
+  const { data: summaryData, isLoading: isLoadingSummary } = useQuery({
+    queryKey: ["reports-summary", dateRange.from, dateRange.to],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (dateRange.from)
+        params.append("startDate", dateRange.from.toISOString());
+      if (dateRange.to) params.append("endDate", dateRange.to.toISOString());
+
+      const response = await fetch(`/api/reports/summary?${params.toString()}`);
+      if (!response.ok) throw new Error("Failed to fetch summary");
+      return response.json();
+    },
+  });
 
   const handleExport = async () => {
     setIsExporting(true);
@@ -72,19 +90,19 @@ export default function ReportsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold" id="reports-heading">
-            Reports
+            {t("reports.title")}
           </h1>
           <p className="text-muted-foreground">
-            Export your transaction data in various formats
+            {t("reports.description")}
           </p>
         </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Export Transactions</CardTitle>
+          <CardTitle>{t("reports.exportTransactions")}</CardTitle>
           <CardDescription>
-            Download your transaction history as CSV or PDF file
+            {t("reports.exportDescription")}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -217,34 +235,40 @@ export default function ReportsPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">
-              Total Transactions
+              {t("reports.totalTransactions")}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">-</div>
-            <p className="text-xs text-muted-foreground">In selected period</p>
+            <div className="text-2xl font-bold">
+              {isLoadingSummary ? "..." : summaryData?.totalTransactions || 0}
+            </div>
+            <p className="text-xs text-muted-foreground">{t("reports.inSelectedPeriod")}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Income</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("reports.totalIncome")}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">Rp -</div>
-            <p className="text-xs text-muted-foreground">In selected period</p>
+            <div className="text-2xl font-bold text-income">
+              Rp {isLoadingSummary ? "..." : (summaryData?.income || 0).toLocaleString("id-ID")}
+            </div>
+            <p className="text-xs text-muted-foreground">{t("reports.inSelectedPeriod")}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">
-              Total Expenses
+              {t("reports.totalExpenses")}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">Rp -</div>
-            <p className="text-xs text-muted-foreground">In selected period</p>
+            <div className="text-2xl font-bold text-expense">
+              Rp {isLoadingSummary ? "..." : (summaryData?.expense || 0).toLocaleString("id-ID")}
+            </div>
+            <p className="text-xs text-muted-foreground">{t("reports.inSelectedPeriod")}</p>
           </CardContent>
         </Card>
       </div>

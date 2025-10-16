@@ -276,7 +276,7 @@ export function ReceiptScanDialog({
                   onClick={() => setShowScanner(true)}
                 >
                   <CardContent className="p-6 text-center">
-                    <Camera className="h-12 w-12 mx-auto mb-4 text-blue-500" />
+                    <Camera className="h-12 w-12 mx-auto mb-4 text-primary" />
                     <h3 className="font-semibold mb-2">Scan Receipt</h3>
                     <p className="text-sm text-muted-foreground">
                       Use your camera to scan a receipt and automatically
@@ -313,7 +313,7 @@ export function ReceiptScanDialog({
           {capturedImage && ocrMutation.isPending && (
             <Card>
               <CardContent className="p-6 text-center">
-                <Loader2 className="h-8 w-8 mx-auto mb-4 animate-spin text-blue-500" />
+                <Loader2 className="h-8 w-8 mx-auto mb-4 animate-spin text-primary" />
                 <h3 className="font-semibold mb-2">Processing Receipt</h3>
                 <p className="text-sm text-muted-foreground">
                   Extracting text and analyzing receipt data...

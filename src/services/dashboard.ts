@@ -109,3 +109,53 @@ export async function getMonthlyTrendData(
 
   return results;
 }
+
+export async function getSummaryByDateRange(
+  userId: number,
+  startDate?: Date,
+  endDate?: Date,
+) {
+  const conditions = [eq(transactions.userId, userId)];
+
+  if (startDate) {
+    conditions.push(gte(transactions.date, startDate));
+  }
+  if (endDate) {
+    conditions.push(lt(transactions.date, endDate));
+  }
+
+  const [incomeResult] = await db
+    .select({ total: sum(transactions.amount) })
+    .from(transactions)
+    .where(
+      and(
+        ...conditions,
+        eq(transactions.type, "INCOME"),
+      ),
+    );
+
+  const [expenseResult] = await db
+    .select({ total: sum(transactions.amount) })
+    .from(transactions)
+    .where(
+      and(
+        ...conditions,
+        eq(transactions.type, "EXPENSE"),
+      ),
+    );
+
+  const [transactionCount] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(transactions)
+    .where(and(...conditions));
+
+  const income = incomeResult?.total
+    ? Math.abs(parseFloat(incomeResult.total))
+    : 0;
+  const expense = expenseResult?.total
+    ? Math.abs(parseFloat(expenseResult.total))
+    : 0;
+  const totalTransactions = transactionCount?.count || 0;
+
+  return { income, expense, totalTransactions };
+}

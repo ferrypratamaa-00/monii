@@ -132,13 +132,13 @@ function AISuggestionCard({ suggestion, t }: AISuggestionCardProps) {
   const getIcon = () => {
     switch (suggestion.type) {
       case "WARNING":
-        return <AlertTriangle className="h-4 w-4 text-red-500" />;
+        return <AlertTriangle className="h-4 w-4 text-destructive" />;
       case "TIP":
-        return <Lightbulb className="h-4 w-4 text-blue-500" />;
+        return <Lightbulb className="h-4 w-4 text-chart-1" />;
       case "GOAL":
-        return <Target className="h-4 w-4 text-green-500" />;
+        return <Target className="h-4 w-4 text-income" />;
       case "INSIGHT":
-        return <TrendingUp className="h-4 w-4 text-purple-500" />;
+        return <TrendingUp className="h-4 w-4 text-chart-2" />;
       default:
         return <Lightbulb className="h-4 w-4" />;
     }
@@ -189,17 +189,17 @@ function FinancialHealthScore({ health, t }: FinancialHealthScoreProps) {
   const getGradeColor = (grade: string) => {
     switch (grade) {
       case "A":
-        return "text-green-600";
+        return "text-income";
       case "B":
-        return "text-blue-600";
+        return "text-chart-1";
       case "C":
-        return "text-yellow-600";
+        return "text-chart-2";
       case "D":
-        return "text-orange-600";
+        return "text-expense";
       case "F":
-        return "text-red-600";
+        return "text-destructive";
       default:
-        return "text-gray-600";
+        return "text-muted-foreground";
     }
   };
 
@@ -226,7 +226,7 @@ function FinancialHealthScore({ health, t }: FinancialHealthScoreProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <div>
-              <h4 className="font-medium text-green-700 mb-2">
+              <h4 className="font-medium text-income mb-2">
                 {t("ai.strengths")}
               </h4>
               <ul className="text-sm space-y-1">
@@ -237,7 +237,7 @@ function FinancialHealthScore({ health, t }: FinancialHealthScoreProps) {
                       key={`strength-${strength}-${idx++}`}
                       className="flex items-center gap-2"
                     >
-                      <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                      <div className="w-1.5 h-1.5 bg-income rounded-full"></div>
                       {strength}
                     </li>
                   );
@@ -246,7 +246,7 @@ function FinancialHealthScore({ health, t }: FinancialHealthScoreProps) {
             </div>
 
             <div>
-              <h4 className="font-medium text-orange-700 mb-2">
+              <h4 className="font-medium text-expense mb-2">
                 {t("ai.improvements")}
               </h4>
               <ul className="text-sm space-y-1">
@@ -257,7 +257,7 @@ function FinancialHealthScore({ health, t }: FinancialHealthScoreProps) {
                       key={`weakness-${weakness}-${idx++}`}
                       className="flex items-center gap-2"
                     >
-                      <div className="w-1.5 h-1.5 bg-orange-500 rounded-full"></div>
+                      <div className="w-1.5 h-1.5 bg-expense rounded-full"></div>
                       {weakness}
                     </li>
                   );
@@ -324,13 +324,13 @@ function RiskAssessment({ assessment, t }: RiskAssessmentProps) {
   const getRiskColor = (level: string) => {
     switch (level) {
       case "HIGH":
-        return "text-red-600 bg-red-50 border-red-200";
+        return "text-destructive bg-destructive/10 border-destructive/20";
       case "MEDIUM":
-        return "text-yellow-600 bg-yellow-50 border-yellow-200";
+        return "text-expense bg-expense/10 border-expense/20";
       case "LOW":
-        return "text-green-600 bg-green-50 border-green-200";
+        return "text-income bg-income/10 border-income/20";
       default:
-        return "text-gray-600 bg-gray-50 border-gray-200";
+        return "text-muted-foreground bg-muted/50 border-muted";
     }
   };
 

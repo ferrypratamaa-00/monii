@@ -102,7 +102,7 @@ export default function FileUpload({
 
   const getFileIcon = (file: File) => {
     if (file.type.startsWith("image/")) {
-      return <FileImage className="h-8 w-8 text-blue-500" />;
+      return <FileImage className="h-8 w-8 text-primary" />;
     }
     if (file.type === "application/pdf") {
       return <FileText className="h-8 w-8 text-red-500" />;
@@ -127,7 +127,7 @@ export default function FileUpload({
             <div
               role="button"
               tabIndex={0}
-              className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-gray-400 transition-colors"
+              className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
               onClick={() => fileInputRef.current?.click()}
             >
               <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />

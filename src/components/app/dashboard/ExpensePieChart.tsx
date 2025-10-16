@@ -9,13 +9,28 @@ import {
   Tooltip,
 } from "recharts";
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8"];
-
 interface PieChartProps {
   data: { name: string; value: number }[];
 }
 
 export function ExpensePieChart({ data }: PieChartProps) {
+  // Use CSS custom properties for chart colors
+  const getChartColor = (index: number) => {
+    // Get the computed style to access CSS custom properties
+    const root =
+      typeof window !== "undefined"
+        ? getComputedStyle(document.documentElement)
+        : null;
+    const colors = [
+      root?.getPropertyValue("--chart-1") || "#d4a5c4",
+      root?.getPropertyValue("--chart-2") || "#b88ba8",
+      root?.getPropertyValue("--chart-3") || "#e8c5d8",
+      root?.getPropertyValue("--chart-4") || "#d8b5c8",
+      root?.getPropertyValue("--chart-5") || "#c8a8b8",
+    ];
+    return colors[index % colors.length];
+  };
+
   return (
     <ResponsiveContainer width="100%" height={300}>
       <PieChart>
@@ -28,17 +43,18 @@ export function ExpensePieChart({ data }: PieChartProps) {
             `${name} ${((percent as number) * 100).toFixed(0)}%`
           }
           outerRadius={80}
-          fill="#8884d8"
           dataKey="value"
         >
           {data.map((entry, index) => (
-            <Cell
-              key={`cell-${entry.name}`}
-              fill={COLORS[index % COLORS.length]}
-            />
+            <Cell key={`cell-${entry.name}`} fill={getChartColor(index)} />
           ))}
         </Pie>
-        <Tooltip formatter={(value) => [`Rp ${value}`, "Jumlah"]} />
+        <Tooltip
+          formatter={(value: number) => [
+            `Rp ${value.toLocaleString("id-ID")}`,
+            "Jumlah",
+          ]}
+        />
         <Legend />
       </PieChart>
     </ResponsiveContainer>

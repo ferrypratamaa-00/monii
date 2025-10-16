@@ -42,7 +42,7 @@ export default function DashboardClient({
         {/* Greeting Header */}
         <div>
           <h1 className="text-xl md:text-2xl font-bold text-foreground mb-1">
-            {t("dashboard.greeting")} Putri 👋
+            {t("dashboard.greeting")} 👋
           </h1>
           <p className="text-sm text-muted-foreground">
             {t("dashboard.balanceLabel")}
@@ -77,16 +77,14 @@ export default function DashboardClient({
           <Card className="shadow-md border-0">
             <CardContent className="pt-4 pb-4">
               <div className="flex flex-col gap-2">
-                <div className="bg-green-100 dark:bg-green-900/30 w-10 h-10 rounded-full flex items-center justify-center">
-                  <span className="text-green-600 dark:text-green-400 text-xl">
-                    ↗
-                  </span>
+                <div className="bg-income/20 w-10 h-10 rounded-full flex items-center justify-center">
+                  <span className="text-income text-xl">↗</span>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground mb-1">
                     {t("dashboard.income")}
                   </p>
-                  <p className="text-lg md:text-xl font-bold text-green-600 dark:text-green-400">
+                  <p className="text-lg md:text-xl font-bold text-income">
                     +Rp{monthlySummary.income.toLocaleString("id-ID")}
                   </p>
                 </div>
@@ -97,16 +95,14 @@ export default function DashboardClient({
           <Card className="shadow-md border-0">
             <CardContent className="pt-4 pb-4">
               <div className="flex flex-col gap-2">
-                <div className="bg-red-100 dark:bg-red-900/30 w-10 h-10 rounded-full flex items-center justify-center">
-                  <span className="text-red-600 dark:text-red-400 text-xl">
-                    ↙
-                  </span>
+                <div className="bg-expense/20 w-10 h-10 rounded-full flex items-center justify-center">
+                  <span className="text-expense text-xl">↙</span>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground mb-1">
                     {t("dashboard.expense")}
                   </p>
-                  <p className="text-lg md:text-xl font-bold text-red-600 dark:text-red-400">
+                  <p className="text-lg md:text-xl font-bold text-expense">
                     -Rp{monthlySummary.expense.toLocaleString("id-ID")}
                   </p>
                 </div>
@@ -146,19 +142,29 @@ export default function DashboardClient({
                     <div className="flex items-center gap-3">
                       <div
                         className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                          transaction.type === "income"
-                            ? "bg-green-100 dark:bg-green-900/30"
-                            : "bg-red-100 dark:bg-red-900/30"
+                          transaction.type === "INCOME"
+                            ? "bg-income/20"
+                            : "bg-expense/20"
                         }`}
                       >
                         <span className="text-lg">
-                          {transaction.category === "Gaji"
+                          {transaction.type === "INCOME"
                             ? "💰"
                             : transaction.category === "Makan"
-                              ? "🍔"
-                              : transaction.category === "Transport"
-                                ? "🚗"
-                                : "💸"}
+                            ? "🍔"
+                            : transaction.category === "Transport"
+                            ? "�"
+                            : transaction.category === "Belanja"
+                            ? "🛒"
+                            : transaction.category === "Tagihan"
+                            ? "📄"
+                            : transaction.category === "Hiburan"
+                            ? "🎬"
+                            : transaction.category === "Kesehatan"
+                            ? "🏥"
+                            : transaction.category === "Pendidikan"
+                            ? "📚"
+                            : "💸"}
                         </span>
                       </div>
                       <div>
@@ -178,13 +184,12 @@ export default function DashboardClient({
                     </div>
                     <p
                       className={`font-bold text-sm ${
-                        transaction.type === "income"
-                          ? "text-green-600 dark:text-green-400"
-                          : "text-red-600 dark:text-red-400"
+                        transaction.type === "INCOME"
+                          ? "text-income"
+                          : "text-expense"
                       }`}
                     >
-                      {transaction.type === "income" ? "+" : "-"}Rp
-                      {transaction.amount.toLocaleString("id-ID")}
+                      Rp{Math.abs(transaction.amount).toLocaleString("id-ID")}
                     </p>
                   </div>
                 ))}

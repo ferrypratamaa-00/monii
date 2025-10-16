@@ -112,8 +112,8 @@ export default function TransactionList() {
                 <span
                   className={`px-2 py-1 text-xs rounded ${
                     transaction.type === "INCOME"
-                      ? "bg-green-100 text-green-800"
-                      : "bg-red-100 text-red-800"
+                      ? "bg-income/20 text-income"
+                      : "bg-expense/20 text-expense"
                   }`}
                   aria-label={`Transaction type: ${transaction.type === "INCOME" ? "Income" : "Expense"}`}
                 >
@@ -131,9 +131,7 @@ export default function TransactionList() {
             {/** biome-ignore lint/a11y/useAriaPropsSupportedByRole: <> */}
             <div
               className={`font-semibold ${
-                transaction.type === "INCOME"
-                  ? "text-green-600"
-                  : "text-red-600"
+                transaction.type === "INCOME" ? "text-income" : "text-expense"
               }`}
               aria-label={`Amount: ${transaction.type === "INCOME" ? "plus" : "minus"} ${parseFloat(transaction.amount).toLocaleString("id-ID")} rupiah`}
             >

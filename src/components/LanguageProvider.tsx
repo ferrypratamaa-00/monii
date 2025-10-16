@@ -94,6 +94,16 @@ const translations = {
     "export.backingUp": "Backing up...",
     "export.failed": "Failed to export data",
     "export.backupFailed": "Failed to backup data",
+
+    // Reports
+    "reports.title": "Laporan",
+    "reports.description": "Export data transaksi Anda dalam berbagai format",
+    "reports.exportTransactions": "Export Transaksi",
+    "reports.exportDescription": "Download riwayat transaksi Anda sebagai file CSV atau PDF",
+    "reports.totalTransactions": "Total Transaksi",
+    "reports.totalIncome": "Total Pemasukan",
+    "reports.totalExpenses": "Total Pengeluaran",
+    "reports.inSelectedPeriod": "Dalam periode yang dipilih",
   },
   en: {
     // Navigation
@@ -172,6 +182,16 @@ const translations = {
     "export.backingUp": "Backing up...",
     "export.failed": "Failed to export data",
     "export.backupFailed": "Failed to backup data",
+
+    // Reports
+    "reports.title": "Reports",
+    "reports.description": "Export your transaction data in various formats",
+    "reports.exportTransactions": "Export Transactions",
+    "reports.exportDescription": "Download your transaction history as CSV or PDF file",
+    "reports.totalTransactions": "Total Transactions",
+    "reports.totalIncome": "Total Income",
+    "reports.totalExpenses": "Total Expenses",
+    "reports.inSelectedPeriod": "In selected period",
   },
 };
 

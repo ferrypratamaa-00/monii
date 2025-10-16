@@ -89,12 +89,12 @@ export default function AdvancedSearchForm({
           <PopoverTrigger asChild>
             <Button
               variant="outline"
-              className={cn(hasActiveFilters && "border-blue-500")}
+              className={cn(hasActiveFilters && "border-primary")}
             >
               <Filter className="h-4 w-4 mr-2" />
               Filters
               {hasActiveFilters && (
-                <span className="ml-2 bg-blue-500 text-white text-xs px-1 rounded">
+                <span className="ml-2 bg-primary text-primary-foreground text-xs px-1 rounded">
                   {Object.values(filters).filter(Boolean).length}
                 </span>
               )}

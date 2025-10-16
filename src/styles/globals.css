@@ -32,11 +32,13 @@
   --border: #e0d0d8;
   --input: var(--color-cream);
   --ring: var(--color-lavender);
-  --chart-1: #f8b4d9;
-  --chart-2: #d4a5c4;
-  --chart-3: #b88ba8;
-  --chart-4: #e8c5d8;
-  --chart-5: #d8b5c8;
+  --chart-1: #d4a5c4;
+  --chart-2: #b88ba8;
+  --chart-3: #e8c5d8;
+  --chart-4: #d8b5c8;
+  --chart-5: #c8a8b8;
+  --income-color: #10b981;
+  --expense-color: #ef4444;
   --radius: 1rem;
 }
 
@@ -60,12 +62,14 @@
   --destructive-foreground: #ffffff;
   --border: #bdc3c7;
   --input: #ffffff;
-  --ring: #5dade2;
-  --chart-1: #5dade2;
-  --chart-2: #3498db;
-  --chart-3: #2e86c1;
-  --chart-4: #85c1e9;
-  --chart-5: #aed6f1;
+  --ring: #85c1e9;
+  --chart-1: #85c1e9;
+  --chart-2: #aed6f1;
+  --chart-3: #d6eaf8;
+  --chart-4: #ebf5fb;
+  --chart-5: #d4e6f1;
+  --income-color: #10b981;
+  --expense-color: #ef4444;
   --radius: 1rem;
 }
 
@@ -90,11 +94,13 @@
   --border: #c39bd3;
   --input: #ffffff;
   --ring: #9b59b6;
-  --chart-1: #9b59b6;
-  --chart-2: #8e44ad;
-  --chart-3: #7d3c98;
-  --chart-4: #bb8fce;
-  --chart-5: #d7bde2;
+  --chart-1: #bb8fce;
+  --chart-2: #d7bde2;
+  --chart-3: #e8daef;
+  --chart-4: #f4ecf7;
+  --chart-5: #ebdef0;
+  --income-color: #10b981;
+  --expense-color: #ef4444;
   --radius: 1rem;
 }
 
@@ -116,6 +122,8 @@
   --color-chart-3: var(--chart-3);
   --color-chart-2: var(--chart-2);
   --color-chart-1: var(--chart-1);
+  --color-income: var(--income-color);
+  --color-expense: var(--expense-color);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -164,11 +172,13 @@ body {
   --border: #4a4556;
   --input: #3a3545;
   --ring: #b8a4c9;
-  --chart-1: #a8d5e2;
-  --chart-2: #93c5d5;
-  --chart-3: #b8a4c9;
-  --chart-4: #d5b8c9;
-  --chart-5: #c8a8b8;
+  --chart-1: #93c5d5;
+  --chart-2: #b8a4c9;
+  --chart-3: #d5b8c9;
+  --chart-4: #c8a8b8;
+  --chart-5: #a8b8c8;
+  --income-color: #22c55e;
+  --expense-color: #f87171;
   --sidebar: #2d2433;
   --sidebar-foreground: #f5f5f5;
   --sidebar-primary: #b8a4c9;
@@ -181,8 +191,15 @@ body {
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border;
   }
+  
+  /* Ensure all focus states use theme colors */
+  *:focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+  
   body {
     @apply bg-background text-foreground;
   }

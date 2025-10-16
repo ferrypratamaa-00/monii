@@ -59,7 +59,7 @@ export default function NotificationBell() {
                 {notifications.map((notification: Notification) => (
                   <div
                     key={notification.id}
-                    className="px-4 py-3 border-b border-gray-100 hover:bg-gray-50"
+                    className="px-4 py-3 border-b border-border hover:bg-muted"
                   >
                     <div className="flex items-start">
                       <div className="flex-1">

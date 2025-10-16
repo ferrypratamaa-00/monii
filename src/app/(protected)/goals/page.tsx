@@ -6,6 +6,7 @@ import { useState } from "react";
 import { BadgeDisplay, type GoalBadge } from "@/components/goals/BadgeDisplay";
 import { CreateGoalDialog } from "@/components/goals/CreateGoalDialog";
 import { GoalProgressCard } from "@/components/goals/GoalProgressCard";
+import { GoalsGuide } from "@/components/goals/GoalsGuide";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -122,10 +123,13 @@ export default function GoalsPage() {
         <div>
           <h1 className="text-3xl font-bold">Goals & Achievements</h1>
           <p className="text-muted-foreground">
-            Track your savings goals and earn achievement badges
+            Lacak progress tabungan kamu dan dapatkan achievement badges
           </p>
         </div>
-        {users && <CreateGoalDialog users={users} />}
+        <div className="flex items-center gap-2">
+          {users && <GoalsGuide onCreateGoal={() => setActiveTab("goals")} />}
+          {users && <CreateGoalDialog users={users} />}
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -179,7 +183,7 @@ export default function GoalsPage() {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="goals">Goals</TabsTrigger>
-          <TabsTrigger value="achievements">Achievements</TabsTrigger>
+          <TabsTrigger value="achievements">Pencapaian</TabsTrigger>
         </TabsList>
 
         <TabsContent value="goals" className="space-y-6">
@@ -188,7 +192,7 @@ export default function GoalsPage() {
             <div>
               <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                 <User className="h-5 w-5" />
-                Personal Goals
+                Goal Pribadi
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {personalGoals.map((goal) => (
@@ -207,7 +211,7 @@ export default function GoalsPage() {
             <div>
               <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                 <Users className="h-5 w-5" />
-                Joint Goals
+                Goal Bersama
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {jointGoals.map((goal) => (
@@ -225,12 +229,15 @@ export default function GoalsPage() {
           {totalGoals === 0 && (
             <Card className="p-8 text-center">
               <Target className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No goals yet</h3>
-              <p className="text-muted-foreground mb-4">
-                Create your first savings goal to start tracking your progress
-                and earning badges.
+              <h3 className="text-lg font-semibold mb-2">Belum ada goals</h3>
+              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                Goals adalah cara terbaik untuk mencapai target finansial kamu.
+                Mulai dengan membuat goal pertama dan kontribusi secara rutin.
               </p>
-              {users && <CreateGoalDialog users={users} />}
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                {users && <GoalsGuide onCreateGoal={() => setActiveTab("goals")} />}
+                {users && <CreateGoalDialog users={users} />}
+              </div>
             </Card>
           )}
         </TabsContent>

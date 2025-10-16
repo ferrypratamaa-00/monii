@@ -190,20 +190,24 @@ export function GoalProgressCard({ goal, accounts }: GoalProgressCardProps) {
         )}
 
         {/* Contribute Button */}
-        <Dialog open={isContributing} onOpenChange={setIsContributing}>
-          <DialogTrigger asChild>
-            <Button className="w-full" size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Contribute
-            </Button>
-          </DialogTrigger>
+        <div className="space-y-2">
+          <div className="text-xs text-muted-foreground">
+            💡 Tip: Kontribusi rutin lebih baik daripada sekali banyak
+          </div>
+          <Dialog open={isContributing} onOpenChange={setIsContributing}>
+            <DialogTrigger asChild>
+              <Button className="w-full" size="sm">
+                <Plus className="h-4 w-4 mr-2" />
+                Kontribusi
+              </Button>
+            </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Contribute to {goal.name}</DialogTitle>
+              <DialogTitle>Kontribusi ke {goal.name}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <Label htmlFor="amount">Amount</Label>
+                <Label htmlFor="amount">Jumlah Kontribusi</Label>
                 <Input
                   id="amount"
                   type="number"
@@ -213,13 +217,13 @@ export function GoalProgressCard({ goal, accounts }: GoalProgressCardProps) {
                 />
               </div>
               <div>
-                <Label htmlFor="account">From Account</Label>
+                <Label htmlFor="account">Dari Rekening</Label>
                 <Select
                   value={selectedAccountId}
                   onValueChange={setSelectedAccountId}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select account" />
+                    <SelectValue placeholder="Pilih rekening" />
                   </SelectTrigger>
                   <SelectContent>
                     {accounts.map((account) => (
@@ -234,7 +238,7 @@ export function GoalProgressCard({ goal, accounts }: GoalProgressCardProps) {
                 </Select>
               </div>
               <div className="text-sm text-muted-foreground">
-                Remaining to goal: ${remaining.toLocaleString()}
+                Sisa target: ${remaining.toLocaleString()}
               </div>
               <Button
                 onClick={handleContribute}
@@ -242,12 +246,13 @@ export function GoalProgressCard({ goal, accounts }: GoalProgressCardProps) {
                 className="w-full"
               >
                 {contributeMutation.isPending
-                  ? "Contributing..."
-                  : "Contribute"}
+                  ? "Memproses..."
+                  : "Kontribusi"}
               </Button>
             </div>
           </DialogContent>
         </Dialog>
+        </div>
       </CardContent>
     </Card>
   );

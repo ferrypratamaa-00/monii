@@ -5,36 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1760368600239,
-      "tag": "0000_nebulous_mindworm",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1760399201500,
-      "tag": "0001_condemned_pride",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1760400863569,
-      "tag": "0002_lucky_colossus",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1760453472195,
-      "tag": "0003_fantastic_charles_xavier",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1760575088614,
-      "tag": "0004_lying_thanos",
+      "when": 1760581127116,
+      "tag": "0000_curious_energizer",
       "breakpoints": true
     }
   ]

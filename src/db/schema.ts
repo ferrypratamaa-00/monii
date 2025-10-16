@@ -32,6 +32,7 @@ export const notificationTypeEnum = pgEnum("notification_type", [
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   email: varchar("email", { length: 255 }).notNull().unique(),
+  name: varchar("name", { length: 100 }),
   passwordHash: text("password_hash").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

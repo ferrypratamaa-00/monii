@@ -13,6 +13,9 @@ import {
   deleteGoal,
   getUserGoals,
 } from "@/services/goal";
+import { db } from "@/db";
+import { users } from "@/db/schema";
+import { eq, inArray } from "drizzle-orm";
 
 export async function GET(_request: NextRequest) {
   try {
@@ -22,7 +25,42 @@ export async function GET(_request: NextRequest) {
     }
 
     const goals = await getUserGoals(parseInt(session.user.id, 10));
-    return NextResponse.json(goals);
+
+    // Get all unique user IDs from goal members
+    const userIds = new Set<number>();
+    goals.forEach((goal) => {
+      goal.members?.forEach((member) => userIds.add(member.userId));
+    });
+
+    // Fetch user names (name field may not exist yet, so use email as fallback)
+    let userMap = new Map<number, string>();
+    try {
+      const userRecords = await db
+        .select({ id: users.id, name: users.name, email: users.email })
+        .from(users)
+        .where(inArray(users.id, Array.from(userIds)));
+
+      userMap = new Map(userRecords.map((user) => [user.id, user.name || user.email]));
+    } catch (error) {
+      // If name column doesn't exist yet, just use "User" as placeholder
+      userIds.forEach(id => userMap.set(id, "User"));
+    }    // Transform the data to match frontend expectations
+    const transformedGoals = goals.map((goal) => ({
+      id: goal.id,
+      name: goal.name,
+      targetAmount: goal.targetAmount,
+      currentAmount: goal.savedAmount, // Map savedAmount to currentAmount
+      type: goal.type.toLowerCase() as "personal" | "joint", // Convert to lowercase
+      deadline: goal.deadline,
+      createdAt: goal.createdAt,
+      members: goal.members?.map((member) => ({
+        userId: member.userId,
+        user: { name: userMap.get(member.userId) || "Unknown User" },
+        contribution: member.contributionAmount, // Map contributionAmount to contribution
+      })),
+    }));
+
+    return NextResponse.json(transformedGoals);
   } catch (error) {
     console.error("Error fetching goals:", error);
     return NextResponse.json(
