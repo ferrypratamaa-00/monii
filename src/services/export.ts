@@ -81,7 +81,7 @@ export async function generateTransactionPDF(
 
   // Title
   doc.setFontSize(20);
-  doc.text("Laporan Transaksi KANTONG", 20, 20);
+  doc.text("Laporan Transaksi MONII", 20, 20);
 
   // Date range
   doc.setFontSize(12);

@@ -1,4 +1,4 @@
-# 🎨 KANTONG App - Complete Refactoring Summary
+# 🎨 Monii App - Complete Refactoring Summary
 
 ## ✅ Completed Features
 
@@ -182,8 +182,8 @@ Each theme provides consistent colors for:
 ```json
 // manifest.json should include:
 {
-  "name": "KANTONG Personal Finance",
-  "short_name": "KANTONG",
+  "name": "Monii Personal Finance",
+  "short_name": "Monii",
   "theme_color": "#D4A5C4", // Match theme
   "background_color": "#F5E6E8",
   "display": "standalone",
@@ -374,7 +374,7 @@ const { theme, setTheme, colorMode, toggleColorMode } = useTheme();
 
 ## 🎉 Summary
 
-The KANTONG app has been completely refactored with:
+The Monii app has been completely refactored with:
 - ✅ 3 beautiful themes (Pink, Blue, Purple)
 - ✅ Multi-language support (ID/EN)
 - ✅ Modern, clean dashboard UI

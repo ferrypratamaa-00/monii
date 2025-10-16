@@ -1,5 +1,5 @@
 // Service Worker for offline support
-const CACHE_NAME = "kantong-v1";
+const CACHE_NAME = "Monii-v1";
 const STATIC_CACHE_URLS = [
   "/",
   "/manifest.json",

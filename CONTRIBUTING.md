@@ -1,13 +1,13 @@
-# Contributing to KANTONG
+# Contributing to Monii
 
-Thank you for your interest in contributing to KANTONG! This document provides guidelines and information for contributors.
+Thank you for your interest in contributing to Monii! This document provides guidelines and information for contributors.
 
 ## 🚀 Quick Start
 
 1. **Fork and Clone**
    ```bash
-   git clone https://github.com/yourusername/kantong.git
-   cd kantong
+   git clone https://github.com/yourusername/Monii.git
+   cd Monii
    ```
 
 2. **Setup Development Environment**
@@ -27,7 +27,7 @@ Thank you for your interest in contributing to KANTONG! This document provides g
 ## 📋 Development Workflow
 
 ### 1. Choose an Issue
-- Check [GitHub Issues](https://github.com/yourusername/kantong/issues) for open tasks
+- Check [GitHub Issues](https://github.com/yourusername/Monii/issues) for open tasks
 - Look for issues labeled `good first issue` or `help wanted`
 - Comment on the issue to indicate you're working on it
 
@@ -253,4 +253,4 @@ Closes #123
 - [ ] My commits follow conventional format
 - [ ] I have tested my changes thoroughly
 
-Thank you for contributing to KANTONG! 🎉
+Thank you for contributing to Monii! 🎉

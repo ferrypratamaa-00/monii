@@ -14,31 +14,42 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "../LanguageProvider";
 import LanguageSwitcher from "../LanguageSwitcher";
 import NotificationBell from "../NotificationBell";
 import ThemeSelector from "../ThemeSelector";
 import ThemeSwitcher from "../ThemeSwitcher";
 
 const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: Home },
-  { name: "Transactions", href: "/transactions", icon: CreditCard },
-  { name: "Accounts", href: "/accounts", icon: Wallet },
-  { name: "Categories", href: "/categories", icon: BarChart3 },
-  { name: "Reports", href: "/reports", icon: TrendingUp },
-  { name: "Debts", href: "/debts", icon: DollarSign },
-  { name: "Goals", href: "/goals", icon: Target },
+  { name: "nav.dashboard", href: "/dashboard", icon: Home },
+  { name: "nav.transactions", href: "/transactions", icon: CreditCard },
+  { name: "nav.accounts", href: "/accounts", icon: Wallet },
+  { name: "nav.categories", href: "/categories", icon: BarChart3 },
+  { name: "nav.reports", href: "/reports", icon: TrendingUp },
+  { name: "nav.debts", href: "/debts", icon: DollarSign },
+  { name: "nav.goals", href: "/goals", icon: Target },
 ];
 
 const mobileNavigation = [
-  { name: "Dashboard", href: "/dashboard", icon: Home },
-  { name: "Transactions", href: "/transactions", icon: CreditCard },
-  { name: "Accounts", href: "/accounts", icon: Wallet },
-  { name: "More", href: "/more", icon: Menu },
+  { name: "nav.dashboard", href: "/dashboard", icon: Home },
+  { name: "nav.transactions", href: "/transactions", icon: CreditCard },
+  { name: "nav.accounts", href: "/accounts", icon: Wallet },
+  { name: "nav.more", href: "/more", icon: Menu },
 ];
 
 export default function Navigation() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  let t: (key: string) => string;
+  try {
+    // biome-ignore lint/correctness/useHookAtTopLevel: <>
+    const languageContext = useLanguage();
+    t = languageContext.t;
+  } catch {
+    // Fallback if context is not available
+    t = (key: string) => key;
+  }
 
   return (
     <>
@@ -51,9 +62,7 @@ export default function Navigation() {
           <div className="flex justify-between h-16">
             <div className="flex">
               <div className="flex-shrink-0 flex items-center">
-                <h1 className="text-xl font-bold text-foreground">
-                  Kantong 👛
-                </h1>
+                <h1 className="text-xl font-bold text-foreground">Monii 👛</h1>
               </div>
               <div
                 className="hidden sm:ml-6 sm:flex sm:space-x-8"
@@ -75,7 +84,7 @@ export default function Navigation() {
                       aria-current={isActive ? "page" : undefined}
                     >
                       <item.icon className="w-4 h-4 mr-2" aria-hidden="true" />
-                      {item.name}
+                      {t(item.name)}
                     </Link>
                   );
                 })}
@@ -97,7 +106,7 @@ export default function Navigation() {
 
       {/* Mobile Header */}
       <div className="md:hidden bg-background px-6 py-4 flex justify-between items-center">
-        <h1 className="text-lg font-bold text-foreground">Kantong 👛</h1>
+        <h1 className="text-lg font-bold text-foreground">Monii 👛</h1>
         <div className="flex items-center space-x-2">
           <ThemeSelector />
           <LanguageSwitcher />
@@ -111,10 +120,10 @@ export default function Navigation() {
         <div className="flex justify-around items-center h-16 px-2">
           {mobileNavigation.map((item) => {
             const isActive =
-              item.name === "More"
+              item.name === "nav.more"
                 ? navigation.slice(3).some((nav) => nav.href === pathname)
                 : pathname === item.href;
-            if (item.name === "More") {
+            if (item.name === "nav.more") {
               return (
                 <button
                   key={item.name}
@@ -130,7 +139,7 @@ export default function Navigation() {
                   <item.icon
                     className={cn("w-5 h-5 mb-1", isActive && "text-primary")}
                   />
-                  {item.name}
+                  {t(item.name)}
                 </button>
               );
             }
@@ -148,7 +157,7 @@ export default function Navigation() {
                 <item.icon
                   className={cn("w-5 h-5 mb-1", isActive && "text-primary")}
                 />
-                {item.name}
+                {t(item.name)}
               </Link>
             );
           })}
@@ -166,7 +175,7 @@ export default function Navigation() {
         >
           <div className="absolute bottom-16 left-0 right-0 bg-card rounded-t-3xl mx-4 p-6 shadow-xl">
             <h3 className="text-lg font-semibold text-foreground mb-4">
-              More Options
+              {t("nav.more")}
             </h3>
             <div className="grid grid-cols-2 gap-4">
               {navigation.slice(3).map((item) => {
@@ -184,7 +193,7 @@ export default function Navigation() {
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <item.icon className="w-6 h-6 mb-2" />
-                    <span className="text-sm font-medium">{item.name}</span>
+                    <span className="text-sm font-medium">{t(item.name)}</span>
                   </Link>
                 );
               })}

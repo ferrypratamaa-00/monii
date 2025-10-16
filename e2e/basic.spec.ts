@@ -1,9 +1,9 @@
 import { expect, test } from "@playwright/test";
 
-test.describe("KANTONG Application", () => {
+test.describe("Monii Application", () => {
   test("should load the homepage", async ({ page }) => {
     await page.goto("/");
-    await expect(page).toHaveTitle(/KANTONG/);
+    await expect(page).toHaveTitle(/Monii/);
   });
 
   test("should display main navigation", async ({ page }) => {

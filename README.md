@@ -1,4 +1,4 @@
-# KANTONG - Smart Personal Finance Manager
+# Monii - Smart Personal Finance Manager
 
 A modern, secure, and intelligent personal finance management application built with Next.js 15, TypeScript, and cutting-edge web technologies. Track expenses, manage budgets, analyze spending patterns with AI insights, and automate transaction entry with OCR receipt scanning.
 
@@ -44,8 +44,8 @@ A modern, secure, and intelligent personal finance management application built 
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/kantong.git
-   cd kantong
+   git clone https://github.com/yourusername/Monii.git
+   cd Monii
    ```
 
 2. **Install dependencies**
@@ -68,7 +68,7 @@ A modern, secure, and intelligent personal finance management application built 
    Edit `.env.local` with your configuration:
    ```env
    # Database
-   DATABASE_URL=postgresql://username:password@localhost:5432/kantong
+   DATABASE_URL=postgresql://username:password@localhost:5432/Monii
    DB_DIALECT=postgresql
 
    # Authentication
@@ -171,7 +171,7 @@ src/
 
 ## 🔒 Security
 
-KANTONG implements multiple layers of security:
+Monii implements multiple layers of security:
 
 - **Authentication**: Secure password hashing with bcrypt
 - **Authorization**: User-scoped data access with proper boundaries
@@ -211,9 +211,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/kantong/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/kantong/discussions)
-- **Documentation**: [Project Wiki](https://github.com/yourusername/kantong/wiki)
+- **Issues**: [GitHub Issues](https://github.com/yourusername/Monii/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/yourusername/Monii/discussions)
+- **Documentation**: [Project Wiki](https://github.com/yourusername/Monii/wiki)
 
 ---
 

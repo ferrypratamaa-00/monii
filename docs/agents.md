@@ -1,4 +1,4 @@
-# KANTONG — PRD + Rencana Pengembangan Super Rinci
+# Monii — PRD + Rencana Pengembangan Super Rinci
 
 ## 0) Meta
 
@@ -19,8 +19,8 @@
 * [x] **Langkah 0.1.1 — Inisiasi Next.js (App Router, TS, Tailwind, ESLint)**
 
   ```bash
-  bun create next-app@latest kantong-app -- --ts --tailwind --eslint
-  cd kantong-app
+  bun create next-app@latest Monii-app -- --ts --tailwind --eslint
+  cd Monii-app
   ```
 
   **DoD:** Proyek jalan `bun run dev`, halaman starter tampil.
@@ -120,8 +120,8 @@
 
     ```json
     {
-      "name": "Kantong",
-      "short_name": "Kantong",
+      "name": "Monii",
+      "short_name": "Monii",
       "start_url": "/",
       "display": "standalone",
       "background_color": "#0B1220",
@@ -139,7 +139,7 @@
 
   ```tsx
   // src/app/layout.tsx
-  export const metadata = { title: 'Kantong' };
+  export const metadata = { title: 'Monii' };
 
   export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
@@ -185,7 +185,7 @@
     dialect: process.env.DB_DIALECT === 'sqlite' ? 'sqlite' : 'postgresql',
     dbCredentials:
       process.env.DB_DIALECT === 'sqlite'
-        ? { url: './.data/kantong.db' }
+        ? { url: './.data/Monii.db' }
         : {
             url: process.env.DATABASE_URL!, // postgres connection url
           },
@@ -220,7 +220,7 @@
   import Database from 'better-sqlite3';
   import { drizzle } from 'drizzle-orm/better-sqlite3';
 
-  const sqlite = new Database('./.data/kantong.db');
+  const sqlite = new Database('./.data/Monii.db');
   export const db = drizzle(sqlite);
   ```
 
@@ -687,7 +687,7 @@ src/
     return new NextResponse(csvString, {
       headers: {
         'Content-Type': 'text/csv; charset=utf-8',
-        'Content-Disposition': 'attachment; filename="kantong-export.csv"'
+        'Content-Disposition': 'attachment; filename="Monii-export.csv"'
       }
     });
   }
@@ -1342,7 +1342,7 @@ src/
 
     // Title
     doc.setFontSize(20);
-    doc.text('Laporan Transaksi KANTONG', 20, 20);
+    doc.text('Laporan Transaksi Monii', 20, 20);
 
     // Date range
     doc.setFontSize(12);
@@ -1624,7 +1624,7 @@ src/
 
   ```js
   // Service Worker for offline support
-  const CACHE_NAME = 'kantong-v1';
+  const CACHE_NAME = 'Monii-v1';
   const STATIC_CACHE_URLS = [
     '/',
     '/manifest.json',

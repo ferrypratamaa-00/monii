@@ -2,9 +2,11 @@
 
 import { Database, Download } from "lucide-react";
 import { useState } from "react";
+import { useLanguage } from "@/components/LanguageProvider";
 import { Button } from "@/components/ui/button";
 
 export function ExportButtons() {
+  const { t } = useLanguage();
   const [isExporting, setIsExporting] = useState<string | null>(null);
 
   const handleExport = async (type: "transactions" | "budgets") => {
@@ -26,7 +28,7 @@ export function ExportButtons() {
       document.body.removeChild(a);
     } catch (error) {
       console.error("Export error:", error);
-      alert("Failed to export data");
+      alert(t("export.failed"));
     } finally {
       setIsExporting(null);
     }
@@ -44,14 +46,14 @@ export function ExportButtons() {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `kantong-backup-${new Date().toISOString().split("T")[0]}.json`;
+      a.download = `Monii-backup-${new Date().toISOString().split("T")[0]}.json`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (error) {
       console.error("Backup error:", error);
-      alert("Failed to backup data");
+      alert(t("export.backupFailed"));
     } finally {
       setIsExporting(null);
     }
@@ -66,8 +68,8 @@ export function ExportButtons() {
       >
         <Download className="mr-2 h-4 w-4" />
         {isExporting === "transactions"
-          ? "Exporting..."
-          : "Export Transactions"}
+          ? t("export.exporting")
+          : t("export.transactions")}
       </Button>
       <Button
         variant="outline"
@@ -75,7 +77,9 @@ export function ExportButtons() {
         disabled={isExporting !== null}
       >
         <Download className="mr-2 h-4 w-4" />
-        {isExporting === "budgets" ? "Exporting..." : "Export Budgets"}
+        {isExporting === "budgets"
+          ? t("export.exporting")
+          : t("export.budgets")}
       </Button>
       <Button
         variant="outline"
@@ -83,7 +87,7 @@ export function ExportButtons() {
         disabled={isExporting !== null}
       >
         <Database className="mr-2 h-4 w-4" />
-        {isExporting === "backup" ? "Backing up..." : "Backup Data"}
+        {isExporting === "backup" ? t("export.backingUp") : t("export.backup")}
       </Button>
     </div>
   );

@@ -210,7 +210,7 @@ export default function DashboardClient({
           <Card className="shadow-md border-0">
             <CardHeader>
               <CardTitle className="text-base md:text-lg font-semibold text-foreground">
-                Pengeluaran per Kategori
+                {t("dashboard.expenseByCategory")}
               </CardTitle>
             </CardHeader>
             <CardContent>

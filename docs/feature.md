@@ -1,7 +1,7 @@
-# KANTONG: Rencana Pengembangan Produk (PRD)
+# Monii: Rencana Pengembangan Produk (PRD)
 
 ## Nama Aplikasi
-Kantong
+Monii
 
 ## Visi Produk
 Menjadi mitra finansial pribadi dan keluarga yang paling cerdas dan mudah digunakan, mengubah kebiasaan pencatatan yang membosankan menjadi wawasan yang proaktif dan terpersonalisasi.

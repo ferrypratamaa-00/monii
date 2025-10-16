@@ -8,6 +8,7 @@ import {
   Target,
   TrendingUp,
 } from "lucide-react";
+import { useLanguage } from "@/components/LanguageProvider";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -24,6 +25,7 @@ interface AISuggestionsPanelProps {
 }
 
 export function AISuggestionsPanel({ userId }: AISuggestionsPanelProps) {
+  const { t } = useLanguage();
   const {
     data: aiAnalysis,
     isLoading,
@@ -46,11 +48,9 @@ export function AISuggestionsPanel({ userId }: AISuggestionsPanelProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Brain className="h-5 w-5" />
-            AI Financial Insights
+            {t("ai.title")}
           </CardTitle>
-          <CardDescription>
-            Analyzing your financial patterns...
-          </CardDescription>
+          <CardDescription>{t("ai.description")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="animate-pulse space-y-4">
@@ -69,11 +69,9 @@ export function AISuggestionsPanel({ userId }: AISuggestionsPanelProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Brain className="h-5 w-5" />
-            AI Financial Insights
+            {t("ai.title")}
           </CardTitle>
-          <CardDescription>
-            Unable to load AI insights at this time.
-          </CardDescription>
+          <CardDescription>{t("ai.error")}</CardDescription>
         </CardHeader>
       </Card>
     );
@@ -82,18 +80,16 @@ export function AISuggestionsPanel({ userId }: AISuggestionsPanelProps) {
   return (
     <div className="space-y-6">
       {/* Financial Health Score */}
-      <FinancialHealthScore health={aiAnalysis.financialHealth} />
+      <FinancialHealthScore health={aiAnalysis.financialHealth} t={t} />
 
       {/* AI Suggestions */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Lightbulb className="h-5 w-5" />
-            AI Recommendations
+            {t("ai.recommendations")}
           </CardTitle>
-          <CardDescription>
-            Personalized insights to improve your financial health
-          </CardDescription>
+          <CardDescription>{t("ai.recommendationsDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -101,11 +97,12 @@ export function AISuggestionsPanel({ userId }: AISuggestionsPanelProps) {
               <AISuggestionCard
                 key={`${suggestion.type}-${suggestion.title}-${index}`}
                 suggestion={suggestion}
+                t={t}
               />
             ))}
             {aiAnalysis.personalizedSuggestions.length === 0 && (
               <p className="text-muted-foreground text-center py-4">
-                No specific recommendations at this time. Keep up the good work!
+                {t("ai.noRecommendations")}
               </p>
             )}
           </div>
@@ -114,20 +111,24 @@ export function AISuggestionsPanel({ userId }: AISuggestionsPanelProps) {
 
       {/* Spending Predictions */}
       {aiAnalysis.spendingPredictions.length > 0 && (
-        <SpendingPredictions predictions={aiAnalysis.spendingPredictions} />
+        <SpendingPredictions
+          predictions={aiAnalysis.spendingPredictions}
+          t={t}
+        />
       )}
 
       {/* Risk Assessment */}
-      <RiskAssessment assessment={aiAnalysis.riskAssessment} />
+      <RiskAssessment assessment={aiAnalysis.riskAssessment} t={t} />
     </div>
   );
 }
 
 interface AISuggestionCardProps {
   suggestion: AISuggestion;
+  t: (key: string) => string;
 }
 
-function AISuggestionCard({ suggestion }: AISuggestionCardProps) {
+function AISuggestionCard({ suggestion, t }: AISuggestionCardProps) {
   const getIcon = () => {
     switch (suggestion.type) {
       case "WARNING":
@@ -162,7 +163,9 @@ function AISuggestionCard({ suggestion }: AISuggestionCardProps) {
       <div className="flex-1 space-y-2">
         <div className="flex items-center justify-between">
           <h4 className="font-medium">{suggestion.title}</h4>
-          <Badge variant={getBadgeVariant()}>{suggestion.impact} Impact</Badge>
+          <Badge variant={getBadgeVariant()}>
+            {suggestion.impact} {t("ai.impact")}
+          </Badge>
         </div>
         <p className="text-sm text-muted-foreground">
           {suggestion.description}
@@ -179,9 +182,10 @@ function AISuggestionCard({ suggestion }: AISuggestionCardProps) {
 
 interface FinancialHealthScoreProps {
   health: AIAnalysis["financialHealth"];
+  t: (key: string) => string;
 }
 
-function FinancialHealthScore({ health }: FinancialHealthScoreProps) {
+function FinancialHealthScore({ health, t }: FinancialHealthScoreProps) {
   const getGradeColor = (grade: string) => {
     switch (grade) {
       case "A":
@@ -204,11 +208,9 @@ function FinancialHealthScore({ health }: FinancialHealthScoreProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Brain className="h-5 w-5" />
-          Financial Health Score
+          {t("ai.healthScore")}
         </CardTitle>
-        <CardDescription>
-          Your overall financial wellness based on spending patterns and habits
-        </CardDescription>
+        <CardDescription>{t("ai.healthScoreDesc")}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -217,14 +219,16 @@ function FinancialHealthScore({ health }: FinancialHealthScoreProps) {
             <span
               className={`text-2xl font-bold ${getGradeColor(health.grade)}`}
             >
-              Grade {health.grade}
+              {t("ai.grade")} {health.grade}
             </span>
           </div>
           <Progress value={health.score} className="h-3" />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <div>
-              <h4 className="font-medium text-green-700 mb-2">Strengths</h4>
+              <h4 className="font-medium text-green-700 mb-2">
+                {t("ai.strengths")}
+              </h4>
               <ul className="text-sm space-y-1">
                 {health.strengths.map((strength, index) => {
                   let idx = index;
@@ -243,7 +247,7 @@ function FinancialHealthScore({ health }: FinancialHealthScoreProps) {
 
             <div>
               <h4 className="font-medium text-orange-700 mb-2">
-                Areas for Improvement
+                {t("ai.improvements")}
               </h4>
               <ul className="text-sm space-y-1">
                 {health.weaknesses.map((weakness, index) => {
@@ -269,19 +273,18 @@ function FinancialHealthScore({ health }: FinancialHealthScoreProps) {
 
 interface SpendingPredictionsProps {
   predictions: AIAnalysis["spendingPredictions"];
+  t: (key: string) => string;
 }
 
-function SpendingPredictions({ predictions }: SpendingPredictionsProps) {
+function SpendingPredictions({ predictions, t }: SpendingPredictionsProps) {
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <TrendingUp className="h-5 w-5" />
-          Spending Predictions
+          {t("ai.spendingPredictions")}
         </CardTitle>
-        <CardDescription>
-          AI-powered predictions for next month's spending by category
-        </CardDescription>
+        <CardDescription>{t("ai.spendingPredictionsDesc")}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -298,7 +301,7 @@ function SpendingPredictions({ predictions }: SpendingPredictionsProps) {
               </div>
               <div className="text-right">
                 <Badge variant="outline">
-                  {prediction.confidence.toFixed(0)}% confidence
+                  {prediction.confidence.toFixed(0)}% {t("ai.confidence")}
                 </Badge>
                 <p className="text-xs text-muted-foreground mt-1">
                   {prediction.reasoning}
@@ -314,9 +317,10 @@ function SpendingPredictions({ predictions }: SpendingPredictionsProps) {
 
 interface RiskAssessmentProps {
   assessment: AIAnalysis["riskAssessment"];
+  t: (key: string) => string;
 }
 
-function RiskAssessment({ assessment }: RiskAssessmentProps) {
+function RiskAssessment({ assessment, t }: RiskAssessmentProps) {
   const getRiskColor = (level: string) => {
     switch (level) {
       case "HIGH":
@@ -335,18 +339,18 @@ function RiskAssessment({ assessment }: RiskAssessmentProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <AlertTriangle className="h-5 w-5" />
-          Risk Assessment
+          {t("ai.riskAssessment")}
         </CardTitle>
-        <CardDescription>
-          Current financial risk level and mitigation strategies
-        </CardDescription>
+        <CardDescription>{t("ai.riskAssessmentDesc")}</CardDescription>
       </CardHeader>
       <CardContent>
         <div
           className={`p-4 border rounded-lg ${getRiskColor(assessment.level)}`}
         >
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-medium">Risk Level: {assessment.level}</h3>
+            <h3 className="font-medium">
+              {t("ai.riskLevel")}: {assessment.level}
+            </h3>
             <Badge
               variant={assessment.level === "HIGH" ? "destructive" : "default"}
             >
@@ -356,7 +360,9 @@ function RiskAssessment({ assessment }: RiskAssessmentProps) {
 
           {assessment.factors.length > 0 && (
             <div className="mb-3">
-              <h4 className="text-sm font-medium mb-2">Risk Factors:</h4>
+              <h4 className="text-sm font-medium mb-2">
+                {t("ai.riskFactors")}:
+              </h4>
               <ul className="text-sm space-y-1">
                 {assessment.factors.map((factor, index) => {
                   let idx = index;
@@ -376,7 +382,9 @@ function RiskAssessment({ assessment }: RiskAssessmentProps) {
 
           {assessment.recommendations.length > 0 && (
             <div>
-              <h4 className="text-sm font-medium mb-2">Recommendations:</h4>
+              <h4 className="text-sm font-medium mb-2">
+                {t("ai.recommendationsTitle")}:
+              </h4>
               <ul className="text-sm space-y-1">
                 {assessment.recommendations.map((rec, index) => {
                   let idx = index;

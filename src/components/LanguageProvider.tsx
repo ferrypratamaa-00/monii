@@ -41,6 +41,7 @@ const translations = {
     "dashboard.financialRecords": "Catatan Keuangan",
     "dashboard.expenseChart": "Pengeluaran",
     "dashboard.exportData": "Export Data",
+    "dashboard.expenseByCategory": "Pengeluaran per Kategori",
 
     // Common
     "common.save": "Simpan",
@@ -58,9 +59,41 @@ const translations = {
     "common.error": "Terjadi kesalahan",
     "common.success": "Berhasil",
 
-    // Offline
-    "offline.message": "Anda sedang offline",
-    "offline.description": "Beberapa fitur mungkin tidak tersedia",
+    // AI Suggestions
+    "ai.title": "AI Financial Insights",
+    "ai.description": "Analyzing your financial patterns...",
+    "ai.error": "Unable to load AI insights at this time.",
+    "ai.recommendations": "AI Recommendations",
+    "ai.recommendationsDesc":
+      "Personalized insights to improve your financial health",
+    "ai.noRecommendations":
+      "No specific recommendations at this time. Keep up the good work!",
+    "ai.healthScore": "Financial Health Score",
+    "ai.healthScoreDesc":
+      "Your overall financial wellness based on spending patterns and habits",
+    "ai.grade": "Grade",
+    "ai.strengths": "Strengths",
+    "ai.improvements": "Areas for Improvement",
+    "ai.spendingPredictions": "Spending Predictions",
+    "ai.spendingPredictionsDesc":
+      "AI-powered predictions for next month's spending by category",
+    "ai.confidence": "confidence",
+    "ai.riskAssessment": "Risk Assessment",
+    "ai.riskAssessmentDesc":
+      "Current financial risk level and mitigation strategies",
+    "ai.riskLevel": "Risk Level",
+    "ai.riskFactors": "Risk Factors",
+    "ai.recommendationsTitle": "Recommendations",
+    "ai.impact": "Impact",
+
+    // Export
+    "export.transactions": "Export Transactions",
+    "export.budgets": "Export Budgets",
+    "export.backup": "Backup Data",
+    "export.exporting": "Exporting...",
+    "export.backingUp": "Backing up...",
+    "export.failed": "Failed to export data",
+    "export.backupFailed": "Failed to backup data",
   },
   en: {
     // Navigation
@@ -86,6 +119,7 @@ const translations = {
     "dashboard.financialRecords": "Financial Records",
     "dashboard.expenseChart": "Expenses",
     "dashboard.exportData": "Export Data",
+    "dashboard.expenseByCategory": "Expense by Category",
 
     // Common
     "common.save": "Save",
@@ -103,9 +137,41 @@ const translations = {
     "common.error": "An error occurred",
     "common.success": "Success",
 
-    // Offline
-    "offline.message": "You are offline",
-    "offline.description": "Some features may not be available",
+    // AI Suggestions
+    "ai.title": "AI Financial Insights",
+    "ai.description": "Analyzing your financial patterns...",
+    "ai.error": "Unable to load AI insights at this time.",
+    "ai.recommendations": "AI Recommendations",
+    "ai.recommendationsDesc":
+      "Personalized insights to improve your financial health",
+    "ai.noRecommendations":
+      "No specific recommendations at this time. Keep up the good work!",
+    "ai.healthScore": "Financial Health Score",
+    "ai.healthScoreDesc":
+      "Your overall financial wellness based on spending patterns and habits",
+    "ai.grade": "Grade",
+    "ai.strengths": "Strengths",
+    "ai.improvements": "Areas for Improvement",
+    "ai.spendingPredictions": "Spending Predictions",
+    "ai.spendingPredictionsDesc":
+      "AI-powered predictions for next month's spending by category",
+    "ai.confidence": "confidence",
+    "ai.riskAssessment": "Risk Assessment",
+    "ai.riskAssessmentDesc":
+      "Current financial risk level and mitigation strategies",
+    "ai.riskLevel": "Risk Level",
+    "ai.riskFactors": "Risk Factors",
+    "ai.recommendationsTitle": "Recommendations",
+    "ai.impact": "Impact",
+
+    // Export
+    "export.transactions": "Export Transactions",
+    "export.budgets": "Export Budgets",
+    "export.backup": "Backup Data",
+    "export.exporting": "Exporting...",
+    "export.backingUp": "Backing up...",
+    "export.failed": "Failed to export data",
+    "export.backupFailed": "Failed to backup data",
   },
 };
 

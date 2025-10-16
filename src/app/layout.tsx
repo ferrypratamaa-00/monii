@@ -11,7 +11,7 @@ import { QueryClientProvider } from "../components/QueryClientProvider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "KANTONG - Personal Finance Manager",
+  title: "Monii - Personal Finance Manager",
   description: "Catat keuangan pribadi & keluarga, simpel dan cerdas.",
 };
 

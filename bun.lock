@@ -2,7 +2,7 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "kantong",
+      "name": "Monii",
       "dependencies": {
         "@hookform/resolvers": "^5.2.2",
         "@next/bundle-analyzer": "^15.5.5",

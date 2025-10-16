@@ -56,7 +56,7 @@ export default function LoginPage() {
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
             <LogIn className="h-6 w-6 text-blue-600" />
           </div>
-          <CardTitle className="text-2xl">Masuk ke Kantong</CardTitle>
+          <CardTitle className="text-2xl">Masuk ke Monii</CardTitle>
           <CardDescription>
             Masukkan email dan password Anda untuk melanjutkan.
           </CardDescription>
