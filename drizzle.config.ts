@@ -7,9 +7,17 @@ export default defineConfig({
   dbCredentials:
     process.env.DB_DIALECT === "sqlite"
       ? { url: "./.data/monii.db" }
+      : process.env.NODE_ENV === "production"
+      ? {
+          host: "aws-1-ap-southeast-1.pooler.supabase.com",
+          port: 5432,
+          user: "postgres.krbflonlmzjhbewxdqdn",
+          password: "6JOfkMYLL5XUUksD",
+          database: "postgres",
+          ssl: { rejectUnauthorized: false },
+        }
       : {
-          url: process.env.DATABASE_URL || "", // postgres connection url
-          ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
+          url: process.env.DATABASE_URL || "",
         },
   strict: true,
   verbose: true,
