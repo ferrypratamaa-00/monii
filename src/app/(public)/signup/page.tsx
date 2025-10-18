@@ -58,6 +58,9 @@ export default function SignupPage() {
     <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
+          <div className="flex justify-end">
+            <InstallPrompt />
+          </div>
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
             <UserPlus className="h-6 w-6 text-primary" />
           </div>
@@ -65,9 +68,6 @@ export default function SignupPage() {
           <CardDescription>
             Buat akun baru untuk mulai mengelola keuangan Anda.
           </CardDescription>
-          <div className="mt-4">
-            <InstallPrompt />
-          </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">

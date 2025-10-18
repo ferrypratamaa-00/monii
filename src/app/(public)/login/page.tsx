@@ -81,6 +81,9 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
+          <div className="flex justify-end">
+            <InstallPrompt />
+          </div>
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/20">
             <LogIn className="h-6 w-6 text-primary" />
           </div>
@@ -88,9 +91,6 @@ export default function LoginPage() {
           <CardDescription>
             Masukkan email dan password Anda untuk melanjutkan.
           </CardDescription>
-          <div className="mt-4">
-            <InstallPrompt />
-          </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
