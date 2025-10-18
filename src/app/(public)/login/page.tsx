@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { loginAction } from "@/app/actions/auth";
+import { useAuthStore } from "@/lib/stores/auth";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,11 +25,37 @@ export default function LoginPage() {
   const [message, setMessage] = useState("");
 
   const router = useRouter();
+  const { setUser, updateTokenRefresh } = useAuthStore();
 
   const mutation = useMutation({
     mutationFn: (formData: FormData) => loginAction(formData),
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       if (data.success) {
+        // Clear service worker cache to prevent stale data
+        if ("serviceWorker" in navigator && "caches" in window) {
+          try {
+            const cacheNames = await caches.keys();
+            await Promise.all(
+              cacheNames.map(cacheName => caches.delete(cacheName))
+            );
+            console.log("Cache cleared after login");
+          } catch (error) {
+            console.error("Failed to clear cache:", error);
+          }
+        }
+
+        // Fetch user data and update auth store
+        try {
+          const response = await fetch("/api/auth/me");
+          if (response.ok) {
+            const userData = await response.json();
+            setUser(userData.user);
+            updateTokenRefresh();
+          }
+        } catch (error) {
+          console.error("Failed to fetch user data:", error);
+        }
+
         router.push("/dashboard");
       } else if (data.errors) {
         setMessage("Mohon perbaiki kesalahan, kemudian coba kembali.");

@@ -15,6 +15,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { logoutAction } from "@/app/actions/auth";
+import { useAuthStore } from "@/lib/stores/auth";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "../LanguageProvider";
 import LanguageSwitcher from "../LanguageSwitcher";
@@ -43,6 +44,7 @@ export default function Navigation() {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { logout } = useAuthStore();
 
   let t: (key: string) => string;
   try {
@@ -57,6 +59,22 @@ export default function Navigation() {
   const handleLogout = async () => {
     const result = await logoutAction();
     if (result.success) {
+      // Clear service worker cache to prevent stale data
+      if ("serviceWorker" in navigator && "caches" in window) {
+        try {
+          const cacheNames = await caches.keys();
+          await Promise.all(
+            cacheNames.map(cacheName => caches.delete(cacheName))
+          );
+          console.log("Cache cleared after logout");
+        } catch (error) {
+          console.error("Failed to clear cache:", error);
+        }
+      }
+
+      // Clear client-side auth state
+      logout();
+
       router.push("/login");
     } else {
       console.error("Logout failed:", result.error);

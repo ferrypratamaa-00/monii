@@ -7,6 +7,7 @@ export default async function ProtectedLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // Server-side auth check (security)
   const userId = await getCurrentUser();
   if (!userId) {
     redirect("/login");
