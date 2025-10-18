@@ -1,11 +1,11 @@
 import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
+import { Pool } from "@neondatabase/serverless";
 import * as schema from "./schema";
 
-const connectionString = process.env.DATABASE_URL;
+const connectionString = process.env.NODE_ENV === 'production' ? process.env.DATABASE_URL : process.env.LOCAL_DATABASE_URL;
 
 if (!connectionString) {
-  throw new Error("Database connection string not found. Please set DATABASE_URL.");
+  throw new Error("Database connection string not found. Please set DATABASE_URL or LOCAL_DATABASE_URL.");
 }
 
 const pool = new Pool({
