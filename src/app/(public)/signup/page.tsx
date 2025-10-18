@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { signUpAction } from "@/app/actions/auth";
+import { InstallPrompt } from "@/components/InstallPrompt";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -64,6 +65,9 @@ export default function SignupPage() {
           <CardDescription>
             Buat akun baru untuk mulai mengelola keuangan Anda.
           </CardDescription>
+          <div className="mt-4">
+            <InstallPrompt />
+          </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">

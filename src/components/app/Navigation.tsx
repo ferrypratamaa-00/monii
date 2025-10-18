@@ -15,6 +15,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { logoutAction } from "@/app/actions/auth";
+import { InstallPrompt } from "@/components/InstallPrompt";
 import { useAuthStore } from "@/lib/stores/auth";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "../LanguageProvider";
@@ -126,6 +127,7 @@ export default function Navigation() {
               role="toolbar"
               aria-label="User actions"
             >
+              <InstallPrompt />
               <ThemeSelector />
               <LanguageSwitcher />
               <ThemeSwitcher />
@@ -147,6 +149,7 @@ export default function Navigation() {
       <div className="md:hidden bg-background px-6 py-4 flex justify-between items-center">
         <h1 className="text-lg font-bold text-foreground">Monii 👛</h1>
         <div className="flex items-center space-x-2">
+          <InstallPrompt />
           <ThemeSelector />
           <LanguageSwitcher />
           <ThemeSwitcher />
@@ -213,9 +216,12 @@ export default function Navigation() {
           aria-label="Close menu"
         >
           <div className="absolute bottom-16 left-0 right-0 bg-card rounded-t-3xl mx-4 p-6 shadow-xl">
-            <h3 className="text-lg font-semibold text-foreground mb-4">
-              {t("nav.more")}
-            </h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-foreground">
+                {t("nav.more")}
+              </h3>
+              <InstallPrompt />
+            </div>
             <div className="grid grid-cols-2 gap-4">
               {navigation.slice(3).map((item) => {
                 const isActive = pathname === item.href;

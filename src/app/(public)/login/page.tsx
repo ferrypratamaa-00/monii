@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { loginAction } from "@/app/actions/auth";
+import { InstallPrompt } from "@/components/InstallPrompt";
 import { useAuthStore } from "@/lib/stores/auth";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -87,6 +88,9 @@ export default function LoginPage() {
           <CardDescription>
             Masukkan email dan password Anda untuk melanjutkan.
           </CardDescription>
+          <div className="mt-4">
+            <InstallPrompt />
+          </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
