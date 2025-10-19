@@ -1,7 +1,7 @@
 "use client";
 
 // biome-ignore assist/source/organizeImports: <>
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CalendarIcon, Plus, X } from "lucide-react";
 import { format } from "date-fns";
@@ -95,6 +95,40 @@ export function TransactionModal({
 
   const mutation = useMutation({
     mutationFn: (formData: FormData) => createTransactionAction(formData),
+    onMutate: async (formData) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["dashboard"] });
+      await queryClient.cancelQueries({ queryKey: ["transactions"] });
+
+      // Snapshot previous value for rollback
+      const previousDashboard = queryClient.getQueryData(["dashboard"]);
+
+      // Optimistically update dashboard data
+      const amount = parseFloat(formData.get("amount") as string);
+      const type = formData.get("type") as string;
+
+      queryClient.setQueryData(["dashboard"], (old: any) => {
+        if (!old) return old;
+
+        const balanceChange = type === "INCOME" ? amount : -amount;
+
+        return {
+          ...old,
+          totalBalance: (old.totalBalance || 0) + balanceChange,
+          monthlySummary: {
+            ...old.monthlySummary,
+            income: type === "INCOME"
+              ? (old.monthlySummary?.income || 0) + amount
+              : old.monthlySummary?.income || 0,
+            expense: type === "EXPENSE"
+              ? (old.monthlySummary?.expense || 0) + amount
+              : old.monthlySummary?.expense || 0,
+          },
+        };
+      });
+
+      return { previousDashboard };
+    },
     onSuccess: (data) => {
       if (data.success) {
         toast.success("Transaksi berhasil ditambahkan");
@@ -106,7 +140,11 @@ export function TransactionModal({
         toast.error(data.error || "Terjadi kesalahan");
       }
     },
-    onError: () => {
+    onError: (err, variables, context) => {
+      // Rollback optimistic update on error
+      if (context?.previousDashboard) {
+        queryClient.setQueryData(["dashboard"], context.previousDashboard);
+      }
       toast.error("Terjadi kesalahan saat menyimpan");
     },
   });
@@ -126,6 +164,29 @@ export function TransactionModal({
   const handleTypeChange = (type: "INCOME" | "EXPENSE") => {
     form.setValue("type", type);
   };
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!open) return;
+
+      // Ctrl+Enter to submit
+      if (e.ctrlKey && e.key === 'Enter') {
+        e.preventDefault();
+        form.handleSubmit(onSubmit)();
+      }
+
+      // Escape to close
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <>
+  }, [open, form, onSubmit, setOpen]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -189,6 +250,11 @@ export function TransactionModal({
                 {mutation.isPending ? "Menyimpan..." : "Simpan"}
               </Button>
             </div>
+
+            {/* Keyboard shortcuts hint */}
+            <div className="text-xs text-muted-foreground text-center pt-2 border-t">
+              💡 <kbd className="px-1 py-0.5 bg-muted rounded text-xs">Ctrl</kbd> + <kbd className="px-1 py-0.5 bg-muted rounded text-xs">Enter</kbd> untuk simpan • <kbd className="px-1 py-0.5 bg-muted rounded text-xs">Esc</kbd> untuk tutup
+            </div>
           </form>
         </Form>
       </DialogContent>
@@ -219,6 +285,11 @@ function TransactionForm({ form, type }: TransactionFormProps) {
 
   const filteredCategories = categories.filter((cat) => cat.type === type);
 
+  // Quick amount presets based on transaction type
+  const quickAmounts = type === "EXPENSE"
+    ? [10000, 25000, 50000, 100000, 250000, 500000]
+    : [1000000, 2500000, 5000000, 10000000, 25000000, 50000000];
+
   return (
     <>
       <FormField
@@ -240,6 +311,25 @@ function TransactionForm({ form, type }: TransactionFormProps) {
           </FormItem>
         )}
       />
+
+      {/* Quick Amount Buttons */}
+      <div className="space-y-2">
+        <FormLabel className="text-sm text-muted-foreground">Jumlah Cepat</FormLabel>
+        <div className="grid grid-cols-3 gap-2">
+          {quickAmounts.map(amount => (
+            <Button
+              key={amount}
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => form.setValue("amount", amount.toString())}
+              className="text-xs"
+            >
+              Rp{(amount / 1000).toFixed(0)}k
+            </Button>
+          ))}
+        </div>
+      </div>
 
       <FormField
         control={form.control}

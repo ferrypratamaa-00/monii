@@ -11,8 +11,17 @@ import { useLanguage } from "@/components/LanguageProvider";
 import OfflineDashboard from "@/components/OfflineDashboard";
 import { QuickActionButton } from "@/components/QuickActionButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { useOnboardingGuide } from "@/hooks/useOnboardingGuide";
 import { localStorageService } from "@/services/localStorage";
+import { syncService } from "@/services/sync";
 
 interface DashboardClientProps {
   totalBalance: number;
@@ -43,10 +52,13 @@ export default function DashboardClient({
   const { t } = useLanguage();
   const [isOnline, setIsOnline] = useState(true);
   const [hasCachedData, setHasCachedData] = useState(false);
+  const [syncStatus, setSyncStatus] = useState(syncService.getSyncStatus());
+  const [showConflictDialog, setShowConflictDialog] = useState(false);
 
   // Initialize onboarding guide
   useOnboardingGuide();
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <>
   useEffect(() => {
     // Check initial online status
     setIsOnline(navigator.onLine);
@@ -56,11 +68,28 @@ export default function DashboardClient({
     setHasCachedData(cacheStatus.dashboardData || cacheStatus.userData);
 
     // Listen for online/offline events
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
+    const handleOnline = () => {
+      setIsOnline(true);
+      setSyncStatus(syncService.getSyncStatus());
+    };
+    const handleOffline = () => {
+      setIsOnline(false);
+      setSyncStatus(syncService.getSyncStatus());
+    };
 
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
+
+    // Periodic sync status check
+    const syncCheckInterval = setInterval(() => {
+      const newStatus = syncService.getSyncStatus();
+      setSyncStatus(newStatus);
+      
+      // Show conflict dialog if conflicts detected and not already showing
+      if (newStatus.hasConflicts && !showConflictDialog) {
+        setShowConflictDialog(true);
+      }
+    }, 5000); // Check every 5 seconds
 
     // Cache current data for offline use
     if (totalBalance !== undefined && monthlySummary) {
@@ -73,6 +102,7 @@ export default function DashboardClient({
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
+      clearInterval(syncCheckInterval);
     };
   }, [totalBalance, monthlySummary]);
 
@@ -86,9 +116,30 @@ export default function DashboardClient({
       <div className="container mx-auto px-4 md:px-6 py-4 md:py-6 space-y-4 md:space-y-6">
         {/* Greeting Header */}
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-foreground mb-1">
-            {userName ? `Hai ${userName}` : t("dashboard.greeting")} 👋
-          </h1>
+          <div className="flex items-center justify-between mb-2">
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">
+              {userName ? `Hai ${userName}` : t("dashboard.greeting")} 👋
+            </h1>
+            {/* Sync Status Indicator */}
+            <div className="flex items-center gap-2">
+              <div
+                className={`w-2 h-2 rounded-full ${
+                  isOnline ? "bg-green-500" : "bg-orange-500"
+                }`}
+                title={isOnline ? "Online" : "Offline"}
+              />
+              {syncStatus.pendingCount > 0 && (
+                <span className="text-xs text-muted-foreground">
+                  {syncStatus.pendingCount} pending
+                </span>
+              )}
+              {syncStatus.hasConflicts && (
+                <span className="text-xs text-orange-600 font-medium">
+                  ⚠️ Sync conflict
+                </span>
+              )}
+            </div>
+          </div>
           <p className="text-sm text-muted-foreground">
             {t("dashboard.balanceLabel")}
           </p>
@@ -303,6 +354,38 @@ export default function DashboardClient({
 
       {/* Quick Action Floating Button */}
       <QuickActionButton />
+
+      {/* Conflict Resolution Dialog */}
+      <Dialog open={showConflictDialog} onOpenChange={setShowConflictDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>⚠️ Sinkronisasi Konflik Terdeteksi</DialogTitle>
+            <DialogDescription>
+              Ada transaksi yang belum tersinkronisasi selama lebih dari 24 jam.
+              Pastikan Anda online untuk menyelesaikan sinkronisasi.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex gap-2 pt-4">
+            <Button
+              variant="outline"
+              onClick={() => setShowConflictDialog(false)}
+              className="flex-1"
+            >
+              Abaikan
+            </Button>
+            <Button
+              onClick={() => {
+                setShowConflictDialog(false);
+                // Force sync attempt
+                syncService.syncPendingData();
+              }}
+              className="flex-1"
+            >
+              Coba Sinkronkan
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

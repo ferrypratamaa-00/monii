@@ -212,6 +212,7 @@ class SyncService {
     isOnline: boolean;
     pendingCount: number;
     lastSyncTime: string | null;
+    hasConflicts: boolean;
   } {
     const pending = this.getPendingTransactions();
     const lastTransaction = pending.sort(
@@ -219,10 +220,19 @@ class SyncService {
         new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
     )[0];
 
+    // Check for potential conflicts (transactions older than 24 hours)
+    const hasConflicts = pending.some(transaction => {
+      const transactionTime = new Date(transaction.timestamp).getTime();
+      const now = Date.now();
+      const hoursDiff = (now - transactionTime) / (1000 * 60 * 60);
+      return hoursDiff > 24;
+    });
+
     return {
       isOnline: this.isOnline,
       pendingCount: pending.length,
       lastSyncTime: lastTransaction?.timestamp || null,
+      hasConflicts,
     };
   }
 
