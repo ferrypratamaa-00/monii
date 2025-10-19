@@ -24,37 +24,43 @@ export function ReceiptScanner({
   const [permissionDenied, setPermissionDenied] = useState(false);
 
   const startCamera = useCallback(async () => {
+    console.log("ReceiptScanner: Starting camera initialization");
     // Check camera permission first
     if (navigator.permissions) {
       try {
         const permissionStatus = await navigator.permissions.query({
           name: "camera",
         });
+        console.log("ReceiptScanner: Camera permission status:", permissionStatus.state);
         if (permissionStatus.state === "denied") {
           setPermissionDenied(true);
           return;
         }
       } catch (_error) {
+        console.log("ReceiptScanner: Permissions API not supported, continuing with getUserMedia");
         // Permissions API not supported, continue with getUserMedia
       }
     }
 
     try {
+      console.log("ReceiptScanner: Requesting camera access");
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: "environment", // Use back camera on mobile
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
+          width: { ideal: 1080, max: 1080 },
+          height: { ideal: 1920, max: 1920 },
+          aspectRatio: 9/16,
         },
       });
 
       if (videoRef.current) {
+        console.log("ReceiptScanner: Camera stream obtained, setting up video element");
         videoRef.current.srcObject = mediaStream;
         setStream(mediaStream);
         setIsStreaming(true);
       }
     } catch (error) {
-      console.error("Error accessing camera:", error);
+      console.error("ReceiptScanner: Error accessing camera:", error);
       if (error instanceof DOMException && error.name === "NotAllowedError") {
         setPermissionDenied(true);
       } else {
@@ -120,9 +126,9 @@ export function ReceiptScanner({
   }, [startCamera]);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
       {permissionDenied ? (
-        <Card className="w-full max-w-lg mx-auto">
+        <Card className="w-full max-w-sm mx-auto">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <Camera className="h-6 w-6" />
@@ -137,7 +143,7 @@ export function ReceiptScanner({
                 camera permission to continue.
               </p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <Button
                 onClick={requestPermission}
                 className="flex-1 text-base py-3"
@@ -155,7 +161,7 @@ export function ReceiptScanner({
           </CardContent>
         </Card>
       ) : (
-        <Card className="w-full max-w-md mx-auto">
+        <Card className="w-full max-w-sm mx-auto">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Camera className="h-5 w-5" />
@@ -170,35 +176,43 @@ export function ReceiptScanner({
             {!capturedImage ? (
               <>
                 {/* Camera View */}
-                <div className="relative aspect-[4/3] bg-gray-900 rounded-lg overflow-hidden">
+                <div className="relative w-full max-w-sm mx-auto bg-gray-900 rounded-lg overflow-hidden">
                   <video
                     ref={videoRef}
                     autoPlay
                     playsInline
                     muted
-                    className="w-full h-full object-cover"
+                    className="w-full h-auto object-cover rounded-lg"
+                    style={{ aspectRatio: '9/16' }}
                   />
                   {!isStreaming && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="text-center text-white">
-                        <Camera className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                        <p className="text-sm">Initializing camera...</p>
+                    <div className="absolute inset-0 flex items-center justify-center rounded-lg">
+                      <div className="text-center text-white p-4">
+                        <Camera className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                        <p className="text-lg font-medium">Initializing camera...</p>
+                        <p className="text-sm opacity-75 mt-2">Please allow camera access</p>
                       </div>
                     </div>
                   )}
                 </div>
 
                 {/* Camera Controls */}
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <Button
                     onClick={captureImage}
                     disabled={!isStreaming}
-                    className="flex-1"
+                    size="lg"
+                    className="px-8 py-3 text-base font-medium"
                   >
-                    <Camera className="h-4 w-4 mr-2" />
-                    Capture
+                    <Camera className="h-5 w-5 mr-2" />
+                    Take Photo
                   </Button>
-                  <Button variant="outline" onClick={handleClose}>
+                  <Button 
+                    variant="outline" 
+                    onClick={handleClose}
+                    size="lg"
+                    className="px-6 py-3 text-base"
+                  >
                     Cancel
                   </Button>
                 </div>
@@ -206,17 +220,18 @@ export function ReceiptScanner({
             ) : (
               <>
                 {/* Captured Image Preview */}
-                <div className="relative aspect-[4/3] bg-gray-100 rounded-lg overflow-hidden">
+                <div className="relative w-full max-w-md mx-auto bg-gray-100 rounded-lg overflow-hidden">
                   <Image
                     src={capturedImage}
                     alt="Captured receipt"
-                    fill
-                    className="object-cover"
+                    width={225}
+                    height={400}
+                    className="w-full h-auto object-cover rounded-lg"
                   />
                 </div>
 
                 {/* Image Controls */}
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Button
                     variant="outline"
                     onClick={retakeImage}

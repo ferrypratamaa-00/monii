@@ -111,6 +111,7 @@ export function ReceiptScanDialog({
       return OCRService.parseReceiptData(ocrResponse.data);
     },
     onSuccess: (data) => {
+      console.log("ReceiptScanDialog: OCR successful, parsed data:", data);
       setParsedData(data);
       // Auto-fill form with parsed data
       setManualData((prev) => ({
@@ -127,6 +128,7 @@ export function ReceiptScanDialog({
   });
 
   const handleImageCapture = (imageData: string) => {
+    console.log("ReceiptScanDialog: Image captured, starting OCR processing");
     setCapturedImage(imageData);
     setShowScanner(false);
     // Automatically start OCR processing

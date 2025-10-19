@@ -68,13 +68,14 @@ export class OCRService {
       .join(" ")
       .toLowerCase();
 
-    // Extract amount patterns (various currency formats)
+    // Extract amount patterns (Indonesian currency formats)
     const amountPatterns = [
-      /total\s*:?\s*\$?(\d+(?:\.\d{2})?)/i,
-      /amount\s*:?\s*\$?(\d+(?:\.\d{2})?)/i,
-      /\$(\d+(?:\.\d{2})?)/,
+      /total\s*:?\s*rp\.?\s*(\d+(?:\.\d{3})*(?:,\d{2})?)/i,
+      /total\s*:?\s*(\d+(?:\.\d{3})*(?:,\d{2})?)/i,
+      /amount\s*:?\s*rp\.?\s*(\d+(?:\.\d{3})*(?:,\d{2})?)/i,
       /rp\.?\s*(\d+(?:\.\d{3})*(?:,\d{2})?)/i,
       /idr\s*(\d+(?:\.\d{3})*(?:,\d{2})?)/i,
+      /(\d+(?:\.\d{3})*(?:,\d{2})?)\s*rp/i,
     ];
 
     let amount: number | null = null;
@@ -89,11 +90,12 @@ export class OCRService {
       }
     }
 
-    // Extract date patterns
+    // Extract date patterns (Indonesian date formats)
     const datePatterns = [
       /(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})/,
       /(\d{4})[/-](\d{1,2})[/-](\d{1,2})/,
-      /(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\w*\s+(\d{1,2}),?\s+(\d{4})/i,
+      /tanggal\s*:?\s*(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})/i,
+      /date\s*:?\s*(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})/i,
     ];
 
     let date: string | null = null;
@@ -143,18 +145,24 @@ export class OCRService {
    */
   private static async mockOCRCall(_base64Image: string): Promise<OCRResponse> {
     // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    // Mock OCR results based on common receipt patterns
+    // Mock OCR results based on common Indonesian receipt patterns
     const mockResults: OCRResult[] = [
-      { text: "STARBUCKS", confidence: 0.95 },
-      { text: "123 Main St", confidence: 0.9 },
-      { text: "Date: 12/15/2024", confidence: 0.92 },
-      { text: "Grande Latte", confidence: 0.88 },
-      { text: "$5.75", confidence: 0.96 },
-      { text: "Tax: $0.43", confidence: 0.89 },
-      { text: "Total: $6.18", confidence: 0.98 },
+      { text: "INDOMARET", confidence: 0.95 },
+      { text: "Jl. Sudirman No. 123", confidence: 0.9 },
+      { text: "Tanggal: 19/10/2024", confidence: 0.92 },
+      { text: "Waktu: 14:30", confidence: 0.88 },
+      { text: "Nasi Goreng Special", confidence: 0.85 },
+      { text: "Rp 25.000", confidence: 0.96 },
+      { text: "Es Teh Manis", confidence: 0.87 },
+      { text: "Rp 5.000", confidence: 0.94 },
+      { text: "Total: Rp 30.000", confidence: 0.98 },
+      { text: "Tunai", confidence: 0.89 },
     ];
+
+    console.log("OCR Mock Service: Processing receipt image");
+    console.log("Mock OCR Results:", mockResults);
 
     return {
       success: true,
