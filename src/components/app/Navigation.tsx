@@ -17,6 +17,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { logoutAction } from "@/app/actions/auth";
 import { InstallPrompt } from "@/components/InstallPrompt";
+import { KeyboardShortcutsHelp } from "@/components/KeyboardShortcutsHelp";
 import { useAuthStore } from "@/lib/stores/auth";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "../LanguageProvider";
@@ -130,6 +131,7 @@ export default function Navigation() {
               aria-label="User actions"
             >
               <InstallPrompt />
+              <KeyboardShortcutsHelp />
               <ThemeSelector />
               <LanguageSwitcher />
               <ThemeSwitcher />

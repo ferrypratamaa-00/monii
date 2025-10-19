@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import { FileImage, FileText, Upload, X } from "lucide-react";
+import { Camera, FileImage, FileText, Upload, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -77,11 +77,24 @@ export default function FileUpload({
   transactionId,
   onUploadSuccess,
   accept = "image/*,.pdf",
-  maxSizeText = "Max 5MB",
+  maxSizeText = "Max 10MB",
 }: FileUploadProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+
+  // Utility functions
+  const isMobile = () => {
+    return typeof window !== "undefined" && window.innerWidth < 768;
+  };
+
+  const resetUpload = () => {
+    setSelectedFile(null);
+    setPreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    if (cameraInputRef.current) cameraInputRef.current.value = "";
+  };
 
   const uploadMutation = useMutation({
     mutationFn: async (file: File) => {
@@ -158,11 +171,23 @@ export default function FileUpload({
     uploadMutation.mutate(selectedFile);
   };
 
-  const resetUpload = () => {
-    setSelectedFile(null);
-    setPreview(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+  const handleCameraCapture = () => {
+    cameraInputRef.current?.click();
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.type.indexOf("image") !== -1) {
+        const file = item.getAsFile();
+        if (file) {
+          handleFileSelect({ target: { files: [file] } } as any);
+          break;
+        }
+      }
     }
   };
 
@@ -177,7 +202,7 @@ export default function FileUpload({
   };
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full max-w-md" onPaste={handlePaste}>
       <CardContent className="p-6">
         <div className="space-y-4">
           <div className="text-center">
@@ -188,24 +213,66 @@ export default function FileUpload({
           </div>
 
           {!selectedFile ? (
-            // biome-ignore lint/a11y/useKeyWithClickEvents: <>
-            // biome-ignore lint/a11y/useSemanticElements: <>
-            <div
-              role="button"
-              tabIndex={0}
-              className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-sm text-gray-600">
-                Click to select or drag and drop
-              </p>
+            <div className="space-y-4">
+              {/* Camera option for mobile */}
+              {isMobile() && accept.includes("image") && (
+                <Button
+                  onClick={handleCameraCapture}
+                  variant="outline"
+                  className="w-full flex items-center gap-2"
+                >
+                  <Camera className="h-5 w-5" />
+                  Take Photo
+                </Button>
+              )}
+
+              {/* File upload area */}
+              {/** biome-ignore lint/a11y/useSemanticElements: <> */}
+              <div
+                role="button"
+                tabIndex={0}
+                className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 active:scale-95 transition-all duration-150 touch-manipulation"
+                onClick={() => fileInputRef.current?.click()}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    fileInputRef.current?.click();
+                  }
+                }}
+              >
+                <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-sm text-gray-600 mb-2">
+                  {isMobile()
+                    ? "Tap to select file"
+                    : "Click to select or drag and drop"}
+                </p>
+                <p className="text-xs text-muted-foreground mb-2">
+                  {accept.replace(/\*/g, "").replace(/,/g, " or ")} •{" "}
+                  {maxSizeText}
+                </p>
+                {isMobile() && (
+                  <p className="text-xs text-muted-foreground">
+                    💡 You can also paste images from clipboard
+                  </p>
+                )}
+              </div>
+
+              {/* Hidden file inputs */}
               <input
                 ref={fileInputRef}
                 type="file"
                 accept={accept}
                 onChange={handleFileSelect}
                 className="hidden"
+                capture={false}
+              />
+              <input
+                ref={cameraInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileSelect}
+                className="hidden"
+                capture="environment"
               />
             </div>
           ) : (

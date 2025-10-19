@@ -1,12 +1,14 @@
 /** biome-ignore-all lint/a11y/useSemanticElements: <> */
+/** biome-ignore-all lint/a11y/noNoninteractiveTabindex: <> */
+/** biome-ignore-all lint/a11y/useAriaPropsSupportedByRole: <> */
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import dynamic from "next/dynamic";
 import { useState } from "react";
+import { toast } from "sonner";
 import type { z } from "zod";
-import { cn } from "@/lib/utils";
 import type { SearchFiltersSchema } from "@/lib/validations/search";
 
 // Lazy load heavy components
@@ -31,6 +33,23 @@ const TransactionModal = dynamic(() => import("./TransactionModal"), {
     </button>
   ),
 });
+const SwipeableTransactionItem = dynamic(
+  () =>
+    import("./SwipeableTransactionItem").then((mod) => ({
+      default: mod.SwipeableTransactionItem,
+    })),
+  {
+    loading: () => (
+      <div className="flex items-center justify-between p-4 border rounded-lg">
+        <div className="animate-pulse">
+          <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
+          <div className="h-3 bg-gray-200 rounded w-24"></div>
+        </div>
+        <div className="h-4 bg-gray-200 rounded w-16"></div>
+      </div>
+    ),
+  },
+);
 
 type SearchFilters = z.infer<typeof SearchFiltersSchema>;
 
@@ -79,6 +98,29 @@ export default function TransactionList() {
   const transactions = result?.transactions || [];
   const pagination = result?.pagination;
 
+  const handleDeleteTransaction = async (transactionId: number) => {
+    if (!confirm("Are you sure you want to delete this transaction?")) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/transactions/${transactionId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete transaction");
+      }
+
+      toast.success("Transaction deleted successfully");
+      // Refetch transactions
+      window.location.reload();
+    } catch (error) {
+      console.error("Error deleting transaction:", error);
+      toast.error("Failed to delete transaction");
+    }
+  };
+
   const { data: categories = [] } = useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
@@ -98,7 +140,26 @@ export default function TransactionList() {
   });
 
   if (isLoading) {
-    return <div className="text-center py-8">Loading transactions...</div>;
+    return (
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <div className="h-8 bg-gray-200 rounded w-48 animate-pulse"></div>
+          <div className="h-10 bg-gray-200 rounded w-32 animate-pulse"></div>
+        </div>
+        <div className="h-16 bg-gray-200 rounded animate-pulse"></div>
+        <div className="space-y-2">
+          {[...Array(5)].map((_, i) => {
+            let idx = i;
+            return (
+              <div
+                key={idx++}
+                className="h-16 bg-gray-200 rounded animate-pulse"
+              ></div>
+            );
+          })}
+        </div>
+      </div>
+    );
   }
 
   if (!transactions || transactions.length === 0) {
@@ -134,45 +195,58 @@ export default function TransactionList() {
         aria-labelledby="transactions-heading"
       >
         {transactions.map((transaction: Transaction) => (
-          <div
-            key={transaction.id}
-            className="flex items-center justify-between p-4 border rounded-lg hover:bg-primary/5 focus-within:ring-2 focus-within:ring-primary focus-within:ring-inset"
-            role="listitem"
-            // biome-ignore lint/a11y/noNoninteractiveTabindex: <>
-            tabIndex={0}
-            aria-label={`Transaction: ${transaction.description}, ${transaction.type === "INCOME" ? "Income" : "Expense"} of ${parseFloat(transaction.amount).toLocaleString("id-ID")} rupiah`}
-          >
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                {/** biome-ignore lint/a11y/useAriaPropsSupportedByRole: <> */}
-                <span
-                  className={`px-2 py-1 text-xs rounded ${
-                    transaction.type === "INCOME"
-                      ? "bg-income/20 text-income"
-                      : "bg-expense/20 text-expense"
-                  }`}
-                  aria-label={`Transaction type: ${transaction.type === "INCOME" ? "Income" : "Expense"}`}
-                >
-                  {transaction.type}
-                </span>
-                <span className="font-medium">{transaction.description}</span>
-              </div>
-              <div className="text-sm text-muted-foreground">
-                {transaction.account.name}
-                {transaction.category && ` • ${transaction.category.name}`}
-                {" • "}
-                {format(new Date(transaction.date), "MMM dd, yyyy")}
-              </div>
+          <div key={transaction.id}>
+            {/* Mobile: Swipeable Item */}
+            <div className="md:hidden">
+              <SwipeableTransactionItem
+                transaction={transaction}
+                onDelete={handleDeleteTransaction}
+              />
             </div>
-            {/** biome-ignore lint/a11y/useAriaPropsSupportedByRole: <> */}
-            <div
-              className={`font-semibold ${
-                transaction.type === "INCOME" ? "text-income" : "text-expense"
-              }`}
-              aria-label={`Amount: ${transaction.type === "INCOME" ? "plus" : "minus"} ${parseFloat(transaction.amount).toLocaleString("id-ID")} rupiah`}
-            >
-              {transaction.type === "INCOME" ? "+" : "-"}Rp{" "}
-              {parseFloat(transaction.amount).toLocaleString("id-ID")}
+
+            {/* Desktop: Regular Item */}
+            <div className="hidden md:block">
+              <div
+                className="flex items-center justify-between p-4 border rounded-lg hover:bg-primary/5 focus-within:ring-2 focus-within:ring-primary focus-within:ring-inset"
+                role="listitem"
+                tabIndex={0}
+                aria-label={`Transaction: ${transaction.description}, ${transaction.type === "INCOME" ? "Income" : "Expense"} of ${parseFloat(transaction.amount).toLocaleString("id-ID")} rupiah`}
+              >
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`px-2 py-1 text-xs rounded ${
+                        transaction.type === "INCOME"
+                          ? "bg-income/20 text-income"
+                          : "bg-expense/20 text-expense"
+                      }`}
+                      aria-label={`Transaction type: ${transaction.type === "INCOME" ? "Income" : "Expense"}`}
+                    >
+                      {transaction.type}
+                    </span>
+                    <span className="font-medium">
+                      {transaction.description}
+                    </span>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {transaction.account.name}
+                    {transaction.category && ` • ${transaction.category.name}`}
+                    {" • "}
+                    {format(new Date(transaction.date), "MMM dd, yyyy")}
+                  </div>
+                </div>
+                <div
+                  className={`font-semibold ${
+                    transaction.type === "INCOME"
+                      ? "text-income"
+                      : "text-expense"
+                  }`}
+                  aria-label={`Amount: ${transaction.type === "INCOME" ? "plus" : "minus"} ${parseFloat(transaction.amount).toLocaleString("id-ID")} rupiah`}
+                >
+                  {transaction.type === "INCOME" ? "+" : "-"}Rp{" "}
+                  {parseFloat(transaction.amount).toLocaleString("id-ID")}
+                </div>
+              </div>
             </div>
           </div>
         ))}
