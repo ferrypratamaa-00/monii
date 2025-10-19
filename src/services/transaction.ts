@@ -48,15 +48,39 @@ export async function createTransaction(
   });
 }
 
-export async function getTransactions(userId: number) {
-  return db.query.transactions.findMany({
+export async function getTransactions(
+  userId: number,
+  options: { page?: number; limit?: number } = {},
+) {
+  const { page = 1, limit = 50 } = options;
+  const offset = (page - 1) * limit;
+
+  const transactionList = await db.query.transactions.findMany({
     where: eq(transactions.userId, userId),
     with: {
       account: true,
       category: true,
     },
     orderBy: (transactions, { desc }) => [desc(transactions.date)],
+    limit,
+    offset,
   });
+
+  // Get total count for pagination
+  const [{ count }] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(transactions)
+    .where(eq(transactions.userId, userId));
+
+  return {
+    transactions: transactionList,
+    pagination: {
+      page,
+      limit,
+      total: count,
+      totalPages: Math.ceil(count / limit),
+    },
+  };
 }
 
 export async function getFilteredTransactions(

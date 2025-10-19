@@ -1,12 +1,9 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { AISuggestionsPanel } from "@/components/app/dashboard/AISuggestionsPanel";
-import { ExpensePieChart } from "@/components/app/dashboard/ExpensePieChart";
-import { ExportButtons } from "@/components/app/dashboard/ExportButtons";
-import { TrendChart } from "@/components/app/dashboard/TrendChart";
 import { useLanguage } from "@/components/LanguageProvider";
 import OfflineDashboard from "@/components/OfflineDashboard";
 import { QuickActionButton } from "@/components/QuickActionButton";
@@ -22,6 +19,73 @@ import {
 import { useOnboardingGuide } from "@/hooks/useOnboardingGuide";
 import { localStorageService } from "@/services/localStorage";
 import { syncService } from "@/services/sync";
+
+// Lazy load heavy chart components
+const AISuggestionsPanel = dynamic(
+  () =>
+    import(
+      "@/components/app/dashboard/AISuggestionsPanel"
+    ) as unknown as Promise<{
+      default: React.ComponentType<{ userId: number }>;
+    }>,
+  {
+    loading: () => (
+      <Card className="shadow-md border-0">
+        <CardContent className="pt-6 pb-6">
+          <div className="flex items-center justify-center">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+          </div>
+        </CardContent>
+      </Card>
+    ),
+  },
+);
+
+const ExpensePieChart = dynamic(
+  () =>
+    import("@/components/app/dashboard/ExpensePieChart") as unknown as Promise<{
+      default: React.ComponentType<{
+        data: Array<{ name: string; value: number }>;
+      }>;
+    }>,
+  {
+    loading: () => (
+      <div className="flex items-center justify-center h-32">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    ),
+  },
+);
+
+const ExportButtons = dynamic(
+  () =>
+    import("@/components/app/dashboard/ExportButtons") as unknown as Promise<{
+      default: React.ComponentType<Record<string, never>>;
+    }>,
+  {
+    loading: () => (
+      <div className="flex items-center justify-center py-4">
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+      </div>
+    ),
+  },
+);
+
+const TrendChart = dynamic(
+  () =>
+    import("@/components/app/dashboard/TrendChart") as unknown as Promise<{
+      default: React.ComponentType<{
+        data: Array<{ month: string; income: number; expense: number }>;
+      }>;
+    }>,
+  {
+    loading: () => (
+      <div className="flex items-center justify-center h-32">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    ),
+  },
+);
 
 interface DashboardClientProps {
   totalBalance: number;

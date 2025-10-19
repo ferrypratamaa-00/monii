@@ -21,6 +21,58 @@ interface FileUploadProps {
   maxSizeText?: string;
 }
 
+// Image compression utility
+const compressImage = (file: File): Promise<File> => {
+  return new Promise((resolve, reject) => {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const img = new Image();
+
+    img.onload = () => {
+      // Calculate new dimensions (max 1920px width/height)
+      let { width, height } = img;
+      const maxDimension = 1920;
+
+      if (width > height) {
+        if (width > maxDimension) {
+          height = (height * maxDimension) / width;
+          width = maxDimension;
+        }
+      } else {
+        if (height > maxDimension) {
+          width = (width * maxDimension) / height;
+          height = maxDimension;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+
+      // Draw and compress
+      ctx?.drawImage(img, 0, 0, width, height);
+
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            const compressedFile = new File([blob], file.name, {
+              type: file.type,
+              lastModified: Date.now(),
+            });
+            resolve(compressedFile);
+          } else {
+            reject(new Error("Compression failed"));
+          }
+        },
+        file.type,
+        0.8, // 80% quality
+      );
+    };
+
+    img.onerror = () => reject(new Error("Image load failed"));
+    img.src = URL.createObjectURL(file);
+  });
+};
+
 export default function FileUpload({
   transactionId,
   onUploadSuccess,
@@ -63,7 +115,9 @@ export default function FileUpload({
     },
   });
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -73,15 +127,27 @@ export default function FileUpload({
       return;
     }
 
-    setSelectedFile(file);
+    let processedFile = file;
+
+    // Compress images before upload
+    if (file.type.startsWith("image/") && file.size > 1024 * 1024) {
+      // > 1MB
+      try {
+        processedFile = await compressImage(file);
+      } catch (error) {
+        console.warn("Image compression failed, using original file:", error);
+      }
+    }
+
+    setSelectedFile(processedFile);
 
     // Create preview for images
-    if (file.type.startsWith("image/")) {
+    if (processedFile.type.startsWith("image/")) {
       const reader = new FileReader();
       reader.onload = (e) => {
         setPreview(e.target?.result as string);
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(processedFile);
     } else {
       setPreview(null);
     }

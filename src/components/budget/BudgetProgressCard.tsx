@@ -79,16 +79,13 @@ export function BudgetProgressCard({
   const isNearLimit = spendingPercentage >= 80 && spendingPercentage < 100;
 
   // Determine status and colors
-  let statusColor = "bg-green-500";
   let statusText = "On Track";
   let statusVariant: "default" | "secondary" | "destructive" = "default";
 
   if (isOverBudget) {
-    statusColor = "bg-red-500";
     statusText = "Over Budget";
     statusVariant = "destructive";
   } else if (isNearLimit) {
-    statusColor = "bg-yellow-500";
     statusText = "Near Limit";
     statusVariant = "secondary";
   }

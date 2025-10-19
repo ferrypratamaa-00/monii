@@ -230,7 +230,7 @@ export class OCRService {
 
           // Ensure year is 4 digits
           if (year.length === 2) {
-            year = year < "50" ? "20" + year : "19" + year;
+            year = year < "50" ? `20${year}` : `19${year}`;
           }
 
           // Create date string in YYYY-MM-DD format
@@ -268,7 +268,7 @@ export class OCRService {
         !text.toLowerCase().includes("tanggal") &&
         !text.toLowerCase().includes("waktu")
       ) {
-        vendor = text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+        vendor = `${text.charAt(0).toUpperCase()}${text.slice(1).toLowerCase()}`;
         break;
       }
     }

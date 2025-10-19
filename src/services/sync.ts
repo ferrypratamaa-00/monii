@@ -6,7 +6,7 @@
 interface PendingTransaction {
   id: string;
   type: "create_transaction" | "update_transaction" | "delete_transaction";
-  data: any;
+  data: Record<string, unknown>;
   timestamp: string;
   retryCount: number;
 }
@@ -44,7 +44,11 @@ class SyncService {
   private async registerBackgroundSync() {
     try {
       const registration = await navigator.serviceWorker.ready;
-      await (registration as any).sync.register("background-sync");
+      await (
+        registration as ServiceWorkerRegistration & {
+          sync: { register: (tag: string) => Promise<void> };
+        }
+      ).sync.register("background-sync");
       console.log("Background sync registered");
     } catch (error) {
       console.warn(
@@ -55,7 +59,10 @@ class SyncService {
   }
 
   // Add pending transaction to queue
-  addPendingTransaction(type: PendingTransaction["type"], data: any): string {
+  addPendingTransaction(
+    type: PendingTransaction["type"],
+    data: Record<string, unknown>,
+  ): string {
     const transaction: PendingTransaction = {
       id: `pending_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       type,

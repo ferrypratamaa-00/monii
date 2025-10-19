@@ -1,13 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  AlertTriangle,
-  Plus,
-  RotateCcw,
-  Target,
-  TrendingUp,
-} from "lucide-react";
+import { AlertTriangle, RotateCcw, Target, TrendingUp } from "lucide-react";
 import { useState } from "react";
 import { BudgetProgressCard } from "@/components/budget/BudgetProgressCard";
 import { CreateBudgetDialog } from "@/components/budget/CreateBudgetDialog";
@@ -90,8 +84,6 @@ export default function BudgetPage() {
   const activeBudgets = budgets?.filter((b) => b.limitAmount > 0) || [];
   const overBudgetBudgets =
     budgets?.filter((b) => b.currentSpending > b.limitAmount) || [];
-  const onTrackBudgets =
-    budgets?.filter((b) => b.currentSpending <= b.limitAmount * 0.8) || [];
 
   if (budgetsLoading || statsLoading) {
     return (

@@ -3,25 +3,25 @@
  * Provides offline-first data storage using localStorage and IndexedDB
  */
 
-interface CachedUserData {
+export interface CachedUserData {
   id: number;
   name?: string;
   email: string;
   lastSync: string;
 }
 
-interface CachedDashboardData {
+export interface CachedDashboardData {
   totalBalance: number;
   monthlySummary: { income: number; expense: number };
   lastSync: string;
 }
 
-interface CachedCategoriesData {
+export interface CachedCategoriesData {
   categories: Array<{ id: number; name: string; type: string }>;
   lastSync: string;
 }
 
-interface CachedAccountsData {
+export interface CachedAccountsData {
   accounts: Array<{ id: number; name: string; balance: number }>;
   lastSync: string;
 }

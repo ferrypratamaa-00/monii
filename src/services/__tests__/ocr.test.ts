@@ -1,6 +1,14 @@
-import { describe, it, expect, vi, beforeEach, afterEach, MockedFunction } from "vitest";
-import { OCRService } from "../ocr";
 import { createWorker } from "tesseract.js";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  type MockedFunction,
+  vi,
+} from "vitest";
+import { OCRService } from "../ocr";
 
 // Mock tesseract.js
 vi.mock("tesseract.js", () => ({
@@ -73,7 +81,9 @@ describe("OCRService", () => {
       // Should fallback to mock service
       expect(result.success).toBe(true);
       expect(result.data).toBeDefined();
-      expect(result.data!.some(item => item.text.includes("INDOMARET"))).toBe(true);
+      expect(result.data!.some((item) => item.text.includes("INDOMARET"))).toBe(
+        true,
+      );
     });
 
     it("should return error for invalid image data", async () => {
@@ -100,9 +110,7 @@ describe("OCRService", () => {
     });
 
     it("should handle missing data gracefully", () => {
-      const ocrResults = [
-        { text: "Some random text", confidence: 0.5 },
-      ];
+      const ocrResults = [{ text: "Some random text", confidence: 0.5 }];
 
       const result = OCRService.parseReceiptData(ocrResults);
 

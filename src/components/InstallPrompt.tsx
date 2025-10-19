@@ -1,15 +1,25 @@
 "use client";
 
-import { Download, Smartphone } from "lucide-react";
+import { Download } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+
+interface BeforeInstallPromptEvent extends Event {
+  prompt(): Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+}
+
+interface NavigatorStandalone extends Navigator {
+  standalone?: boolean;
+}
 
 interface InstallPromptProps {
   className?: string;
 }
 
 export function InstallPrompt({ className }: InstallPromptProps) {
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [deferredPrompt, setDeferredPrompt] =
+    useState<BeforeInstallPromptEvent | null>(null);
   const [isInstallable, setIsInstallable] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [isAndroid, setIsAndroid] = useState(false);
@@ -25,7 +35,7 @@ export function InstallPrompt({ className }: InstallPromptProps) {
       // Prevent the mini-infobar from appearing on mobile
       e.preventDefault();
       // Stash the event so it can be triggered later
-      setDeferredPrompt(e);
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
       setIsInstallable(true);
     };
 
@@ -33,7 +43,7 @@ export function InstallPrompt({ className }: InstallPromptProps) {
     const checkInstalled = () => {
       if (
         "standalone" in window.navigator &&
-        (window.navigator as any).standalone
+        (window.navigator as NavigatorStandalone).standalone
       ) {
         // iOS PWA mode
         setIsInstallable(false);
@@ -43,8 +53,8 @@ export function InstallPrompt({ className }: InstallPromptProps) {
       } else {
         // Listen for install prompt
         window.addEventListener(
-          "beforeinstallprompt",
-          handleBeforeInstallPrompt,
+          "beforeinstallprompt" as keyof WindowEventMap,
+          handleBeforeInstallPrompt as EventListener,
         );
       }
     };
@@ -53,8 +63,8 @@ export function InstallPrompt({ className }: InstallPromptProps) {
 
     return () => {
       window.removeEventListener(
-        "beforeinstallprompt",
-        handleBeforeInstallPrompt,
+        "beforeinstallprompt" as keyof WindowEventMap,
+        handleBeforeInstallPrompt as EventListener,
       );
     };
   }, []);

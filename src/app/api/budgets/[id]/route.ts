@@ -12,7 +12,7 @@ const UpdateBudgetSchema = z.object({
 
 // GET /api/budgets/[id] - Get specific budget
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
@@ -25,7 +25,7 @@ export async function GET(
     const { id } = await params;
     const budgetId = parseInt(id, 10);
 
-    if (isNaN(budgetId)) {
+    if (Number.isNaN(budgetId)) {
       return NextResponse.json({ error: "Invalid budget ID" }, { status: 400 });
     }
 
@@ -64,7 +64,7 @@ export async function PUT(
     const { id } = await params;
     const budgetId = parseInt(id, 10);
 
-    if (isNaN(budgetId)) {
+    if (Number.isNaN(budgetId)) {
       return NextResponse.json({ error: "Invalid budget ID" }, { status: 400 });
     }
 
@@ -83,7 +83,7 @@ export async function PUT(
     }
 
     // Update budget
-    const updateData: any = {};
+    const updateData: Partial<typeof budgets.$inferInsert> = {};
     if (validatedData.limitAmount !== undefined) {
       updateData.limitAmount = validatedData.limitAmount.toString();
     }
@@ -117,7 +117,7 @@ export async function PUT(
 
 // DELETE /api/budgets/[id] - Delete budget
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {

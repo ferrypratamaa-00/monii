@@ -3,11 +3,34 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
+import dynamic from "next/dynamic";
 import { useState } from "react";
 import type { z } from "zod";
-import AdvancedSearchForm from "@/components/AdvancedSearchForm";
+import { cn } from "@/lib/utils";
 import type { SearchFiltersSchema } from "@/lib/validations/search";
-import TransactionModal from "./TransactionModal";
+
+// Lazy load heavy components
+const AdvancedSearchForm = dynamic(
+  () => import("@/components/AdvancedSearchForm"),
+  {
+    loading: () => (
+      <div className="flex items-center justify-center py-4">
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+      </div>
+    ),
+  },
+);
+const TransactionModal = dynamic(() => import("./TransactionModal"), {
+  loading: () => (
+    <button
+      type="button"
+      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-foreground bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+      disabled
+    >
+      Loading...
+    </button>
+  ),
+});
 
 type SearchFilters = z.infer<typeof SearchFiltersSchema>;
 
@@ -23,28 +46,38 @@ interface Transaction {
 
 export default function TransactionList() {
   const [filters, setFilters] = useState<SearchFilters | null>(null);
+  const [page, setPage] = useState(1);
+  const limit = 50;
 
-  const { data: transactions, isLoading } = useQuery({
-    queryKey: ["transactions", filters],
+  const { data: result, isLoading } = useQuery({
+    queryKey: ["transactions", filters, page],
     queryFn: async () => {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: limit.toString(),
+      });
+
       if (filters && Object.keys(filters).length > 0) {
         // Use filtered transactions API
         const response = await fetch("/api/transactions/search", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(filters),
+          body: JSON.stringify({ ...filters, page, limit }),
         });
         if (!response.ok)
           throw new Error("Failed to fetch filtered transactions");
         return response.json();
       } else {
         // Use regular API for all transactions
-        const response = await fetch("/api/transactions");
+        const response = await fetch(`/api/transactions?${params}`);
         if (!response.ok) throw new Error("Failed to fetch transactions");
         return response.json();
       }
     },
   });
+
+  const transactions = result?.transactions || [];
+  const pagination = result?.pagination;
 
   const { data: categories = [] } = useQuery({
     queryKey: ["categories"],
@@ -87,7 +120,10 @@ export default function TransactionList() {
       </div>
 
       <AdvancedSearchForm
-        onFiltersChange={setFilters}
+        onFiltersChange={(newFilters) => {
+          setFilters(newFilters);
+          setPage(1); // Reset to first page when filters change
+        }}
         categories={categories}
         accounts={accounts}
       />
@@ -141,6 +177,38 @@ export default function TransactionList() {
           </div>
         ))}
       </div>
+
+      {/* Pagination */}
+      {pagination && pagination.totalPages > 1 && (
+        <div className="flex items-center justify-between mt-6">
+          <div className="text-sm text-muted-foreground">
+            Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
+            {Math.min(pagination.page * pagination.limit, pagination.total)} of{" "}
+            {pagination.total} transactions
+          </div>
+          <div className="flex items-center space-x-2">
+            <button
+              type="button"
+              onClick={() => setPage(Math.max(1, page - 1))}
+              disabled={page === 1}
+              className="px-3 py-1 text-sm border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/10"
+            >
+              Previous
+            </button>
+            <span className="text-sm">
+              Page {pagination.page} of {pagination.totalPages}
+            </span>
+            <button
+              type="button"
+              onClick={() => setPage(Math.min(pagination.totalPages, page + 1))}
+              disabled={page === pagination.totalPages}
+              className="px-3 py-1 text-sm border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/10"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

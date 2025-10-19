@@ -23,7 +23,6 @@ interface AuthState {
 }
 
 const TOKEN_REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes
-const TOKEN_EXPIRY_BUFFER = 10 * 60 * 1000; // 10 minutes buffer before expiry
 
 export const useAuthStore = create<AuthState>()(
   persist(

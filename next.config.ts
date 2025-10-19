@@ -38,6 +38,27 @@ const nextConfig: NextConfig = {
     resolveExtensions: [".mdx", ".tsx", ".ts", ".jsx", ".js", ".json"],
   },
   serverExternalPackages: ["better-sqlite3"],
+  // Performance optimizations
+  images: {
+    formats: ["image/webp", "image/avif"],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+  },
+  // Bundle analysis
+  webpack: (config, { isServer }) => {
+    // Add bundle analyzer in development
+    if (!isServer && process.env.ANALYZE === "true") {
+      const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
+      config.plugins.push(
+        new BundleAnalyzerPlugin({
+          analyzerMode: "static",
+          reportFilename: "./analyze/client.html",
+        }),
+      );
+    }
+
+    return config;
+  },
   async headers() {
     return [
       {
@@ -48,7 +69,6 @@ const nextConfig: NextConfig = {
   },
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default withPWA({
   dest: "public",
   register: true,

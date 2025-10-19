@@ -1,4 +1,4 @@
-import { eq, and } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { budgets, categories } from "@/db/schema";
 
@@ -65,7 +65,7 @@ export async function updateBudgetSpending(
     where: and(
       eq(budgets.userId, userId),
       eq(budgets.categoryId, categoryId),
-      eq(budgets.period, "MONTHLY")
+      eq(budgets.period, "MONTHLY"),
     ),
     with: {
       category: true,
@@ -90,7 +90,7 @@ export async function updateBudgetSpending(
       and(
         eq(budgets.userId, userId),
         eq(budgets.categoryId, categoryId),
-        eq(budgets.period, "MONTHLY")
+        eq(budgets.period, "MONTHLY"),
       ),
     );
 

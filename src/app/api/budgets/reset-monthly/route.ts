@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth-server";
 import { resetMonthlyBudgets } from "@/services/budget";
 
 // POST /api/budgets/reset-monthly - Reset monthly budgets (admin/internal use)
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     // For security, this endpoint should only be called by authenticated admin users
     // or through a cron job with proper authentication
