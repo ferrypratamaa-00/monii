@@ -28,6 +28,6 @@ export const TransactionFormSchema = z.object({
     .finite()
     .refine((v) => v > 0, "Amount harus lebih dari 0"),
   description: z.string().max(500).optional(),
-  date: z.coerce.date(),
-  isRecurring: z.boolean().default(false),
+  date: z.date(),
+  isRecurring: z.boolean(),
 });

@@ -64,7 +64,7 @@ export default function TransactionModal({ isOpen: externalIsOpen, onClose: exte
         </DialogTrigger>
       )}
 
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-6">
         <DialogHeader>
           <DialogTitle>Add New Transaction</DialogTitle>
         </DialogHeader>
