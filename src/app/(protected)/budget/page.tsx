@@ -81,6 +81,24 @@ export default function BudgetPage() {
     },
   });
 
+  // Recalculate spending mutation
+  const recalculateMutation = useMutation({
+    mutationFn: async () => {
+      // Trigger recalculation by refetching budgets
+      const response = await fetch("/api/budgets");
+      if (!response.ok) throw new Error("Failed to recalculate budgets");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["budgets"] });
+      queryClient.invalidateQueries({ queryKey: ["budget-stats"] });
+      console.log("Budget spending recalculated successfully");
+    },
+    onError: (error) => {
+      console.error("Failed to recalculate budgets:", error);
+    },
+  });
+
   const activeBudgets = budgets?.filter((b) => b.limitAmount > 0) || [];
   const overBudgetBudgets =
     budgets?.filter((b) => b.currentSpending > b.limitAmount) || [];
@@ -113,6 +131,15 @@ export default function BudgetPage() {
           </p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => recalculateMutation.mutate()}
+            disabled={recalculateMutation.isPending}
+            className="w-full sm:w-auto"
+          >
+            <RotateCcw className="h-4 w-4 mr-2" />
+            {recalculateMutation.isPending ? "Recalculating..." : "Recalculate"}
+          </Button>
           <Button
             variant="outline"
             onClick={() => resetMutation.mutate()}

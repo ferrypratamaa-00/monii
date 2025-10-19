@@ -209,10 +209,12 @@ export function BudgetProgressCard({
           <div>
             <div className="text-muted-foreground">Days Left</div>
             <div className="font-medium">
-              {Math.max(
-                0,
-                Math.ceil(remainingAmount / (budget.currentSpending / 30)),
-              ) || "∞"}
+              {(() => {
+                const now = new Date();
+                const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                const daysLeft = Math.max(1, Math.ceil((endOfMonth.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+                return daysLeft;
+              })()}
             </div>
           </div>
         </div>

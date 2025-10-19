@@ -4,6 +4,7 @@ import { z } from "zod";
 import { db } from "@/db";
 import { budgets, categories } from "@/db/schema";
 import { auth } from "@/lib/auth-server";
+import { recalculateBudgetSpending } from "@/services/budget";
 
 const CreateBudgetSchema = z.object({
   categoryId: z.number().int().positive(),
@@ -21,6 +22,9 @@ export async function GET() {
 
     const userId = parseInt(session.user.id, 10);
 
+    // Recalculate budget spending to ensure data is up to date
+    await recalculateBudgetSpending(userId);
+
     const userBudgets = await db
       .select({
         id: budgets.id,
@@ -36,7 +40,14 @@ export async function GET() {
       .where(eq(budgets.userId, userId))
       .orderBy(budgets.createdAt);
 
-    return NextResponse.json(userBudgets);
+    // Parse amounts as numbers for proper formatting
+    const formattedBudgets = userBudgets.map(budget => ({
+      ...budget,
+      limitAmount: parseFloat(budget.limitAmount),
+      currentSpending: parseFloat(budget.currentSpending || "0"),
+    }));
+
+    return NextResponse.json(formattedBudgets);
   } catch (error) {
     console.error("GET /api/budgets error:", error);
     return NextResponse.json(
@@ -89,6 +100,9 @@ export async function POST(request: NextRequest) {
         currentSpending: "0",
       })
       .returning();
+
+    // Immediately calculate current spending for the new budget
+    await recalculateBudgetSpending(userId);
 
     return NextResponse.json(newBudget, { status: 201 });
   } catch (error) {
