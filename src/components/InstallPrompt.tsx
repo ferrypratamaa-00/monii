@@ -94,20 +94,18 @@ export function InstallPrompt({ className }: InstallPromptProps) {
           onClick={handleIOSInstall}
           variant="outline"
           className="flex items-center gap-2"
-          size="sm"
+          size="icon"
         >
-          <Smartphone className="w-4 h-4" />
-          Install (iOS)
+          <Download className="w-6 h-6" />
         </Button>
       ) : isAndroid ? (
         <Button
           onClick={handleAndroidInstall}
           variant="outline"
           className="flex items-center gap-2"
-          size="sm"
+          size="icon"
         >
-          <Smartphone className="w-4 h-4" />
-          Install (Android)
+          <Download className="w-6 h-6" />
         </Button>
       ) : null}
     </div>

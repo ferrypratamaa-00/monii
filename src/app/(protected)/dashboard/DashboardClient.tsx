@@ -9,7 +9,7 @@ import { ExportButtons } from "@/components/app/dashboard/ExportButtons";
 import { TrendChart } from "@/components/app/dashboard/TrendChart";
 import { useLanguage } from "@/components/LanguageProvider";
 import OfflineDashboard from "@/components/OfflineDashboard";
-import QuickActionButton from "@/components/QuickActionButton";
+import { QuickActionButton } from "@/components/QuickActionButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useOnboardingGuide } from "@/hooks/useOnboardingGuide";
 import { localStorageService } from "@/services/localStorage";

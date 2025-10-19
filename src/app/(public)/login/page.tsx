@@ -3,8 +3,8 @@
 import { useMutation } from "@tanstack/react-query";
 import { LogIn } from "lucide-react";
 import Link from "next/link";
-import { redirect, useRouter } from "next/navigation";
-import { useId, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { getCurrentUser, loginAction } from "@/app/actions/auth";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { useAuthStore } from "@/lib/stores/auth";
