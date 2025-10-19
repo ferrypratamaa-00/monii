@@ -41,7 +41,7 @@ export async function GET() {
       .orderBy(budgets.createdAt);
 
     // Parse amounts as numbers for proper formatting
-    const formattedBudgets = userBudgets.map(budget => ({
+    const formattedBudgets = userBudgets.map((budget) => ({
       ...budget,
       limitAmount: parseFloat(budget.limitAmount),
       currentSpending: parseFloat(budget.currentSpending || "0"),

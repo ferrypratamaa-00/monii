@@ -27,6 +27,7 @@ const translations = {
     "nav.reports": "Laporan",
     "nav.debts": "Utang",
     "nav.goals": "Target",
+    "nav.settings": "Pengaturan",
     "nav.more": "Lainnya",
     "nav.logout": "Logout",
 
@@ -163,6 +164,7 @@ const translations = {
     "nav.reports": "Reports",
     "nav.debts": "Debts",
     "nav.goals": "Goals",
+    "nav.settings": "Settings",
     "nav.more": "More",
     "nav.logout": "Logout",
 

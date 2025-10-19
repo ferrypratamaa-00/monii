@@ -7,6 +7,7 @@ import { LanguageProvider } from "@/components/LanguageProvider";
 import { OnboardingProvider } from "@/components/OnboardingProvider";
 import { PWAProvider } from "@/components/PWAProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { Toaster } from "@/components/ui/sonner";
 import { reportWebVitals } from "@/lib/performance";
 import { QueryClientProvider } from "../components/QueryClientProvider";
 
@@ -38,6 +39,7 @@ export default async function RootLayout({
                 <AppInitializer>
                   <PWAProvider />
                   {children}
+                  <Toaster />
                 </AppInitializer>
               </OnboardingProvider>
             </LanguageProvider>

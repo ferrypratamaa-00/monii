@@ -73,7 +73,9 @@ export async function updateBudgetSpending(
   });
 
   if (!currentBudget) {
-    console.log(`No budget found for user ${userId}, category ${categoryId}, period MONTHLY`);
+    console.log(
+      `No budget found for user ${userId}, category ${categoryId}, period MONTHLY`,
+    );
     return null;
   }
 
@@ -83,7 +85,9 @@ export async function updateBudgetSpending(
   const limitAmount = parseFloat(currentBudget.limitAmount);
   const newSpending = currentSpending + amount;
 
-  console.log(`Updating budget spending: user ${userId}, category ${categoryId}, current ${currentSpending}, adding ${amount}, new ${newSpending}`);
+  console.log(
+    `Updating budget spending: user ${userId}, category ${categoryId}, current ${currentSpending}, adding ${amount}, new ${newSpending}`,
+  );
 
   // Update currentSpending
   await db
@@ -125,14 +129,19 @@ export async function recalculateBudgetSpending(userId: number) {
   // Get current month date range
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+  const endOfMonth = new Date(
+    now.getFullYear(),
+    now.getMonth() + 1,
+    0,
+    23,
+    59,
+    59,
+    999,
+  );
 
   // Get all monthly budgets for user
   const userBudgets = await db.query.budgets.findMany({
-    where: and(
-      eq(budgets.userId, userId),
-      eq(budgets.period, "MONTHLY")
-    ),
+    where: and(eq(budgets.userId, userId), eq(budgets.period, "MONTHLY")),
     with: {
       category: true,
     },
@@ -153,11 +162,13 @@ export async function recalculateBudgetSpending(userId: number) {
           eq(transactions.categoryId, budget.categoryId),
           eq(transactions.type, "EXPENSE"),
           gte(transactions.date, startOfMonth),
-          lt(transactions.date, endOfMonth)
-        )
+          lt(transactions.date, endOfMonth),
+        ),
       );
 
-    console.log(`Budget ${budget.id} (${budget.category?.name}): calculated total ${total}`);
+    console.log(
+      `Budget ${budget.id} (${budget.category?.name}): calculated total ${total}`,
+    );
 
     // Update budget with recalculated spending
     await db

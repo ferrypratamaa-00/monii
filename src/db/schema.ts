@@ -30,6 +30,8 @@ export const notificationTypeEnum = pgEnum("notification_type", [
   "TRANSACTION_ALERT",
 ]);
 
+export type NotificationType = (typeof notificationTypeEnum.enumValues)[number];
+
 export const users = pgTable(
   "users",
   {
@@ -268,6 +270,28 @@ export const notifications = pgTable(
   }),
 );
 
+export const userNotificationPreferences = pgTable(
+  "user_notification_preferences",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id)
+      .notNull(),
+    notificationType: notificationTypeEnum("notification_type").notNull(),
+    emailEnabled: boolean("email_enabled").default(true).notNull(),
+    soundEnabled: boolean("sound_enabled").default(true).notNull(),
+    pushEnabled: boolean("push_enabled").default(false).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    userIdTypeIdx: index("user_notification_preferences_user_id_type_idx").on(
+      table.userId,
+      table.notificationType,
+    ),
+  }),
+);
+
 export const files = pgTable("files", {
   id: serial("id").primaryKey(),
   userId: integer("user_id")
@@ -296,6 +320,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   passwordResets: many(passwordResets),
   auditLogs: many(auditLogs),
   notifications: many(notifications),
+  notificationPreferences: many(userNotificationPreferences),
   files: many(files),
 }));
 
@@ -395,6 +420,16 @@ export const notificationsRelations = relations(notifications, ({ one }) => ({
     references: [users.id],
   }),
 }));
+
+export const userNotificationPreferencesRelations = relations(
+  userNotificationPreferences,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [userNotificationPreferences.userId],
+      references: [users.id],
+    }),
+  }),
+);
 
 export const filesRelations = relations(files, ({ one }) => ({
   user: one(users, {

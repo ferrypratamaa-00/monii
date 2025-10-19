@@ -8,6 +8,7 @@ import {
   LogOut,
   Menu,
   PiggyBank,
+  Settings,
   Target,
   TrendingUp,
   Wallet,
@@ -35,6 +36,7 @@ const navigation = [
   { name: "nav.reports", href: "/reports", icon: TrendingUp },
   { name: "nav.debts", href: "/debts", icon: DollarSign },
   { name: "nav.goals", href: "/goals", icon: Target },
+  { name: "nav.settings", href: "/settings", icon: Settings },
 ];
 
 const mobileNavigation = [
@@ -214,7 +216,7 @@ export default function Navigation() {
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
         // biome-ignore lint/a11y/useSemanticElements: <>
-<div
+        <div
           className="md:hidden fixed inset-0 z-40 bg-black/50"
           onClick={() => setMobileMenuOpen(false)}
           onKeyDown={(e) => e.key === "Escape" && setMobileMenuOpen(false)}

@@ -211,8 +211,18 @@ export function BudgetProgressCard({
             <div className="font-medium">
               {(() => {
                 const now = new Date();
-                const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-                const daysLeft = Math.max(1, Math.ceil((endOfMonth.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+                const endOfMonth = new Date(
+                  now.getFullYear(),
+                  now.getMonth() + 1,
+                  0,
+                );
+                const daysLeft = Math.max(
+                  1,
+                  Math.ceil(
+                    (endOfMonth.getTime() - now.getTime()) /
+                      (1000 * 60 * 60 * 24),
+                  ),
+                );
                 return daysLeft;
               })()}
             </div>
