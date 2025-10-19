@@ -15,8 +15,24 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TransactionForm from "./TransactionForm";
 
-export default function TransactionModal() {
-  const [isOpen, setIsOpen] = useState(false);
+interface TransactionModalProps {
+  isOpen?: boolean;
+  onClose?: () => void;
+}
+
+export default function TransactionModal({ isOpen: externalIsOpen, onClose: externalOnClose }: TransactionModalProps = {}) {
+  const [internalOpen, setInternalOpen] = useState(false);
+
+  // Use external control if provided, otherwise use internal state
+  const isControlled = externalIsOpen !== undefined;
+  const open = isControlled ? externalIsOpen : internalOpen;
+  const setOpen = isControlled
+    ? (value: boolean) => {
+        if (value === false && externalOnClose) {
+          externalOnClose();
+        }
+      }
+    : setInternalOpen;
 
   // Fetch accounts and categories for the receipt scanner
   const { data: accounts } = useQuery({
@@ -38,13 +54,15 @@ export default function TransactionModal() {
   });
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          Add Transaction
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={setOpen}>
+      {!isControlled && (
+        <DialogTrigger asChild>
+          <Button className="gap-2">
+            <Plus className="h-4 w-4" />
+            Add Transaction
+          </Button>
+        </DialogTrigger>
+      )}
 
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
@@ -64,7 +82,7 @@ export default function TransactionModal() {
           </TabsList>
 
           <TabsContent value="manual" className="mt-6">
-            <TransactionForm onSuccess={() => setIsOpen(false)} />
+            <TransactionForm onSuccess={() => setOpen(false)} />
           </TabsContent>
 
           <TabsContent value="scan" className="mt-6">

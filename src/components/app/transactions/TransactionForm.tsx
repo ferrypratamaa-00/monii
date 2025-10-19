@@ -2,11 +2,13 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Receipt, X } from "lucide-react";
+import { Plus, Receipt, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
+import { createAccountAction } from "@/app/actions/account";
+import { createCategoryAction } from "@/app/actions/category";
 import {
   associateFilesWithTransactionAction,
   createTransactionAction,
@@ -14,6 +16,13 @@ import {
 import FileUpload from "@/components/FileUpload";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -49,6 +58,8 @@ export default function TransactionForm({
 }: TransactionFormProps = {}) {
   const queryClient = useQueryClient();
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [showAddAccount, setShowAddAccount] = useState(false);
+  const [showAddCategory, setShowAddCategory] = useState(false);
 
   // Fetch accounts and categories
   const { data: accounts = [], isLoading: accountsLoading } = useQuery({
@@ -90,19 +101,6 @@ export default function TransactionForm({
     );
   }
 
-  if (accounts.length === 0) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-muted-foreground mb-4">
-          You need to create an account first before adding transactions.
-        </p>
-        <Button asChild>
-          <Link href="/accounts">Go to Accounts</Link>
-        </Button>
-      </div>
-    );
-  }
-
   const transactionType = form.watch("type");
   const filteredCategories = categories.filter(
     (cat: { type: string }) => cat.type === transactionType,
@@ -130,6 +128,67 @@ export default function TransactionForm({
     },
     onError: (error) => {
       console.error("Transaction error", error);
+    },
+  });
+
+  // Quick add account mutation
+  // biome-ignore lint/correctness/useHookAtTopLevel: <>
+    const addAccountMutation = useMutation({
+    mutationFn: async (data: { name: string; initialBalance: number }) => {
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("initialBalance", data.initialBalance.toString());
+      return createAccountAction(formData);
+    },
+    onSuccess: async (result) => {
+      if (result.success) {
+        // Refresh accounts and auto-select the new one
+        await queryClient.invalidateQueries({ queryKey: ["accounts"] });
+        // Get the updated accounts list
+        const response = await fetch("/api/accounts");
+        const updatedAccounts = await response.json();
+        // Find and select the newly created account (assuming it's the last one)
+        if (updatedAccounts.length > 0) {
+          const newAccount = updatedAccounts[updatedAccounts.length - 1];
+          form.setValue("accountId", newAccount.id);
+        }
+        setShowAddAccount(false);
+      } else {
+        console.error("Failed to create account:", result.error);
+      }
+    },
+  });
+
+  // Quick add category mutation
+  // biome-ignore lint/correctness/useHookAtTopLevel: <>
+    const addCategoryMutation = useMutation({
+    mutationFn: async (data: { name: string; type: "INCOME" | "EXPENSE" }) => {
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("type", data.type);
+      formData.append("iconName", "default"); // Default icon
+      return createCategoryAction(formData);
+    },
+    onSuccess: async (result) => {
+      if (result.success) {
+        // Refresh categories and auto-select the new one
+        await queryClient.invalidateQueries({ queryKey: ["categories"] });
+        // Get the updated categories list
+        const response = await fetch("/api/categories");
+        const updatedCategories = await response.json();
+        // Find and select the newly created category (assuming it's the last one of the correct type)
+        const transactionType = form.watch("type");
+        const filteredCategories = updatedCategories.filter(
+          (cat: { type: string }) => cat.type === transactionType,
+        );
+        if (filteredCategories.length > 0) {
+          const newCategory = filteredCategories[filteredCategories.length - 1];
+          form.setValue("categoryId", newCategory.id);
+        }
+        setShowAddCategory(false);
+      } else {
+        console.error("Failed to create category:", result.error);
+      }
     },
   });
 
@@ -187,30 +246,103 @@ export default function TransactionForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Account</FormLabel>
-              <Select
-                onValueChange={(value) => field.onChange(parseInt(value, 10))}
-                value={field.value?.toString() || ""}
-                disabled={accountsLoading}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue
-                      placeholder={
-                        accountsLoading
-                          ? "Loading accounts..."
-                          : "Select account"
-                      }
-                    />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {accounts.map((acc: { id: number; name: string }) => (
-                    <SelectItem key={acc.id} value={acc.id.toString()}>
-                      {acc.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex gap-2">
+                <Select
+                  onValueChange={(value) => field.onChange(parseInt(value, 10))}
+                  value={field.value?.toString() || ""}
+                  disabled={accountsLoading}
+                >
+                  <FormControl>
+                    <SelectTrigger className="flex-1">
+                      <SelectValue
+                        placeholder={
+                          accountsLoading
+                            ? "Loading accounts..."
+                            : "Select account"
+                        }
+                      />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {accounts.map((acc: { id: number; name: string }) => (
+                      <SelectItem key={acc.id} value={acc.id.toString()}>
+                        {acc.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Dialog open={showAddAccount} onOpenChange={setShowAddAccount}>
+                  <DialogTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="shrink-0"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Add New Account</DialogTitle>
+                    </DialogHeader>
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        const formData = new FormData(e.currentTarget);
+                        const name = formData.get("name") as string;
+                        const initialBalance =
+                          parseFloat(
+                            formData.get("initialBalance") as string,
+                          ) || 0;
+                        addAccountMutation.mutate({ name, initialBalance });
+                      }}
+                      className="space-y-4"
+                    >
+                      <div>
+                        <label htmlFor="" className="text-sm font-medium">
+                          Account Name
+                        </label>
+                        <Input
+                          name="name"
+                          placeholder="e.g., Bank BCA, Cash"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="" className="text-sm font-medium">
+                          Initial Balance
+                        </label>
+                        <Input
+                          name="initialBalance"
+                          type="number"
+                          step="0.01"
+                          placeholder="0.00"
+                          defaultValue="0"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          type="submit"
+                          disabled={addAccountMutation.isPending}
+                          className="flex-1"
+                        >
+                          {addAccountMutation.isPending
+                            ? "Creating..."
+                            : "Create Account"}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setShowAddAccount(false)}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </form>
+                  </DialogContent>
+                </Dialog>
+              </div>
               <FormMessage />
             </FormItem>
           )}
@@ -221,36 +353,111 @@ export default function TransactionForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Category (Optional)</FormLabel>
-              <Select
-                onValueChange={(value) =>
-                  field.onChange(value ? parseInt(value, 10) : undefined)
-                }
-                value={field.value?.toString() || ""}
-                disabled={categoriesLoading}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue
-                      placeholder={
-                        categoriesLoading
-                          ? "Loading categories..."
-                          : filteredCategories.length === 0
-                            ? `No categories available for ${transactionType.toLowerCase()}`
-                            : "Select category"
-                      }
-                    />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {filteredCategories.map(
-                    (cat: { id: number; name: string }) => (
-                      <SelectItem key={cat.id} value={cat.id.toString()}>
-                        {cat.name}
-                      </SelectItem>
-                    ),
-                  )}
-                </SelectContent>
-              </Select>
+              <div className="flex gap-2">
+                <Select
+                  onValueChange={(value) =>
+                    field.onChange(value ? parseInt(value, 10) : undefined)
+                  }
+                  value={field.value?.toString() || ""}
+                  disabled={categoriesLoading}
+                >
+                  <FormControl>
+                    <SelectTrigger className="flex-1">
+                      <SelectValue
+                        placeholder={
+                          categoriesLoading
+                            ? "Loading categories..."
+                            : filteredCategories.length === 0
+                              ? `No categories available for ${transactionType.toLowerCase()}`
+                              : "Select category"
+                        }
+                      />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {filteredCategories.map(
+                      (cat: { id: number; name: string }) => (
+                        <SelectItem key={cat.id} value={cat.id.toString()}>
+                          {cat.name}
+                        </SelectItem>
+                      ),
+                    )}
+                  </SelectContent>
+                </Select>
+                <Dialog
+                  open={showAddCategory}
+                  onOpenChange={setShowAddCategory}
+                >
+                  <DialogTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="shrink-0"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Add New Category</DialogTitle>
+                    </DialogHeader>
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        const formData = new FormData(e.currentTarget);
+                        const name = formData.get("name") as string;
+                        addCategoryMutation.mutate({
+                          name,
+                          type: transactionType,
+                        });
+                      }}
+                      className="space-y-4"
+                    >
+                      <div>
+                        <label htmlFor="" className="text-sm font-medium">
+                          Category Name
+                        </label>
+                        <Input
+                          name="name"
+                          placeholder={`e.g., Food, Transportation`}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="" className="text-sm font-medium">Type</label>
+                        <Select defaultValue={transactionType}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="INCOME">Income</SelectItem>
+                            <SelectItem value="EXPENSE">Expense</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          type="submit"
+                          disabled={addCategoryMutation.isPending}
+                          className="flex-1"
+                        >
+                          {addCategoryMutation.isPending
+                            ? "Creating..."
+                            : "Create Category"}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setShowAddCategory(false)}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </form>
+                  </DialogContent>
+                </Dialog>
+              </div>
               <FormMessage />
             </FormItem>
           )}
@@ -313,12 +520,7 @@ export default function TransactionForm({
         />
         <Button
           type="submit"
-          disabled={
-            mutation.isPending ||
-            accountsLoading ||
-            categoriesLoading ||
-            accounts.length === 0
-          }
+          disabled={mutation.isPending || accountsLoading || categoriesLoading}
         >
           {mutation.isPending ? "Creating..." : "Add Transaction"}
         </Button>

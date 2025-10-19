@@ -124,19 +124,19 @@ export function WelcomeSlides({ onComplete, onSkip }: WelcomeSlidesProps) {
       {/* Navigation dots */}
       <div className="flex justify-center space-x-2 mb-8">
         {slides.map((_, index) => {
-          let idx= index;
+          let idx = index;
           return (
-          <button
-            type="button"
-            key={`slide-${idx}`}
-            onClick={() => goToSlide(idx++)}
-            className={`transition-all duration-300 ${
-              index === currentSlide
-                ? "w-6 h-2 bg-primary rounded-full"
-                : "w-2 h-2 bg-white border border-primary/50 rounded-full hover:bg-muted-foreground/50"
-            }`}
-          />
-        )
+            <button
+              type="button"
+              key={`slide-${idx}`}
+              onClick={() => goToSlide(idx++)}
+              className={`transition-all duration-300 ${
+                index === currentSlide
+                  ? "w-6 h-2 bg-primary rounded-full"
+                  : "w-2 h-2 bg-white border border-primary/50 rounded-full hover:bg-muted-foreground/50"
+              }`}
+            />
+          );
         })}
       </div>
 

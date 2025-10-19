@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { getCurrentUser, loginAction } from "@/app/actions/auth";
 import { InstallPrompt } from "@/components/InstallPrompt";
-import { useAuthStore } from "@/lib/stores/auth";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +18,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuthStore } from "@/lib/stores/auth";
 
 export default async function LoginPage() {
   const [email, setEmail] = useState("");
@@ -41,7 +41,7 @@ export default async function LoginPage() {
           try {
             const cacheNames = await caches.keys();
             await Promise.all(
-              cacheNames.map(cacheName => caches.delete(cacheName))
+              cacheNames.map((cacheName) => caches.delete(cacheName)),
             );
             console.log("Cache cleared after login");
           } catch (error) {

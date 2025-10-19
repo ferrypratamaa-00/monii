@@ -31,13 +31,18 @@ export function ReceiptScanner({
         const permissionStatus = await navigator.permissions.query({
           name: "camera",
         });
-        console.log("ReceiptScanner: Camera permission status:", permissionStatus.state);
+        console.log(
+          "ReceiptScanner: Camera permission status:",
+          permissionStatus.state,
+        );
         if (permissionStatus.state === "denied") {
           setPermissionDenied(true);
           return;
         }
       } catch (_error) {
-        console.log("ReceiptScanner: Permissions API not supported, continuing with getUserMedia");
+        console.log(
+          "ReceiptScanner: Permissions API not supported, continuing with getUserMedia",
+        );
         // Permissions API not supported, continue with getUserMedia
       }
     }
@@ -49,12 +54,14 @@ export function ReceiptScanner({
           facingMode: "environment", // Use back camera on mobile
           width: { ideal: 1080, max: 1080 },
           height: { ideal: 1920, max: 1920 },
-          aspectRatio: 9/16,
+          aspectRatio: 9 / 16,
         },
       });
 
       if (videoRef.current) {
-        console.log("ReceiptScanner: Camera stream obtained, setting up video element");
+        console.log(
+          "ReceiptScanner: Camera stream obtained, setting up video element",
+        );
         videoRef.current.srcObject = mediaStream;
         setStream(mediaStream);
         setIsStreaming(true);
@@ -183,14 +190,18 @@ export function ReceiptScanner({
                     playsInline
                     muted
                     className="w-full h-auto object-cover rounded-lg"
-                    style={{ aspectRatio: '9/16' }}
+                    style={{ aspectRatio: "9/16" }}
                   />
                   {!isStreaming && (
                     <div className="absolute inset-0 flex items-center justify-center rounded-lg">
                       <div className="text-center text-white p-4">
                         <Camera className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                        <p className="text-lg font-medium">Initializing camera...</p>
-                        <p className="text-sm opacity-75 mt-2">Please allow camera access</p>
+                        <p className="text-lg font-medium">
+                          Initializing camera...
+                        </p>
+                        <p className="text-sm opacity-75 mt-2">
+                          Please allow camera access
+                        </p>
                       </div>
                     </div>
                   )}
@@ -207,8 +218,8 @@ export function ReceiptScanner({
                     <Camera className="h-5 w-5 mr-2" />
                     Take Photo
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={handleClose}
                     size="lg"
                     className="px-6 py-3 text-base"

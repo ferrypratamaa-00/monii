@@ -31,22 +31,31 @@ export function InstallPrompt({ className }: InstallPromptProps) {
 
     // Check if already installed
     const checkInstalled = () => {
-      if ('standalone' in window.navigator && (window.navigator as any).standalone) {
+      if (
+        "standalone" in window.navigator &&
+        (window.navigator as any).standalone
+      ) {
         // iOS PWA mode
         setIsInstallable(false);
-      } else if (window.matchMedia('(display-mode: standalone)').matches) {
+      } else if (window.matchMedia("(display-mode: standalone)").matches) {
         // Android PWA mode
         setIsInstallable(false);
       } else {
         // Listen for install prompt
-        window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+        window.addEventListener(
+          "beforeinstallprompt",
+          handleBeforeInstallPrompt,
+        );
       }
     };
 
     checkInstalled();
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener(
+        "beforeinstallprompt",
+        handleBeforeInstallPrompt,
+      );
     };
   }, []);
 
@@ -68,11 +77,15 @@ export function InstallPrompt({ className }: InstallPromptProps) {
   };
 
   const handleIOSInstall = () => {
-    alert('Untuk menginstall di iOS:\n1. Tap tombol Share (⬆️)\n2. Pilih "Add to Home Screen"\n3. Tap "Add"');
+    alert(
+      'Untuk menginstall di iOS:\n1. Tap tombol Share (⬆️)\n2. Pilih "Add to Home Screen"\n3. Tap "Add"',
+    );
   };
 
   const handleAndroidInstall = () => {
-    alert('Untuk menginstall di Android:\n1. Tap menu (⋮) di browser\n2. Pilih "Add to Home screen"\n3. Tap "Add"');
+    alert(
+      'Untuk menginstall di Android:\n1. Tap menu (⋮) di browser\n2. Pilih "Add to Home screen"\n3. Tap "Add"',
+    );
   };
 
   // Don't show if not installable and not on mobile

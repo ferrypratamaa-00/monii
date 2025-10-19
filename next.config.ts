@@ -30,12 +30,12 @@ const nextConfig: NextConfig = {
   experimental: {
     serverActions: { allowedOrigins: ["*"] },
   },
-   turbopack: {
+  turbopack: {
     // Example: adding an alias and custom file extension
     resolveAlias: {
-      underscore: 'lodash',
+      underscore: "lodash",
     },
-    resolveExtensions: ['.mdx', '.tsx', '.ts', '.jsx', '.js', '.json'],
+    resolveExtensions: [".mdx", ".tsx", ".ts", ".jsx", ".js", ".json"],
   },
   serverExternalPackages: ["better-sqlite3"],
   async headers() {

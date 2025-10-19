@@ -65,7 +65,7 @@ export default function Navigation() {
         try {
           const cacheNames = await caches.keys();
           await Promise.all(
-            cacheNames.map(cacheName => caches.delete(cacheName))
+            cacheNames.map((cacheName) => caches.delete(cacheName)),
           );
           console.log("Cache cleared after logout");
         } catch (error) {

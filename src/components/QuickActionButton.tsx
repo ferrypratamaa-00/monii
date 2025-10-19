@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { Plus } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { TransactionModal } from "./TransactionModal";
+import TransactionModal from "./app/transactions/TransactionModal";
 
 export function QuickActionButton() {
   const [isModalOpen, setIsModalOpen] = useState(false);

@@ -221,7 +221,7 @@ class SyncService {
     )[0];
 
     // Check for potential conflicts (transactions older than 24 hours)
-    const hasConflicts = pending.some(transaction => {
+    const hasConflicts = pending.some((transaction) => {
       const transactionTime = new Date(transaction.timestamp).getTime();
       const now = Date.now();
       const hoursDiff = (now - transactionTime) / (1000 * 60 * 60);

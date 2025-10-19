@@ -10,6 +10,7 @@ import { TrendChart } from "@/components/app/dashboard/TrendChart";
 import { useLanguage } from "@/components/LanguageProvider";
 import OfflineDashboard from "@/components/OfflineDashboard";
 import { QuickActionButton } from "@/components/QuickActionButton";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
@@ -18,7 +19,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { useOnboardingGuide } from "@/hooks/useOnboardingGuide";
 import { localStorageService } from "@/services/localStorage";
 import { syncService } from "@/services/sync";
@@ -84,7 +84,7 @@ export default function DashboardClient({
     const syncCheckInterval = setInterval(() => {
       const newStatus = syncService.getSyncStatus();
       setSyncStatus(newStatus);
-      
+
       // Show conflict dialog if conflicts detected and not already showing
       if (newStatus.hasConflicts && !showConflictDialog) {
         setShowConflictDialog(true);

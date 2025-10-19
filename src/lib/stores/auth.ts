@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 interface User {
   id: number;
@@ -35,7 +35,8 @@ export const useAuthStore = create<AuthState>()(
 
       setUser: (user) => set({ user, isAuthenticated: !!user }),
 
-      setAuthenticated: (authenticated) => set({ isAuthenticated: authenticated }),
+      setAuthenticated: (authenticated) =>
+        set({ isAuthenticated: authenticated }),
 
       setLoading: (loading) => set({ isLoading: loading }),
 
