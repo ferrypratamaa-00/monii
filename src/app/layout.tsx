@@ -25,7 +25,8 @@ export default async function RootLayout({
   return (
     <html lang="id">
       <head>
-        <link rel="icon" href="/icons/new icon-non-bg.png" sizes="any" />
+        <link rel="icon" href="/icons/icon-192.png" sizes="any" />
+        <link rel="apple-touch-icon" href="/icons/icon-192.png" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#0B1220" />
       </head>
