@@ -109,8 +109,7 @@ export function InstallPrompt({ className }: InstallPromptProps) {
           className="flex items-center gap-2 bg-primary hover:bg-primary/90"
           size="sm"
         >
-          <Download className="w-4 h-4" />
-          Install App
+          <Download className="w-6 h-6" />
         </Button>
       ) : isIOS ? (
         <Button

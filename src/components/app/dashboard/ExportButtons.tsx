@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useLanguage } from "@/components/LanguageProvider";
 import { Button } from "@/components/ui/button";
 
-export function ExportButtons() {
+export default function ExportButtons() {
   const { t } = useLanguage();
   const [isExporting, setIsExporting] = useState<string | null>(null);
 

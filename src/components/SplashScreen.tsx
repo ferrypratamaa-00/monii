@@ -46,7 +46,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
         {/* App Logo/Icon */}
         <div className="mb-4">
           <Image
-            src="/icons/new icon-non-bg.png"
+            src="/icons/icon-192.png"
             alt="Monii Logo"
             width={120}
             height={120}

@@ -24,7 +24,7 @@ interface AISuggestionsPanelProps {
   userId: number;
 }
 
-export function AISuggestionsPanel({ userId }: AISuggestionsPanelProps) {
+export default function AISuggestionsPanel({ userId }: AISuggestionsPanelProps) {
   const { t } = useLanguage();
   const {
     data: aiAnalysis,

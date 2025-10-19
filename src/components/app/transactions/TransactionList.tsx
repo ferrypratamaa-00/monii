@@ -34,10 +34,7 @@ const TransactionModal = dynamic(() => import("./TransactionModal"), {
   ),
 });
 const SwipeableTransactionItem = dynamic(
-  () =>
-    import("./SwipeableTransactionItem").then((mod) => ({
-      default: mod.SwipeableTransactionItem,
-    })),
+  () => import("./SwipeableTransactionItem"),
   {
     loading: () => (
       <div className="flex items-center justify-between p-4 border rounded-lg">

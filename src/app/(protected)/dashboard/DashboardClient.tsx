@@ -22,12 +22,7 @@ import { syncService } from "@/services/sync";
 
 // Lazy load heavy chart components
 const AISuggestionsPanel = dynamic(
-  () =>
-    import(
-      "@/components/app/dashboard/AISuggestionsPanel"
-    ) as unknown as Promise<{
-      default: React.ComponentType<{ userId: number }>;
-    }>,
+  () => import("@/components/app/dashboard/AISuggestionsPanel"),
   {
     loading: () => (
       <Card className="shadow-md border-0">
@@ -42,12 +37,7 @@ const AISuggestionsPanel = dynamic(
 );
 
 const ExpensePieChart = dynamic(
-  () =>
-    import("@/components/app/dashboard/ExpensePieChart") as unknown as Promise<{
-      default: React.ComponentType<{
-        data: Array<{ name: string; value: number }>;
-      }>;
-    }>,
+  () => import("@/components/app/dashboard/ExpensePieChart"),
   {
     loading: () => (
       <div className="flex items-center justify-center h-32">
@@ -58,10 +48,7 @@ const ExpensePieChart = dynamic(
 );
 
 const ExportButtons = dynamic(
-  () =>
-    import("@/components/app/dashboard/ExportButtons") as unknown as Promise<{
-      default: React.ComponentType<Record<string, never>>;
-    }>,
+  () => import("@/components/app/dashboard/ExportButtons"),
   {
     loading: () => (
       <div className="flex items-center justify-center py-4">
@@ -72,12 +59,7 @@ const ExportButtons = dynamic(
 );
 
 const TrendChart = dynamic(
-  () =>
-    import("@/components/app/dashboard/TrendChart") as unknown as Promise<{
-      default: React.ComponentType<{
-        data: Array<{ month: string; income: number; expense: number }>;
-      }>;
-    }>,
+  () => import("@/components/app/dashboard/TrendChart"),
   {
     loading: () => (
       <div className="flex items-center justify-center h-32">

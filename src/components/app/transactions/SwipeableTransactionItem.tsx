@@ -26,7 +26,7 @@ interface SwipeableTransactionItemProps {
   onDelete: (id: number) => void;
 }
 
-export function SwipeableTransactionItem({
+export default function SwipeableTransactionItem({
   transaction,
   onDelete,
 }: SwipeableTransactionItemProps) {
