@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { db } from "@/db";
 import { budgets, categories } from "@/db/schema";
 
@@ -44,7 +44,7 @@ export async function updateBudget(
   const [budget] = await db
     .update(budgets)
     .set(updateData)
-    .where(eq(budgets.id, budgetId) && eq(budgets.userId, userId))
+    .where(and(eq(budgets.id, budgetId), eq(budgets.userId, userId)))
     .returning();
   return budget;
 }
@@ -52,7 +52,7 @@ export async function updateBudget(
 export async function deleteBudget(userId: number, budgetId: number) {
   await db
     .delete(budgets)
-    .where(eq(budgets.id, budgetId) && eq(budgets.userId, userId));
+    .where(and(eq(budgets.id, budgetId), eq(budgets.userId, userId)));
 }
 
 export async function updateBudgetSpending(
@@ -61,21 +61,20 @@ export async function updateBudgetSpending(
   amount: number,
 ) {
   // Get current budget before update
-  const result = await db
-    .select()
-    .from(budgets)
-    .where(
-      eq(budgets.userId, userId) &&
-        eq(budgets.categoryId, categoryId) &&
-        eq(budgets.period, "MONTHLY"),
-    )
-    .leftJoin(categories, eq(budgets.categoryId, categories.id))
-    .limit(1);
+  const currentBudget = await db.query.budgets.findFirst({
+    where: and(
+      eq(budgets.userId, userId),
+      eq(budgets.categoryId, categoryId),
+      eq(budgets.period, "MONTHLY")
+    ),
+    with: {
+      category: true,
+    },
+  });
 
-  if (!result || result.length === 0) return null;
+  if (!currentBudget) return null;
 
-  const currentBudget = result[0].budgets;
-  const category = result[0].categories;
+  const category = currentBudget.category;
 
   const currentSpending = parseFloat(currentBudget.currentSpending || "0");
   const limitAmount = parseFloat(currentBudget.limitAmount);
@@ -88,9 +87,11 @@ export async function updateBudgetSpending(
       currentSpending: newSpending.toString(),
     })
     .where(
-      eq(budgets.userId, userId) &&
-        eq(budgets.categoryId, categoryId) &&
-        eq(budgets.period, "MONTHLY"),
+      and(
+        eq(budgets.userId, userId),
+        eq(budgets.categoryId, categoryId),
+        eq(budgets.period, "MONTHLY")
+      ),
     );
 
   // Check if budget exceeded
@@ -112,5 +113,5 @@ export async function resetMonthlyBudgets(userId: number) {
   await db
     .update(budgets)
     .set({ currentSpending: "0" })
-    .where(eq(budgets.userId, userId) && eq(budgets.period, "MONTHLY"));
+    .where(and(eq(budgets.userId, userId), eq(budgets.period, "MONTHLY")));
 }

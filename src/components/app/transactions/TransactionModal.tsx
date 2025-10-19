@@ -20,7 +20,10 @@ interface TransactionModalProps {
   onClose?: () => void;
 }
 
-export default function TransactionModal({ isOpen: externalIsOpen, onClose: externalOnClose }: TransactionModalProps = {}) {
+export default function TransactionModal({
+  isOpen: externalIsOpen,
+  onClose: externalOnClose,
+}: TransactionModalProps = {}) {
   const [internalOpen, setInternalOpen] = useState(false);
 
   // Use external control if provided, otherwise use internal state

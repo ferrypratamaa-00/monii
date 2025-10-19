@@ -1,13 +1,17 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient, type UseMutationResult } from "@tanstack/react-query";
-import { CalendarIcon } from "lucide-react";
+import {
+  type UseMutationResult,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
-import { Plus, Receipt, X } from "lucide-react";
+import { CalendarIcon, Plus, Receipt, X } from "lucide-react";
 import { useState } from "react";
-import { useForm, type UseFormReturn } from "react-hook-form";
+import { type UseFormReturn, useForm } from "react-hook-form";
 import type { z } from "zod";
 
 import { createAccountAction } from "@/app/actions/account";
@@ -49,12 +53,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 
 import { cn } from "@/lib/utils";
@@ -99,8 +98,11 @@ export default function TransactionForm({
     },
   });
 
-
-  const form = useForm<z.infer<typeof TransactionFormSchema>, any, z.infer<typeof TransactionFormSchema>>({
+  const form = useForm<
+    z.infer<typeof TransactionFormSchema>,
+    any,
+    z.infer<typeof TransactionFormSchema>
+  >({
     resolver: zodResolver(TransactionFormSchema),
     defaultValues: {
       accountId: 0,
@@ -310,7 +312,11 @@ export default function TransactionForm({
 }
 
 interface TransactionFormFieldsProps {
-  form: UseFormReturn<z.infer<typeof TransactionFormSchema>, any, z.infer<typeof TransactionFormSchema>>;
+  form: UseFormReturn<
+    z.infer<typeof TransactionFormSchema>,
+    any,
+    z.infer<typeof TransactionFormSchema>
+  >;
   type: "INCOME" | "EXPENSE";
   accounts: Array<{ id: number; name: string; balance: number }>;
   accountsLoading: boolean;
@@ -320,8 +326,18 @@ interface TransactionFormFieldsProps {
   setShowAddAccount: (value: boolean) => void;
   showAddCategory: boolean;
   setShowAddCategory: (value: boolean) => void;
-  addAccountMutation: UseMutationResult<any, Error, { name: string; initialBalance: number }, unknown>;
-  addCategoryMutation: UseMutationResult<any, Error, { name: string; type: "INCOME" | "EXPENSE" }, unknown>;
+  addAccountMutation: UseMutationResult<
+    any,
+    Error,
+    { name: string; initialBalance: number },
+    unknown
+  >;
+  addCategoryMutation: UseMutationResult<
+    any,
+    Error,
+    { name: string; type: "INCOME" | "EXPENSE" },
+    unknown
+  >;
   mutation: UseMutationResult<any, Error, globalThis.FormData, unknown>;
   onSuccess?: () => void;
   uploadedFiles: UploadedFile[];
@@ -414,19 +430,19 @@ function TransactionFormFields({
                   <SelectTrigger className="flex-1">
                     <SelectValue
                       placeholder={
-                        accountsLoading
-                          ? "Loading accounts..."
-                          : "Pilih akun"
+                        accountsLoading ? "Loading accounts..." : "Pilih akun"
                       }
                     />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {accounts.map((acc: { id: number; name: string; balance: number }) => (
-                    <SelectItem key={acc.id} value={acc.id.toString()}>
-                      {acc.name} (Rp{acc.balance.toLocaleString("id-ID")})
-                    </SelectItem>
-                  ))}
+                  {accounts.map(
+                    (acc: { id: number; name: string; balance: number }) => (
+                      <SelectItem key={acc.id} value={acc.id.toString()}>
+                        {acc.name} (Rp{acc.balance.toLocaleString("id-ID")})
+                      </SelectItem>
+                    ),
+                  )}
                 </SelectContent>
               </Select>
               <Dialog open={showAddAccount} onOpenChange={setShowAddAccount}>
@@ -450,13 +466,19 @@ function TransactionFormFields({
                       const formData = new FormData(e.currentTarget);
                       const name = formData.get("name") as string;
                       const initialBalance =
-                        parseFloat(formData.get("initialBalance") as string) || 0;
+                        parseFloat(formData.get("initialBalance") as string) ||
+                        0;
                       addAccountMutation.mutate({ name, initialBalance });
                     }}
                     className="space-y-4"
                   >
                     <div>
-                      <label htmlFor="account-name" className="text-sm font-medium">Nama Akun</label>
+                      <label
+                        htmlFor="account-name"
+                        className="text-sm font-medium"
+                      >
+                        Nama Akun
+                      </label>
                       <Input
                         id="account-name"
                         name="name"
@@ -465,7 +487,12 @@ function TransactionFormFields({
                       />
                     </div>
                     <div>
-                      <label htmlFor="account-balance" className="text-sm font-medium">Saldo Awal</label>
+                      <label
+                        htmlFor="account-balance"
+                        className="text-sm font-medium"
+                      >
+                        Saldo Awal
+                      </label>
                       <Input
                         id="account-balance"
                         name="initialBalance"
@@ -481,7 +508,9 @@ function TransactionFormFields({
                         disabled={addAccountMutation.isPending}
                         className="flex-1"
                       >
-                        {addAccountMutation.isPending ? "Membuat..." : "Buat Akun"}
+                        {addAccountMutation.isPending
+                          ? "Membuat..."
+                          : "Buat Akun"}
                       </Button>
                       <Button
                         type="button"
@@ -528,13 +557,11 @@ function TransactionFormFields({
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {categories.map(
-                    (cat: { id: number; name: string }) => (
-                      <SelectItem key={cat.id} value={cat.id.toString()}>
-                        {cat.name}
-                      </SelectItem>
-                    ),
-                  )}
+                  {categories.map((cat: { id: number; name: string }) => (
+                    <SelectItem key={cat.id} value={cat.id.toString()}>
+                      {cat.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <Dialog open={showAddCategory} onOpenChange={setShowAddCategory}>
@@ -562,7 +589,12 @@ function TransactionFormFields({
                     className="space-y-4"
                   >
                     <div>
-                      <label htmlFor="category-name" className="text-sm font-medium">Nama Kategori</label>
+                      <label
+                        htmlFor="category-name"
+                        className="text-sm font-medium"
+                      >
+                        Nama Kategori
+                      </label>
                       <Input
                         id="category-name"
                         name="name"
@@ -571,7 +603,12 @@ function TransactionFormFields({
                       />
                     </div>
                     <div>
-                      <label htmlFor="category-type" className="text-sm font-medium">Tipe</label>
+                      <label
+                        htmlFor="category-type"
+                        className="text-sm font-medium"
+                      >
+                        Tipe
+                      </label>
                       <Select defaultValue={type}>
                         <SelectTrigger>
                           <SelectValue />
@@ -588,7 +625,9 @@ function TransactionFormFields({
                         disabled={addCategoryMutation.isPending}
                         className="flex-1"
                       >
-                        {addCategoryMutation.isPending ? "Membuat..." : "Buat Kategori"}
+                        {addCategoryMutation.isPending
+                          ? "Membuat..."
+                          : "Buat Kategori"}
                       </Button>
                       <Button
                         type="button"
@@ -702,7 +741,9 @@ function TransactionFormFields({
                     <div className="flex items-center space-x-3">
                       <Receipt className="h-4 w-4 text-green-500" />
                       <div>
-                        <p className="text-sm font-medium">{file.originalName}</p>
+                        <p className="text-sm font-medium">
+                          {file.originalName}
+                        </p>
                         <p className="text-xs text-muted-foreground">
                           {file.fileType}
                         </p>
