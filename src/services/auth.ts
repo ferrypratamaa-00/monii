@@ -37,3 +37,9 @@ export async function verifyCredentials(email: string, password: string) {
   const ok = await bcrypt.compare(password, user.passwordHash);
   return ok ? user : null;
 }
+
+export async function getUserById(id: number) {
+  return await db.query.users.findFirst({
+    where: eq(users.id, id),
+  });
+}

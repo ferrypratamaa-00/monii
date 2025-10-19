@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { signUpAction } from "@/app/actions/auth";
+import { InstallPrompt } from "@/components/InstallPrompt";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -57,8 +58,11 @@ export default function SignupPage() {
     <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-            <UserPlus className="h-6 w-6 text-green-600" />
+          <div className="flex justify-end">
+            <InstallPrompt />
+          </div>
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+            <UserPlus className="h-6 w-6 text-primary" />
           </div>
           <CardTitle className="text-2xl">Daftar Akun Monii</CardTitle>
           <CardDescription>
@@ -153,7 +157,7 @@ export default function SignupPage() {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Sudah punya akun?{" "}
-              <Link href="/login" className="text-blue-600 hover:text-blue-800">
+              <Link href="/login" className="text-primary/80 hover:text-primary">
                 Masuk di sini
               </Link>
             </p>

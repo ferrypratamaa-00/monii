@@ -7,10 +7,19 @@ const STATIC_CACHE_URLS = [
   "/icons/icon-512.png",
   "/login",
   "/signup",
+  "/forgot-password",
+  "/reset-password",
+];
+
+// Protected routes that should not be cached to ensure auth validation
+const PROTECTED_ROUTES = [
   "/dashboard",
   "/transactions",
+  "/accounts",
+  "/categories",
   "/goals",
   "/reports",
+  "/debts",
 ];
 
 // API endpoints that can be cached for offline viewing
@@ -62,6 +71,11 @@ self.addEventListener("activate", (event) => {
 // Fetch event - serve from cache when offline
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
+
+  // Check if this is a protected route
+  const isProtected = PROTECTED_ROUTES.some((route) =>
+    url.pathname.startsWith(route),
+  );
 
   // Check if this is a sensitive endpoint
   const isSensitive = SENSITIVE_ENDPOINTS.some((endpoint) =>
@@ -133,54 +147,87 @@ self.addEventListener("fetch", (event) => {
       event.respondWith(fetch(event.request));
     }
   } else {
-    // For non-API requests (pages, assets), use cache-first strategy
-    event.respondWith(
-      caches.match(event.request).then((response) => {
-        if (response) {
-          console.log("Serving from cache:", url.pathname);
-          return response;
-        }
-
-        return fetch(event.request)
+    // For non-API requests (pages, assets)
+    if (isProtected) {
+      // For protected routes, use network-first to ensure auth validation
+      event.respondWith(
+        fetch(event.request)
           .then((fetchResponse) => {
-            // Cache successful GET requests for pages and assets
-            if (
-              fetchResponse.status === 200 &&
-              event.request.method === "GET" &&
-              (url.pathname.startsWith("/") ||
-                url.pathname.includes(".") ||
-                url.pathname.includes("manifest"))
-            ) {
+            // Cache successful responses for offline access
+            if (fetchResponse.status === 200 && event.request.method === "GET") {
               const responseClone = fetchResponse.clone();
               caches.open(CACHE_NAME).then((cache) => {
                 cache.put(event.request, responseClone);
-                console.log("Cached asset:", url.pathname);
+                console.log("Cached protected page:", url.pathname);
               });
             }
             return fetchResponse;
           })
           .catch(() => {
-            // If network fails and we have no cache, show offline page
-            if (
-              url.pathname.startsWith("/dashboard") ||
-              url.pathname.startsWith("/transactions") ||
-              url.pathname.startsWith("/goals")
-            ) {
-              return caches.match("/").then((response) => {
-                return (
-                  response ||
-                  new Response("Offline - Please check your connection", {
-                    status: 503,
-                  })
-                );
+            // If offline, try cache, but for protected routes this might not work well
+            return caches.match(event.request).then((response) => {
+              if (response) {
+                console.log("Serving protected page from cache (offline):", url.pathname);
+                return response;
+              }
+              // Redirect to login if no cache and offline
+              return new Response("", {
+                status: 302,
+                headers: { Location: "/login" },
               });
-            }
-            return new Response("Offline - Please check your connection", {
-              status: 503,
             });
-          });
-      }),
-    );
+          }),
+      );
+    } else {
+      // For public pages and assets, use cache-first strategy
+      event.respondWith(
+        caches.match(event.request).then((response) => {
+          if (response) {
+            console.log("Serving from cache:", url.pathname);
+            return response;
+          }
+
+          return fetch(event.request)
+            .then((fetchResponse) => {
+              // Cache successful GET requests for pages and assets
+              if (
+                fetchResponse.status === 200 &&
+                event.request.method === "GET" &&
+                (url.pathname.startsWith("/") ||
+                  url.pathname.includes(".") ||
+                  url.pathname.includes("manifest"))
+              ) {
+                const responseClone = fetchResponse.clone();
+                caches.open(CACHE_NAME).then((cache) => {
+                  cache.put(event.request, responseClone);
+                  console.log("Cached asset:", url.pathname);
+                });
+              }
+              return fetchResponse;
+            })
+            .catch(() => {
+              // If network fails and we have no cache, show offline page
+              if (
+                url.pathname.startsWith("/dashboard") ||
+                url.pathname.startsWith("/transactions") ||
+                url.pathname.startsWith("/goals")
+              ) {
+                return caches.match("/").then((response) => {
+                  return (
+                    response ||
+                    new Response("Offline - Please check your connection", {
+                      status: 503,
+                    })
+                  );
+                });
+              }
+              return new Response("Offline - Please check your connection", {
+                status: 503,
+              });
+            });
+        }),
+      );
+    }
   }
 });
 
