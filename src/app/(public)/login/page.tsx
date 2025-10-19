@@ -29,7 +29,7 @@ export default async function LoginPage() {
   const { setUser, updateTokenRefresh, isAuthenticated } = useAuthStore();
   const userId = await getCurrentUser();
   if (userId && isAuthenticated) {
-    router.push("/dashboard");
+    router.replace("/dashboard");
   }
 
   const mutation = useMutation({
@@ -61,7 +61,7 @@ export default async function LoginPage() {
           console.error("Failed to fetch user data:", error);
         }
 
-        router.push("/dashboard");
+        router.replace("/dashboard");
       } else if (data.errors) {
         setMessage("Mohon perbaiki kesalahan, kemudian coba kembali.");
       } else {
