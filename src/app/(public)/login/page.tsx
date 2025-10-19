@@ -3,9 +3,9 @@
 import { useMutation } from "@tanstack/react-query";
 import { LogIn } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { loginAction } from "@/app/actions/auth";
+import { redirect, useRouter } from "next/navigation";
+import { useId, useState } from "react";
+import { getCurrentUser, loginAction } from "@/app/actions/auth";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { useAuthStore } from "@/lib/stores/auth";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -20,13 +20,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export default function LoginPage() {
+export default async function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
 
   const router = useRouter();
-  const { setUser, updateTokenRefresh } = useAuthStore();
+  const { setUser, updateTokenRefresh, isAuthenticated } = useAuthStore();
+  const userId = await getCurrentUser();
+  if (userId && isAuthenticated) {
+    router.push("/dashboard");
+  }
 
   const mutation = useMutation({
     mutationFn: (formData: FormData) => loginAction(formData),
