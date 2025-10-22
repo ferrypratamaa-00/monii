@@ -37,7 +37,10 @@ export async function requestPasswordResetAction(formData: FormData) {
   } catch (error: unknown) {
     const err = error as Error;
     console.error("Password reset request error:", err.message);
-    return { success: false, error: "Terjadi kesalahan server. Silakan coba lagi." };
+    return {
+      success: false,
+      error: "Terjadi kesalahan server. Silakan coba lagi.",
+    };
   }
 }
 
@@ -62,6 +65,9 @@ export async function resetPasswordAction(formData: FormData) {
   } catch (error: unknown) {
     const err = error as Error;
     console.error("Password reset error:", err.message);
-    return { success: false, error: "Terjadi kesalahan server. Silakan coba lagi." };
+    return {
+      success: false,
+      error: "Terjadi kesalahan server. Silakan coba lagi.",
+    };
   }
 }

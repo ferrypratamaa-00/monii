@@ -7,6 +7,8 @@ import {
   Home,
   LogOut,
   Menu,
+  PiggyBank,
+  Settings,
   Target,
   TrendingUp,
   Wallet,
@@ -16,6 +18,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { logoutAction } from "@/app/actions/auth";
 import { InstallPrompt } from "@/components/InstallPrompt";
+import { KeyboardShortcutsHelp } from "@/components/KeyboardShortcutsHelp";
 import { useAuthStore } from "@/lib/stores/auth";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "../LanguageProvider";
@@ -29,15 +32,18 @@ const navigation = [
   { name: "nav.transactions", href: "/transactions", icon: CreditCard },
   { name: "nav.accounts", href: "/accounts", icon: Wallet },
   { name: "nav.categories", href: "/categories", icon: BarChart3 },
+  { name: "nav.budget", href: "/budget", icon: PiggyBank },
   { name: "nav.reports", href: "/reports", icon: TrendingUp },
   { name: "nav.debts", href: "/debts", icon: DollarSign },
   { name: "nav.goals", href: "/goals", icon: Target },
+  { name: "nav.settings", href: "/settings", icon: Settings },
 ];
 
 const mobileNavigation = [
   { name: "nav.dashboard", href: "/dashboard", icon: Home },
   { name: "nav.transactions", href: "/transactions", icon: CreditCard },
   { name: "nav.accounts", href: "/accounts", icon: Wallet },
+  { name: "nav.budget", href: "/budget", icon: PiggyBank },
   { name: "nav.more", href: "/more", icon: Menu },
 ];
 
@@ -65,7 +71,7 @@ export default function Navigation() {
         try {
           const cacheNames = await caches.keys();
           await Promise.all(
-            cacheNames.map(cacheName => caches.delete(cacheName))
+            cacheNames.map((cacheName) => caches.delete(cacheName)),
           );
           console.log("Cache cleared after logout");
         } catch (error) {
@@ -128,6 +134,7 @@ export default function Navigation() {
               aria-label="User actions"
             >
               <InstallPrompt />
+              <KeyboardShortcutsHelp />
               <ThemeSelector />
               <LanguageSwitcher />
               <ThemeSwitcher />
@@ -163,7 +170,7 @@ export default function Navigation() {
           {mobileNavigation.map((item) => {
             const isActive =
               item.name === "nav.more"
-                ? navigation.slice(3).some((nav) => nav.href === pathname)
+                ? navigation.slice(4).some((nav) => nav.href === pathname)
                 : pathname === item.href;
             if (item.name === "nav.more") {
               return (
@@ -208,14 +215,21 @@ export default function Navigation() {
 
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
-        <button
-          type="button"
+        // biome-ignore lint/a11y/useSemanticElements: <>
+        <div
           className="md:hidden fixed inset-0 z-40 bg-black/50"
           onClick={() => setMobileMenuOpen(false)}
           onKeyDown={(e) => e.key === "Escape" && setMobileMenuOpen(false)}
+          role="button"
+          tabIndex={-1}
           aria-label="Close menu"
         >
-          <div className="absolute bottom-16 left-0 right-0 bg-card rounded-t-3xl mx-4 p-6 shadow-xl">
+          {/** biome-ignore lint/a11y/noStaticElementInteractions: <> */}
+          {/** biome-ignore lint/a11y/useKeyWithClickEvents: <> */}
+          <div
+            className="absolute bottom-16 left-0 right-0 bg-card rounded-t-3xl mx-4 p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-foreground">
                 {t("nav.more")}
@@ -223,7 +237,7 @@ export default function Navigation() {
               <InstallPrompt />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              {navigation.slice(3).map((item) => {
+              {navigation.slice(4).map((item) => {
                 const isActive = pathname === item.href;
                 return (
                   <Link
@@ -255,7 +269,7 @@ export default function Navigation() {
               </button>
             </div>
           </div>
-        </button>
+        </div>
       )}
     </>
   );

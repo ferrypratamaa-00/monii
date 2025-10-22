@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { and, eq, gte, lt, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { budgets, categories } from "@/db/schema";
+import { budgets, categories, transactions } from "@/db/schema";
 
 export type BudgetInput = {
   categoryId: number;
@@ -44,7 +44,7 @@ export async function updateBudget(
   const [budget] = await db
     .update(budgets)
     .set(updateData)
-    .where(eq(budgets.id, budgetId) && eq(budgets.userId, userId))
+    .where(and(eq(budgets.id, budgetId), eq(budgets.userId, userId)))
     .returning();
   return budget;
 }
@@ -52,7 +52,7 @@ export async function updateBudget(
 export async function deleteBudget(userId: number, budgetId: number) {
   await db
     .delete(budgets)
-    .where(eq(budgets.id, budgetId) && eq(budgets.userId, userId));
+    .where(and(eq(budgets.id, budgetId), eq(budgets.userId, userId)));
 }
 
 export async function updateBudgetSpending(
@@ -61,25 +61,33 @@ export async function updateBudgetSpending(
   amount: number,
 ) {
   // Get current budget before update
-  const result = await db
-    .select()
-    .from(budgets)
-    .where(
-      eq(budgets.userId, userId) &&
-        eq(budgets.categoryId, categoryId) &&
-        eq(budgets.period, "MONTHLY"),
-    )
-    .leftJoin(categories, eq(budgets.categoryId, categories.id))
-    .limit(1);
+  const currentBudget = await db.query.budgets.findFirst({
+    where: and(
+      eq(budgets.userId, userId),
+      eq(budgets.categoryId, categoryId),
+      eq(budgets.period, "MONTHLY"),
+    ),
+    with: {
+      category: true,
+    },
+  });
 
-  if (!result || result.length === 0) return null;
+  if (!currentBudget) {
+    console.log(
+      `No budget found for user ${userId}, category ${categoryId}, period MONTHLY`,
+    );
+    return null;
+  }
 
-  const currentBudget = result[0].budgets;
-  const category = result[0].categories;
+  const category = currentBudget.category;
 
   const currentSpending = parseFloat(currentBudget.currentSpending || "0");
   const limitAmount = parseFloat(currentBudget.limitAmount);
   const newSpending = currentSpending + amount;
+
+  console.log(
+    `Updating budget spending: user ${userId}, category ${categoryId}, current ${currentSpending}, adding ${amount}, new ${newSpending}`,
+  );
 
   // Update currentSpending
   await db
@@ -88,9 +96,11 @@ export async function updateBudgetSpending(
       currentSpending: newSpending.toString(),
     })
     .where(
-      eq(budgets.userId, userId) &&
-        eq(budgets.categoryId, categoryId) &&
+      and(
+        eq(budgets.userId, userId),
+        eq(budgets.categoryId, categoryId),
         eq(budgets.period, "MONTHLY"),
+      ),
     );
 
   // Check if budget exceeded
@@ -112,5 +122,60 @@ export async function resetMonthlyBudgets(userId: number) {
   await db
     .update(budgets)
     .set({ currentSpending: "0" })
-    .where(eq(budgets.userId, userId) && eq(budgets.period, "MONTHLY"));
+    .where(and(eq(budgets.userId, userId), eq(budgets.period, "MONTHLY")));
+}
+
+export async function recalculateBudgetSpending(userId: number) {
+  // Get current month date range
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const endOfMonth = new Date(
+    now.getFullYear(),
+    now.getMonth() + 1,
+    0,
+    23,
+    59,
+    59,
+    999,
+  );
+
+  // Get all monthly budgets for user
+  const userBudgets = await db.query.budgets.findMany({
+    where: and(eq(budgets.userId, userId), eq(budgets.period, "MONTHLY")),
+    with: {
+      category: true,
+    },
+  });
+
+  console.log(`Recalculating spending for ${userBudgets.length} budgets`);
+
+  // Recalculate spending for each budget
+  for (const budget of userBudgets) {
+    const [{ total }] = await db
+      .select({
+        total: sql<number>`COALESCE(SUM(ABS(CAST(${transactions.amount} AS DECIMAL))), 0)`,
+      })
+      .from(transactions)
+      .where(
+        and(
+          eq(transactions.userId, userId),
+          eq(transactions.categoryId, budget.categoryId),
+          eq(transactions.type, "EXPENSE"),
+          gte(transactions.date, startOfMonth),
+          lt(transactions.date, endOfMonth),
+        ),
+      );
+
+    console.log(
+      `Budget ${budget.id} (${budget.category?.name}): calculated total ${total}`,
+    );
+
+    // Update budget with recalculated spending
+    await db
+      .update(budgets)
+      .set({
+        currentSpending: total.toString(),
+      })
+      .where(eq(budgets.id, budget.id));
+  }
 }

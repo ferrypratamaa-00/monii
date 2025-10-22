@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Joyride, { type CallBackProps, EVENTS, STATUS } from "react-joyride";
+import Joyride, {
+  type CallBackProps,
+  EVENTS,
+  STATUS,
+  type Step,
+  type Styles,
+} from "react-joyride";
 import { useLanguage } from "@/components/LanguageProvider";
 import { useTheme } from "@/components/ThemeProvider";
 
@@ -18,8 +24,8 @@ export function OnboardingGuide({
 }: OnboardingGuideProps) {
   const { t } = useLanguage();
   const { theme, colorMode } = useTheme();
-  const [steps, setSteps] = useState<any[]>([]);
-  const [styles, setStyles] = useState<any>({});
+  const [steps, setSteps] = useState<Step[]>([]);
+  const [styles, setStyles] = useState<Styles | undefined>(undefined);
 
   useEffect(() => {
     // Define onboarding steps for essential features
@@ -116,7 +122,7 @@ export function OnboardingGuide({
       .trim();
     const mutedFg = computedStyle.getPropertyValue("--muted-foreground").trim();
 
-    const customStyles = {
+    const customStyles: Styles = {
       options: {
         primaryColor: primaryColor || "#d4a5c4",
         textColor: foregroundColor || "#4a4a4a",
@@ -125,13 +131,15 @@ export function OnboardingGuide({
         spotlightShadow: "0 0 15px rgba(0, 0, 0, 0.5)",
         beaconSize: 36,
         zIndex: 100,
+        arrowColor: primaryColor || "#d4a5c4",
+        width: undefined,
       },
       tooltip: {
         borderRadius: 8,
         fontSize: 14,
       },
       tooltipContainer: {
-        textAlign: "center" as const,
+        textAlign: "center",
       },
       buttonNext: {
         backgroundColor: primaryColor || "#d4a5c4",
@@ -163,16 +171,31 @@ export function OnboardingGuide({
         right: 15,
         top: 15,
       },
+      // Add default empty objects for required properties
+      beacon: {},
+      beaconInner: {},
+      beaconOuter: {},
+      overlay: {},
+      overlayLegacy: {},
+      overlayLegacyCenter: {},
+      spotlight: {},
+      spotlightLegacy: {},
+      tooltipContent: {},
+      tooltipFooter: {},
+      tooltipFooterSpacer: {},
+      tooltipTitle: {},
     };
 
-    setStyles(customStyles);
+    setStyles(customStyles as Styles);
   }, [theme, colorMode]);
 
   const handleJoyrideCallback = (data: CallBackProps) => {
     const { status, type } = data;
 
-    if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {
+    if (status === STATUS.FINISHED) {
       onComplete();
+    } else if (status === STATUS.SKIPPED) {
+      onSkip();
     }
 
     if (type === EVENTS.STEP_BEFORE && data.index === 0) {

@@ -1,6 +1,7 @@
 import { relations } from "drizzle-orm";
 import {
   boolean,
+  index,
   integer,
   numeric,
   pgEnum,
@@ -29,54 +30,96 @@ export const notificationTypeEnum = pgEnum("notification_type", [
   "TRANSACTION_ALERT",
 ]);
 
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  email: varchar("email", { length: 255 }).notNull().unique(),
-  name: varchar("name", { length: 100 }),
-  passwordHash: text("password_hash").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+export type NotificationType = (typeof notificationTypeEnum.enumValues)[number];
 
-export const accounts = pgTable("accounts", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id")
-    .references(() => users.id)
-    .notNull(),
-  name: varchar("name", { length: 100 }).notNull(),
-  initialBalance: numeric("initial_balance", { precision: 14, scale: 2 })
-    .default("0")
-    .notNull(),
-  balance: numeric("balance", { precision: 14, scale: 2 })
-    .default("0")
-    .notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+export const users = pgTable(
+  "users",
+  {
+    id: serial("id").primaryKey(),
+    email: varchar("email", { length: 255 }).notNull().unique(),
+    name: varchar("name", { length: 100 }),
+    passwordHash: text("password_hash").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    emailIdx: index("users_email_idx").on(table.email),
+  }),
+);
 
-export const categories = pgTable("categories", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id")
-    .references(() => users.id)
-    .notNull(),
-  name: varchar("name", { length: 100 }).notNull(),
-  type: txTypeEnum("type").notNull(),
-  iconName: varchar("icon_name", { length: 64 }).default("Circle"),
-});
+export const accounts = pgTable(
+  "accounts",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id)
+      .notNull(),
+    name: varchar("name", { length: 100 }).notNull(),
+    initialBalance: numeric("initial_balance", { precision: 14, scale: 2 })
+      .default("0")
+      .notNull(),
+    balance: numeric("balance", { precision: 14, scale: 2 })
+      .default("0")
+      .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    userIdIdx: index("accounts_user_id_idx").on(table.userId),
+  }),
+);
 
-export const transactions = pgTable("transactions", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id")
-    .references(() => users.id)
-    .notNull(),
-  accountId: integer("account_id")
-    .references(() => accounts.id)
-    .notNull(),
-  categoryId: integer("category_id").references(() => categories.id),
-  type: txTypeEnum("type").notNull(),
-  amount: numeric("amount", { precision: 14, scale: 2 }).notNull(),
-  description: text("description"),
-  date: timestamp("date").defaultNow().notNull(),
-  isRecurring: boolean("is_recurring").default(false).notNull(),
-});
+export const categories = pgTable(
+  "categories",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id)
+      .notNull(),
+    name: varchar("name", { length: 100 }).notNull(),
+    type: txTypeEnum("type").notNull(),
+    iconName: varchar("icon_name", { length: 64 }).default("Circle"),
+  },
+  (table) => ({
+    userIdIdx: index("categories_user_id_idx").on(table.userId),
+    userIdTypeIdx: index("categories_user_id_type_idx").on(
+      table.userId,
+      table.type,
+    ),
+  }),
+);
+
+export const transactions = pgTable(
+  "transactions",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id)
+      .notNull(),
+    accountId: integer("account_id")
+      .references(() => accounts.id)
+      .notNull(),
+    categoryId: integer("category_id").references(() => categories.id),
+    type: txTypeEnum("type").notNull(),
+    amount: numeric("amount", { precision: 14, scale: 2 }).notNull(),
+    description: text("description"),
+    date: timestamp("date").defaultNow().notNull(),
+    isRecurring: boolean("is_recurring").default(false).notNull(),
+  },
+  (table) => ({
+    userIdIdx: index("transactions_user_id_idx").on(table.userId),
+    userIdDateIdx: index("transactions_user_id_date_idx").on(
+      table.userId,
+      table.date.desc(),
+    ),
+    userIdCategoryIdx: index("transactions_user_id_category_idx").on(
+      table.userId,
+      table.categoryId,
+    ),
+    userIdAccountIdx: index("transactions_user_id_account_idx").on(
+      table.userId,
+      table.accountId,
+    ),
+  }),
+);
 
 export const debts = pgTable("debts", {
   id: serial("id").primaryKey(),
@@ -90,21 +133,35 @@ export const debts = pgTable("debts", {
   status: debtStatusEnum("status").default("ACTIVE").notNull(),
 });
 
-export const budgets = pgTable("budgets", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id")
-    .references(() => users.id)
-    .notNull(),
-  categoryId: integer("category_id")
-    .references(() => categories.id)
-    .notNull(),
-  period: budgetPeriodEnum("period").default("MONTHLY").notNull(),
-  limitAmount: numeric("limit_amount", { precision: 14, scale: 2 }).notNull(),
-  currentSpending: numeric("current_spending", { precision: 14, scale: 2 })
-    .default("0")
-    .notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+export const budgets = pgTable(
+  "budgets",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id)
+      .notNull(),
+    categoryId: integer("category_id")
+      .references(() => categories.id)
+      .notNull(),
+    period: budgetPeriodEnum("period").default("MONTHLY").notNull(),
+    limitAmount: numeric("limit_amount", { precision: 14, scale: 2 }).notNull(),
+    currentSpending: numeric("current_spending", { precision: 14, scale: 2 })
+      .default("0")
+      .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    userIdIdx: index("budgets_user_id_idx").on(table.userId),
+    userIdCategoryIdx: index("budgets_user_id_category_idx").on(
+      table.userId,
+      table.categoryId,
+    ),
+    userIdPeriodIdx: index("budgets_user_id_period_idx").on(
+      table.userId,
+      table.period,
+    ),
+  }),
+);
 
 export const goals = pgTable("goals", {
   id: serial("id").primaryKey(),
@@ -163,29 +220,77 @@ export const passwordResets = pgTable("password_resets", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const auditLogs = pgTable("audit_logs", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id),
-  eventType: auditEventTypeEnum("event_type").notNull(),
-  resource: varchar("resource", { length: 100 }).notNull(),
-  action: varchar("action", { length: 100 }).notNull(),
-  details: text("details"),
-  ipAddress: varchar("ip_address", { length: 45 }),
-  userAgent: text("user_agent"),
-  timestamp: timestamp("timestamp").defaultNow().notNull(),
-});
+export const auditLogs = pgTable(
+  "audit_logs",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id").references(() => users.id),
+    eventType: auditEventTypeEnum("event_type").notNull(),
+    resource: varchar("resource", { length: 100 }).notNull(),
+    action: varchar("action", { length: 100 }).notNull(),
+    details: text("details"),
+    ipAddress: varchar("ip_address", { length: 45 }),
+    userAgent: text("user_agent"),
+    timestamp: timestamp("timestamp").defaultNow().notNull(),
+  },
+  (table) => ({
+    userIdIdx: index("audit_logs_user_id_idx").on(table.userId),
+    eventTypeIdx: index("audit_logs_event_type_idx").on(table.eventType),
+    timestampIdx: index("audit_logs_timestamp_idx").on(table.timestamp.desc()),
+    userIdTimestampIdx: index("audit_logs_user_id_timestamp_idx").on(
+      table.userId,
+      table.timestamp.desc(),
+    ),
+  }),
+);
 
-export const notifications = pgTable("notifications", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id")
-    .references(() => users.id)
-    .notNull(),
-  type: notificationTypeEnum("type").notNull(),
-  title: varchar("title", { length: 255 }).notNull(),
-  message: text("message").notNull(),
-  isRead: boolean("is_read").default(false).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+export const notifications = pgTable(
+  "notifications",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id)
+      .notNull(),
+    type: notificationTypeEnum("type").notNull(),
+    title: varchar("title", { length: 255 }).notNull(),
+    message: text("message").notNull(),
+    isRead: boolean("is_read").default(false).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    userIdIdx: index("notifications_user_id_idx").on(table.userId),
+    userIdIsReadIdx: index("notifications_user_id_is_read_idx").on(
+      table.userId,
+      table.isRead,
+    ),
+    userIdCreatedAtIdx: index("notifications_user_id_created_at_idx").on(
+      table.userId,
+      table.createdAt.desc(),
+    ),
+  }),
+);
+
+export const userNotificationPreferences = pgTable(
+  "user_notification_preferences",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id")
+      .references(() => users.id)
+      .notNull(),
+    notificationType: notificationTypeEnum("notification_type").notNull(),
+    emailEnabled: boolean("email_enabled").default(true).notNull(),
+    soundEnabled: boolean("sound_enabled").default(true).notNull(),
+    pushEnabled: boolean("push_enabled").default(false).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    userIdTypeIdx: index("user_notification_preferences_user_id_type_idx").on(
+      table.userId,
+      table.notificationType,
+    ),
+  }),
+);
 
 export const files = pgTable("files", {
   id: serial("id").primaryKey(),
@@ -215,6 +320,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   passwordResets: many(passwordResets),
   auditLogs: many(auditLogs),
   notifications: many(notifications),
+  notificationPreferences: many(userNotificationPreferences),
   files: many(files),
 }));
 
@@ -314,6 +420,16 @@ export const notificationsRelations = relations(notifications, ({ one }) => ({
     references: [users.id],
   }),
 }));
+
+export const userNotificationPreferencesRelations = relations(
+  userNotificationPreferences,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [userNotificationPreferences.userId],
+      references: [users.id],
+    }),
+  }),
+);
 
 export const filesRelations = relations(files, ({ one }) => ({
   user: one(users, {

@@ -154,7 +154,10 @@ self.addEventListener("fetch", (event) => {
         fetch(event.request)
           .then((fetchResponse) => {
             // Cache successful responses for offline access
-            if (fetchResponse.status === 200 && event.request.method === "GET") {
+            if (
+              fetchResponse.status === 200 &&
+              event.request.method === "GET"
+            ) {
               const responseClone = fetchResponse.clone();
               caches.open(CACHE_NAME).then((cache) => {
                 cache.put(event.request, responseClone);
@@ -167,7 +170,10 @@ self.addEventListener("fetch", (event) => {
             // If offline, try cache, but for protected routes this might not work well
             return caches.match(event.request).then((response) => {
               if (response) {
-                console.log("Serving protected page from cache (offline):", url.pathname);
+                console.log(
+                  "Serving protected page from cache (offline):",
+                  url.pathname,
+                );
                 return response;
               }
               // Redirect to login if no cache and offline

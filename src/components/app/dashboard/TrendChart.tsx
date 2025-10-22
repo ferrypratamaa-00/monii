@@ -17,7 +17,7 @@ interface TrendChartProps {
   }[];
 }
 
-export function TrendChart({ data }: TrendChartProps) {
+export default function TrendChart({ data }: TrendChartProps) {
   return (
     <Card>
       <CardHeader>

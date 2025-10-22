@@ -8,6 +8,20 @@
       "when": 1760581127116,
       "tag": "0000_curious_energizer",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1760873174257,
+      "tag": "0001_shallow_sunfire",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1760880432646,
+      "tag": "0002_dry_karma",
+      "breakpoints": true
     }
   ]
 }

@@ -42,7 +42,6 @@ export default function ThemeSelector() {
 
       {isOpen && (
         <>
-          {/** biome-ignore lint/a11y/useSemanticElements: <> */}
           <button
             type="button"
             className="fixed inset-0 z-40"

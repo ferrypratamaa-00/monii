@@ -13,7 +13,7 @@ interface PieChartProps {
   data: { name: string; value: number }[];
 }
 
-export function ExpensePieChart({ data }: PieChartProps) {
+export default function ExpensePieChart({ data }: PieChartProps) {
   // Use CSS custom properties for chart colors
   const getChartColor = (index: number) => {
     // Get the computed style to access CSS custom properties

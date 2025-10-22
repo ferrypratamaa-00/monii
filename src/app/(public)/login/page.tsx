@@ -4,10 +4,9 @@ import { useMutation } from "@tanstack/react-query";
 import { LogIn } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { loginAction } from "@/app/actions/auth";
+import { useEffect, useState } from "react";
+import { getCurrentUser, loginAction } from "@/app/actions/auth";
 import { InstallPrompt } from "@/components/InstallPrompt";
-import { useAuthStore } from "@/lib/stores/auth";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,14 +18,34 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuthStore } from "@/lib/stores/auth";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   const router = useRouter();
-  const { setUser, updateTokenRefresh } = useAuthStore();
+  const { setUser, updateTokenRefresh, isAuthenticated } = useAuthStore();
+
+  // Check if user is already authenticated
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const userId = await getCurrentUser();
+        if (userId && isAuthenticated) {
+          router.replace("/dashboard");
+        }
+      } catch (error) {
+        console.error("Auth check failed:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, [isAuthenticated, router]);
 
   const mutation = useMutation({
     mutationFn: (formData: FormData) => loginAction(formData),
@@ -37,7 +56,7 @@ export default function LoginPage() {
           try {
             const cacheNames = await caches.keys();
             await Promise.all(
-              cacheNames.map(cacheName => caches.delete(cacheName))
+              cacheNames.map((cacheName) => caches.delete(cacheName)),
             );
             console.log("Cache cleared after login");
           } catch (error) {
@@ -57,7 +76,7 @@ export default function LoginPage() {
           console.error("Failed to fetch user data:", error);
         }
 
-        router.push("/dashboard");
+        router.replace("/dashboard");
       } else if (data.errors) {
         setMessage("Mohon perbaiki kesalahan, kemudian coba kembali.");
       } else {
@@ -76,6 +95,20 @@ export default function LoginPage() {
     formData.append("password", password);
     mutation.mutate(formData);
   };
+
+  // Show loading while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Memeriksa autentikasi...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">

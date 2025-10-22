@@ -157,7 +157,10 @@ export default function SignupPage() {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Sudah punya akun?{" "}
-              <Link href="/login" className="text-primary/80 hover:text-primary">
+              <Link
+                href="/login"
+                className="text-primary/80 hover:text-primary"
+              >
                 Masuk di sini
               </Link>
             </p>

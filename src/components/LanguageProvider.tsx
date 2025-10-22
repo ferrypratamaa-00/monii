@@ -23,9 +23,11 @@ const translations = {
     "nav.transactions": "Transaksi",
     "nav.accounts": "Akun",
     "nav.categories": "Kategori",
+    "nav.budget": "Anggaran",
     "nav.reports": "Laporan",
     "nav.debts": "Utang",
     "nav.goals": "Target",
+    "nav.settings": "Pengaturan",
     "nav.more": "Lainnya",
     "nav.logout": "Logout",
 
@@ -158,9 +160,11 @@ const translations = {
     "nav.transactions": "Transactions",
     "nav.accounts": "Accounts",
     "nav.categories": "Categories",
+    "nav.budget": "Budget",
     "nav.reports": "Reports",
     "nav.debts": "Debts",
     "nav.goals": "Goals",
+    "nav.settings": "Settings",
     "nav.more": "More",
     "nav.logout": "Logout",
 

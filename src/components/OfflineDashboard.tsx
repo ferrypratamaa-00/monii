@@ -4,6 +4,12 @@ import { useEffect, useState } from "react";
 import { useLanguage } from "@/components/LanguageProvider";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type {
+  CachedAccountsData,
+  CachedCategoriesData,
+  CachedDashboardData,
+  CachedUserData,
+} from "@/services/localStorage";
 import { localStorageService } from "@/services/localStorage";
 
 interface OfflineDashboardProps {
@@ -12,11 +18,16 @@ interface OfflineDashboardProps {
 
 export default function OfflineDashboard({ userName }: OfflineDashboardProps) {
   const { t } = useLanguage();
-  const [cachedData, setCachedData] = useState({
-    userData: null as any,
-    dashboardData: null as any,
-    categoriesData: null as any,
-    accountsData: null as any,
+  const [cachedData, setCachedData] = useState<{
+    userData: CachedUserData | null;
+    dashboardData: CachedDashboardData | null;
+    categoriesData: CachedCategoriesData | null;
+    accountsData: CachedAccountsData | null;
+  }>({
+    userData: null,
+    dashboardData: null,
+    categoriesData: null,
+    accountsData: null,
   });
 
   useEffect(() => {
@@ -29,7 +40,7 @@ export default function OfflineDashboard({ userName }: OfflineDashboardProps) {
     });
   }, []);
 
-  const { userData, dashboardData, categoriesData, accountsData } = cachedData;
+  const { dashboardData, categoriesData, accountsData } = cachedData;
 
   return (
     <div className="min-h-screen bg-background pb-24 md:pb-6">
@@ -121,27 +132,29 @@ export default function OfflineDashboard({ userName }: OfflineDashboardProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {accountsData.accounts.map((account: any) => (
-                  <div
-                    key={account.id}
-                    className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors"
-                  >
-                    <div>
-                      <p className="font-medium text-sm text-foreground">
-                        {account.name}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Update terakhir:{" "}
-                        {new Date(accountsData.lastSync).toLocaleDateString(
-                          "id-ID",
-                        )}
+                {accountsData.accounts.map(
+                  (account: { id: number; name: string; balance: number }) => (
+                    <div
+                      key={account.id}
+                      className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors"
+                    >
+                      <div>
+                        <p className="font-medium text-sm text-foreground">
+                          {account.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Update terakhir:{" "}
+                          {new Date(accountsData.lastSync).toLocaleDateString(
+                            "id-ID",
+                          )}
+                        </p>
+                      </div>
+                      <p className="font-bold text-sm">
+                        Rp{account.balance?.toLocaleString("id-ID") || "0"}
                       </p>
                     </div>
-                    <p className="font-bold text-sm">
-                      Rp{account.balance?.toLocaleString("id-ID") || "0"}
-                    </p>
-                  </div>
-                ))}
+                  ),
+                )}
               </div>
             </CardContent>
           </Card>
@@ -157,17 +170,21 @@ export default function OfflineDashboard({ userName }: OfflineDashboardProps) {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                {categoriesData.categories.map((category: any) => (
-                  <div
-                    key={category.id}
-                    className="flex items-center gap-2 p-2 rounded-lg bg-muted/50"
-                  >
-                    <span className="text-lg">
-                      {category.type === "INCOME" ? "💰" : "🛒"}
-                    </span>
-                    <span className="text-sm font-medium">{category.name}</span>
-                  </div>
-                ))}
+                {categoriesData.categories.map(
+                  (category: { id: number; name: string; type: string }) => (
+                    <div
+                      key={category.id}
+                      className="flex items-center gap-2 p-2 rounded-lg bg-muted/50"
+                    >
+                      <span className="text-lg">
+                        {category.type === "INCOME" ? "💰" : "🛒"}
+                      </span>
+                      <span className="text-sm font-medium">
+                        {category.name}
+                      </span>
+                    </div>
+                  ),
+                )}
               </div>
             </CardContent>
           </Card>

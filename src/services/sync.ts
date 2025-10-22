@@ -6,7 +6,7 @@
 interface PendingTransaction {
   id: string;
   type: "create_transaction" | "update_transaction" | "delete_transaction";
-  data: any;
+  data: Record<string, unknown>;
   timestamp: string;
   retryCount: number;
 }
@@ -44,7 +44,11 @@ class SyncService {
   private async registerBackgroundSync() {
     try {
       const registration = await navigator.serviceWorker.ready;
-      await (registration as any).sync.register("background-sync");
+      await (
+        registration as ServiceWorkerRegistration & {
+          sync: { register: (tag: string) => Promise<void> };
+        }
+      ).sync.register("background-sync");
       console.log("Background sync registered");
     } catch (error) {
       console.warn(
@@ -55,7 +59,10 @@ class SyncService {
   }
 
   // Add pending transaction to queue
-  addPendingTransaction(type: PendingTransaction["type"], data: any): string {
+  addPendingTransaction(
+    type: PendingTransaction["type"],
+    data: Record<string, unknown>,
+  ): string {
     const transaction: PendingTransaction = {
       id: `pending_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       type,
@@ -212,6 +219,7 @@ class SyncService {
     isOnline: boolean;
     pendingCount: number;
     lastSyncTime: string | null;
+    hasConflicts: boolean;
   } {
     const pending = this.getPendingTransactions();
     const lastTransaction = pending.sort(
@@ -219,10 +227,19 @@ class SyncService {
         new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
     )[0];
 
+    // Check for potential conflicts (transactions older than 24 hours)
+    const hasConflicts = pending.some((transaction) => {
+      const transactionTime = new Date(transaction.timestamp).getTime();
+      const now = Date.now();
+      const hoursDiff = (now - transactionTime) / (1000 * 60 * 60);
+      return hoursDiff > 24;
+    });
+
     return {
       isOnline: this.isOnline,
       pendingCount: pending.length,
       lastSyncTime: lastTransaction?.timestamp || null,
+      hasConflicts,
     };
   }
 

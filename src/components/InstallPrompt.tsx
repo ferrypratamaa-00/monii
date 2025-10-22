@@ -1,15 +1,25 @@
 "use client";
 
-import { Download, Smartphone } from "lucide-react";
+import { Download } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+
+interface BeforeInstallPromptEvent extends Event {
+  prompt(): Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+}
+
+interface NavigatorStandalone extends Navigator {
+  standalone?: boolean;
+}
 
 interface InstallPromptProps {
   className?: string;
 }
 
 export function InstallPrompt({ className }: InstallPromptProps) {
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [deferredPrompt, setDeferredPrompt] =
+    useState<BeforeInstallPromptEvent | null>(null);
   const [isInstallable, setIsInstallable] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [isAndroid, setIsAndroid] = useState(false);
@@ -25,28 +35,37 @@ export function InstallPrompt({ className }: InstallPromptProps) {
       // Prevent the mini-infobar from appearing on mobile
       e.preventDefault();
       // Stash the event so it can be triggered later
-      setDeferredPrompt(e);
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
       setIsInstallable(true);
     };
 
     // Check if already installed
     const checkInstalled = () => {
-      if ('standalone' in window.navigator && (window.navigator as any).standalone) {
+      if (
+        "standalone" in window.navigator &&
+        (window.navigator as NavigatorStandalone).standalone
+      ) {
         // iOS PWA mode
         setIsInstallable(false);
-      } else if (window.matchMedia('(display-mode: standalone)').matches) {
+      } else if (window.matchMedia("(display-mode: standalone)").matches) {
         // Android PWA mode
         setIsInstallable(false);
       } else {
         // Listen for install prompt
-        window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+        window.addEventListener(
+          "beforeinstallprompt" as keyof WindowEventMap,
+          handleBeforeInstallPrompt as EventListener,
+        );
       }
     };
 
     checkInstalled();
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener(
+        "beforeinstallprompt" as keyof WindowEventMap,
+        handleBeforeInstallPrompt as EventListener,
+      );
     };
   }, []);
 
@@ -68,11 +87,15 @@ export function InstallPrompt({ className }: InstallPromptProps) {
   };
 
   const handleIOSInstall = () => {
-    alert('Untuk menginstall di iOS:\n1. Tap tombol Share (⬆️)\n2. Pilih "Add to Home Screen"\n3. Tap "Add"');
+    alert(
+      'Untuk menginstall di iOS:\n1. Tap tombol Share (⬆️)\n2. Pilih "Add to Home Screen"\n3. Tap "Add"',
+    );
   };
 
   const handleAndroidInstall = () => {
-    alert('Untuk menginstall di Android:\n1. Tap menu (⋮) di browser\n2. Pilih "Add to Home screen"\n3. Tap "Add"');
+    alert(
+      'Untuk menginstall di Android:\n1. Tap menu (⋮) di browser\n2. Pilih "Add to Home screen"\n3. Tap "Add"',
+    );
   };
 
   // Don't show if not installable and not on mobile
@@ -86,28 +109,25 @@ export function InstallPrompt({ className }: InstallPromptProps) {
           className="flex items-center gap-2 bg-primary hover:bg-primary/90"
           size="sm"
         >
-          <Download className="w-4 h-4" />
-          Install App
+          <Download className="w-6 h-6" />
         </Button>
       ) : isIOS ? (
         <Button
           onClick={handleIOSInstall}
           variant="outline"
           className="flex items-center gap-2"
-          size="sm"
+          size="icon"
         >
-          <Smartphone className="w-4 h-4" />
-          Install (iOS)
+          <Download className="w-6 h-6" />
         </Button>
       ) : isAndroid ? (
         <Button
           onClick={handleAndroidInstall}
           variant="outline"
           className="flex items-center gap-2"
-          size="sm"
+          size="icon"
         >
-          <Smartphone className="w-4 h-4" />
-          Install (Android)
+          <Download className="w-6 h-6" />
         </Button>
       ) : null}
     </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 interface User {
   id: number;
@@ -23,7 +23,6 @@ interface AuthState {
 }
 
 const TOKEN_REFRESH_INTERVAL = 5 * 60 * 1000; // 5 minutes
-const TOKEN_EXPIRY_BUFFER = 10 * 60 * 1000; // 10 minutes buffer before expiry
 
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -35,7 +34,8 @@ export const useAuthStore = create<AuthState>()(
 
       setUser: (user) => set({ user, isAuthenticated: !!user }),
 
-      setAuthenticated: (authenticated) => set({ isAuthenticated: authenticated }),
+      setAuthenticated: (authenticated) =>
+        set({ isAuthenticated: authenticated }),
 
       setLoading: (loading) => set({ isLoading: loading }),
 

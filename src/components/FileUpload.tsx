@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import { FileImage, FileText, Upload, X } from "lucide-react";
+import { Camera, FileImage, FileText, Upload, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,15 +21,80 @@ interface FileUploadProps {
   maxSizeText?: string;
 }
 
+// Image compression utility
+const compressImage = (file: File): Promise<File> => {
+  return new Promise((resolve, reject) => {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    const img = new Image();
+
+    img.onload = () => {
+      // Calculate new dimensions (max 1920px width/height)
+      let { width, height } = img;
+      const maxDimension = 1920;
+
+      if (width > height) {
+        if (width > maxDimension) {
+          height = (height * maxDimension) / width;
+          width = maxDimension;
+        }
+      } else {
+        if (height > maxDimension) {
+          width = (width * maxDimension) / height;
+          height = maxDimension;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+
+      // Draw and compress
+      ctx?.drawImage(img, 0, 0, width, height);
+
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            const compressedFile = new File([blob], file.name, {
+              type: file.type,
+              lastModified: Date.now(),
+            });
+            resolve(compressedFile);
+          } else {
+            reject(new Error("Compression failed"));
+          }
+        },
+        file.type,
+        0.8, // 80% quality
+      );
+    };
+
+    img.onerror = () => reject(new Error("Image load failed"));
+    img.src = URL.createObjectURL(file);
+  });
+};
+
 export default function FileUpload({
   transactionId,
   onUploadSuccess,
   accept = "image/*,.pdf",
-  maxSizeText = "Max 5MB",
+  maxSizeText = "Max 10MB",
 }: FileUploadProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+
+  // Utility functions
+  const isMobile = () => {
+    return typeof window !== "undefined" && window.innerWidth < 768;
+  };
+
+  const resetUpload = () => {
+    setSelectedFile(null);
+    setPreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    if (cameraInputRef.current) cameraInputRef.current.value = "";
+  };
 
   const uploadMutation = useMutation({
     mutationFn: async (file: File) => {
@@ -63,7 +128,9 @@ export default function FileUpload({
     },
   });
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -73,15 +140,27 @@ export default function FileUpload({
       return;
     }
 
-    setSelectedFile(file);
+    let processedFile = file;
+
+    // Compress images before upload
+    if (file.type.startsWith("image/") && file.size > 1024 * 1024) {
+      // > 1MB
+      try {
+        processedFile = await compressImage(file);
+      } catch (error) {
+        console.warn("Image compression failed, using original file:", error);
+      }
+    }
+
+    setSelectedFile(processedFile);
 
     // Create preview for images
-    if (file.type.startsWith("image/")) {
+    if (processedFile.type.startsWith("image/")) {
       const reader = new FileReader();
       reader.onload = (e) => {
         setPreview(e.target?.result as string);
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(processedFile);
     } else {
       setPreview(null);
     }
@@ -92,11 +171,23 @@ export default function FileUpload({
     uploadMutation.mutate(selectedFile);
   };
 
-  const resetUpload = () => {
-    setSelectedFile(null);
-    setPreview(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+  const handleCameraCapture = () => {
+    cameraInputRef.current?.click();
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.type.indexOf("image") !== -1) {
+        const file = item.getAsFile();
+        if (file) {
+          handleFileSelect({ target: { files: [file] } } as any);
+          break;
+        }
+      }
     }
   };
 
@@ -111,7 +202,7 @@ export default function FileUpload({
   };
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full max-w-md" onPaste={handlePaste}>
       <CardContent className="p-6">
         <div className="space-y-4">
           <div className="text-center">
@@ -122,24 +213,66 @@ export default function FileUpload({
           </div>
 
           {!selectedFile ? (
-            // biome-ignore lint/a11y/useKeyWithClickEvents: <>
-            // biome-ignore lint/a11y/useSemanticElements: <>
-            <div
-              role="button"
-              tabIndex={0}
-              className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-sm text-gray-600">
-                Click to select or drag and drop
-              </p>
+            <div className="space-y-4">
+              {/* Camera option for mobile */}
+              {isMobile() && accept.includes("image") && (
+                <Button
+                  onClick={handleCameraCapture}
+                  variant="outline"
+                  className="w-full flex items-center gap-2"
+                >
+                  <Camera className="h-5 w-5" />
+                  Take Photo
+                </Button>
+              )}
+
+              {/* File upload area */}
+              {/** biome-ignore lint/a11y/useSemanticElements: <> */}
+              <div
+                role="button"
+                tabIndex={0}
+                className="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 active:scale-95 transition-all duration-150 touch-manipulation"
+                onClick={() => fileInputRef.current?.click()}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    fileInputRef.current?.click();
+                  }
+                }}
+              >
+                <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-sm text-gray-600 mb-2">
+                  {isMobile()
+                    ? "Tap to select file"
+                    : "Click to select or drag and drop"}
+                </p>
+                <p className="text-xs text-muted-foreground mb-2">
+                  {accept.replace(/\*/g, "").replace(/,/g, " or ")} •{" "}
+                  {maxSizeText}
+                </p>
+                {isMobile() && (
+                  <p className="text-xs text-muted-foreground">
+                    💡 You can also paste images from clipboard
+                  </p>
+                )}
+              </div>
+
+              {/* Hidden file inputs */}
               <input
                 ref={fileInputRef}
                 type="file"
                 accept={accept}
                 onChange={handleFileSelect}
                 className="hidden"
+                capture={false}
+              />
+              <input
+                ref={cameraInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileSelect}
+                className="hidden"
+                capture="environment"
               />
             </div>
           ) : (

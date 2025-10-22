@@ -1,19 +1,37 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Receipt, X } from "lucide-react";
-import Link from "next/link";
+import {
+  type UseMutationResult,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { format } from "date-fns";
+import { id } from "date-fns/locale";
+import { CalendarIcon, Plus, Receipt, X } from "lucide-react";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { type UseFormReturn, useForm } from "react-hook-form";
 import type { z } from "zod";
+
+import { createAccountAction } from "@/app/actions/account";
+import { createCategoryAction } from "@/app/actions/category";
 import {
   associateFilesWithTransactionAction,
   createTransactionAction,
 } from "@/app/actions/transaction";
+
 import FileUpload from "@/components/FileUpload";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -24,12 +42,21 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+
+import { cn } from "@/lib/utils";
 import { TransactionFormSchema } from "@/lib/validations/transaction";
 
 interface UploadedFile {
@@ -49,6 +76,8 @@ export default function TransactionForm({
 }: TransactionFormProps = {}) {
   const queryClient = useQueryClient();
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [showAddAccount, setShowAddAccount] = useState(false);
+  const [showAddCategory, setShowAddCategory] = useState(false);
 
   // Fetch accounts and categories
   const { data: accounts = [], isLoading: accountsLoading } = useQuery({
@@ -69,44 +98,28 @@ export default function TransactionForm({
     },
   });
 
-  const form = useForm({
+  const form = useForm<
+    z.infer<typeof TransactionFormSchema>,
+    any,
+    z.infer<typeof TransactionFormSchema>
+  >({
     resolver: zodResolver(TransactionFormSchema),
     defaultValues: {
-      accountId: undefined as number | undefined,
+      accountId: 0,
       categoryId: undefined,
-      type: "EXPENSE" as "INCOME" | "EXPENSE",
-      amount: undefined as number | undefined,
+      type: "EXPENSE" as const,
+      amount: 0,
       description: "",
       date: new Date(),
       isRecurring: false,
     },
   });
 
-  if (accountsLoading || categoriesLoading) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-muted-foreground">Loading form data...</p>
-      </div>
-    );
-  }
-
-  if (accounts.length === 0) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-muted-foreground mb-4">
-          You need to create an account first before adding transactions.
-        </p>
-        <Button asChild>
-          <Link href="/accounts">Go to Accounts</Link>
-        </Button>
-      </div>
-    );
-  }
-
   const transactionType = form.watch("type");
   const filteredCategories = categories.filter(
     (cat: { type: string }) => cat.type === transactionType,
-  ); // biome-ignore lint/correctness/useHookAtTopLevel: <>
+  );
+
   const mutation = useMutation({
     mutationFn: createTransactionAction,
     onSuccess: async (data) => {
@@ -130,6 +143,65 @@ export default function TransactionForm({
     },
     onError: (error) => {
       console.error("Transaction error", error);
+    },
+  });
+
+  // Quick add account mutation
+  const addAccountMutation = useMutation({
+    mutationFn: async (data: { name: string; initialBalance: number }) => {
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("initialBalance", data.initialBalance.toString());
+      return createAccountAction(formData);
+    },
+    onSuccess: async (result) => {
+      if (result.success) {
+        // Refresh accounts and auto-select the new one
+        await queryClient.invalidateQueries({ queryKey: ["accounts"] });
+        // Get the updated accounts list
+        const response = await fetch("/api/accounts");
+        const updatedAccounts = await response.json();
+        // Find and select the newly created account (assuming it's the last one)
+        if (updatedAccounts.length > 0) {
+          const newAccount = updatedAccounts[updatedAccounts.length - 1];
+          form.setValue("accountId", newAccount.id);
+        }
+        setShowAddAccount(false);
+      } else {
+        console.error("Failed to create account:", result.error);
+      }
+    },
+  });
+
+  // Quick add category mutation
+  const addCategoryMutation = useMutation({
+    mutationFn: async (data: { name: string; type: "INCOME" | "EXPENSE" }) => {
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("type", data.type);
+      formData.append("iconName", "default"); // Default icon
+      return createCategoryAction(formData);
+    },
+    onSuccess: async (result) => {
+      if (result.success) {
+        // Refresh categories and auto-select the new one
+        await queryClient.invalidateQueries({ queryKey: ["categories"] });
+        // Get the updated categories list
+        const response = await fetch("/api/categories");
+        const updatedCategories = await response.json();
+        // Find and select the newly created category (assuming it's the last one of the correct type)
+        const transactionType = form.watch("type");
+        const filteredCategories = updatedCategories.filter(
+          (cat: { type: string }) => cat.type === transactionType,
+        );
+        if (filteredCategories.length > 0) {
+          const newCategory = filteredCategories[filteredCategories.length - 1];
+          form.setValue("categoryId", newCategory.id);
+        }
+        setShowAddCategory(false);
+      } else {
+        console.error("Failed to create category:", result.error);
+      }
     },
   });
 
@@ -157,70 +229,313 @@ export default function TransactionForm({
     setUploadedFiles((prev) => prev.filter((f) => f.id !== fileId));
   };
 
+  if (accountsLoading || categoriesLoading) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-muted-foreground">Loading form data...</p>
+      </div>
+    );
+  }
+
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="type"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Type</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="INCOME">Income</SelectItem>
-                  <SelectItem value="EXPENSE">Expense</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="accountId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Account</FormLabel>
+    <div className="space-y-6">
+      {/* Income/Expense Tabs */}
+      <Tabs
+        defaultValue="expense"
+        onValueChange={(value) => {
+          const type = value === "income" ? "INCOME" : "EXPENSE";
+          form.setValue("type", type);
+        }}
+        className="w-full"
+      >
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="expense" className="flex items-center gap-2">
+            <span className="text-red-500">📤</span>
+            Pengeluaran
+          </TabsTrigger>
+          <TabsTrigger value="income" className="flex items-center gap-2">
+            <span className="text-green-500">📥</span>
+            Pemasukan
+          </TabsTrigger>
+        </TabsList>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <TabsContent value="expense" className="space-y-4 mt-6">
+              <TransactionFormFields
+                form={form}
+                type="EXPENSE"
+                accounts={accounts}
+                accountsLoading={accountsLoading}
+                categories={filteredCategories}
+                categoriesLoading={categoriesLoading}
+                showAddAccount={showAddAccount}
+                setShowAddAccount={setShowAddAccount}
+                showAddCategory={showAddCategory}
+                setShowAddCategory={setShowAddCategory}
+                addAccountMutation={addAccountMutation}
+                addCategoryMutation={addCategoryMutation}
+                mutation={mutation}
+                onSuccess={onSuccess}
+                uploadedFiles={uploadedFiles}
+                handleFileUpload={handleFileUpload}
+                removeFile={removeFile}
+              />
+            </TabsContent>
+
+            <TabsContent value="income" className="space-y-4 mt-6">
+              <TransactionFormFields
+                form={form}
+                type="INCOME"
+                accounts={accounts}
+                accountsLoading={accountsLoading}
+                categories={filteredCategories}
+                categoriesLoading={categoriesLoading}
+                showAddAccount={showAddAccount}
+                setShowAddAccount={setShowAddAccount}
+                showAddCategory={showAddCategory}
+                setShowAddCategory={setShowAddCategory}
+                addAccountMutation={addAccountMutation}
+                addCategoryMutation={addCategoryMutation}
+                mutation={mutation}
+                onSuccess={onSuccess}
+                uploadedFiles={uploadedFiles}
+                handleFileUpload={handleFileUpload}
+                removeFile={removeFile}
+              />
+            </TabsContent>
+          </form>
+        </Form>
+      </Tabs>
+    </div>
+  );
+}
+
+interface TransactionFormFieldsProps {
+  form: UseFormReturn<
+    z.infer<typeof TransactionFormSchema>,
+    any,
+    z.infer<typeof TransactionFormSchema>
+  >;
+  type: "INCOME" | "EXPENSE";
+  accounts: Array<{ id: number; name: string; balance: number }>;
+  accountsLoading: boolean;
+  categories: Array<{ id: number; name: string; type: "INCOME" | "EXPENSE" }>;
+  categoriesLoading: boolean;
+  showAddAccount: boolean;
+  setShowAddAccount: (value: boolean) => void;
+  showAddCategory: boolean;
+  setShowAddCategory: (value: boolean) => void;
+  addAccountMutation: UseMutationResult<
+    any,
+    Error,
+    { name: string; initialBalance: number },
+    unknown
+  >;
+  addCategoryMutation: UseMutationResult<
+    any,
+    Error,
+    { name: string; type: "INCOME" | "EXPENSE" },
+    unknown
+  >;
+  mutation: UseMutationResult<any, Error, globalThis.FormData, unknown>;
+  onSuccess?: () => void;
+  uploadedFiles: UploadedFile[];
+  handleFileUpload: (file: UploadedFile) => void;
+  removeFile: (fileId: number) => void;
+}
+
+function TransactionFormFields({
+  form,
+  type,
+  accounts,
+  accountsLoading,
+  categories,
+  categoriesLoading,
+  showAddAccount,
+  setShowAddAccount,
+  showAddCategory,
+  setShowAddCategory,
+  addAccountMutation,
+  addCategoryMutation,
+  mutation,
+  onSuccess,
+  uploadedFiles,
+  handleFileUpload,
+  removeFile,
+}: TransactionFormFieldsProps) {
+  // Quick amount presets based on transaction type
+  const quickAmounts =
+    type === "EXPENSE"
+      ? [10000, 25000, 50000, 100000, 250000, 500000]
+      : [1000000, 2500000, 5000000, 10000000, 25000000, 50000000];
+
+  return (
+    <>
+      <FormField
+        control={form.control}
+        name="amount"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Jumlah</FormLabel>
+            <FormControl>
+              <Input
+                placeholder="0"
+                type="number"
+                step="0.01"
+                {...field}
+                value={field.value || ""}
+                autoFocus
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      {/* Quick Amount Buttons */}
+      <div className="space-y-2">
+        <FormLabel className="text-sm text-muted-foreground">
+          Jumlah Cepat
+        </FormLabel>
+        <div className="grid grid-cols-3 gap-2">
+          {quickAmounts.map((amount) => (
+            <Button
+              key={amount}
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => form.setValue("amount", amount)}
+              className="text-xs"
+            >
+              Rp{(amount / 1000).toFixed(0)}k
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      <FormField
+        control={form.control}
+        name="accountId"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Akun</FormLabel>
+            <div className="flex gap-2">
               <Select
                 onValueChange={(value) => field.onChange(parseInt(value, 10))}
                 value={field.value?.toString() || ""}
                 disabled={accountsLoading}
               >
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger className="flex-1">
                     <SelectValue
                       placeholder={
-                        accountsLoading
-                          ? "Loading accounts..."
-                          : "Select account"
+                        accountsLoading ? "Loading accounts..." : "Pilih akun"
                       }
                     />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {accounts.map((acc: { id: number; name: string }) => (
-                    <SelectItem key={acc.id} value={acc.id.toString()}>
-                      {acc.name}
-                    </SelectItem>
-                  ))}
+                  {accounts.map(
+                    (acc: { id: number; name: string; balance: number }) => (
+                      <SelectItem key={acc.id} value={acc.id.toString()}>
+                        {acc.name} (Rp{acc.balance.toLocaleString("id-ID")})
+                      </SelectItem>
+                    ),
+                  )}
                 </SelectContent>
               </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="categoryId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Category (Optional)</FormLabel>
+              <Dialog open={showAddAccount} onOpenChange={setShowAddAccount}>
+                <DialogTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="shrink-0"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Tambah Akun Baru</DialogTitle>
+                  </DialogHeader>
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const formData = new FormData(e.currentTarget);
+                      const name = formData.get("name") as string;
+                      const initialBalance =
+                        parseFloat(formData.get("initialBalance") as string) ||
+                        0;
+                      addAccountMutation.mutate({ name, initialBalance });
+                    }}
+                    className="space-y-4"
+                  >
+                    <div>
+                      <label
+                        htmlFor="account-name"
+                        className="text-sm font-medium"
+                      >
+                        Nama Akun
+                      </label>
+                      <Input
+                        id="account-name"
+                        name="name"
+                        placeholder="e.g., Bank BCA, Cash"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="account-balance"
+                        className="text-sm font-medium"
+                      >
+                        Saldo Awal
+                      </label>
+                      <Input
+                        id="account-balance"
+                        name="initialBalance"
+                        type="number"
+                        step="0.01"
+                        placeholder="0.00"
+                        defaultValue="0"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        type="submit"
+                        disabled={addAccountMutation.isPending}
+                        className="flex-1"
+                      >
+                        {addAccountMutation.isPending
+                          ? "Membuat..."
+                          : "Buat Akun"}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setShowAddAccount(false)}
+                      >
+                        Batal
+                      </Button>
+                    </div>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="categoryId"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Kategori (Opsional)</FormLabel>
+            <div className="flex gap-2">
               <Select
                 onValueChange={(value) =>
                   field.onChange(value ? parseInt(value, 10) : undefined)
@@ -229,146 +544,231 @@ export default function TransactionForm({
                 disabled={categoriesLoading}
               >
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger className="flex-1">
                     <SelectValue
                       placeholder={
                         categoriesLoading
                           ? "Loading categories..."
-                          : filteredCategories.length === 0
-                            ? `No categories available for ${transactionType.toLowerCase()}`
-                            : "Select category"
+                          : categories.length === 0
+                            ? `Tidak ada kategori untuk ${type === "INCOME" ? "pemasukan" : "pengeluaran"}`
+                            : "Pilih kategori"
                       }
                     />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {filteredCategories.map(
-                    (cat: { id: number; name: string }) => (
-                      <SelectItem key={cat.id} value={cat.id.toString()}>
-                        {cat.name}
-                      </SelectItem>
-                    ),
-                  )}
+                  {categories.map((cat: { id: number; name: string }) => (
+                    <SelectItem key={cat.id} value={cat.id.toString()}>
+                      {cat.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="amount"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Amount</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  step="0.01"
-                  placeholder="Enter positive amount"
-                  {...field}
-                  value={field.value || ""}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    field.onChange(
-                      value === "" ? undefined : parseFloat(value) || 0,
-                    );
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="date"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Date</FormLabel>
-              <FormControl>
-                <Input
-                  type="date"
-                  {...field}
-                  value={(field.value as Date).toISOString().split("T")[0]}
-                  onChange={(e) => field.onChange(new Date(e.target.value))}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button
-          type="submit"
-          disabled={
-            mutation.isPending ||
-            accountsLoading ||
-            categoriesLoading ||
-            accounts.length === 0
-          }
-        >
-          {mutation.isPending ? "Creating..." : "Add Transaction"}
-        </Button>
-
-        {/* File Upload Section */}
-        <div className="space-y-4 pt-4 border-t">
-          <h3 className="text-lg font-semibold flex items-center gap-2">
-            <Receipt className="h-5 w-5" />
-            Receipt Upload (Optional)
-          </h3>
-
-          {uploadedFiles.length > 0 && (
-            <div className="space-y-2">
-              <h4 className="text-sm font-medium">Uploaded Files:</h4>
-              {uploadedFiles.map((file) => (
-                <Card key={file.id} className="p-3">
-                  <CardContent className="p-0">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <Receipt className="h-4 w-4 text-green-500" />
-                        <div>
-                          <p className="text-sm font-medium">
-                            {file.originalName}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {file.fileType}
-                          </p>
-                        </div>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeFile(file.id)}
+              <Dialog open={showAddCategory} onOpenChange={setShowAddCategory}>
+                <DialogTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="shrink-0"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Tambah Kategori Baru</DialogTitle>
+                  </DialogHeader>
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const formData = new FormData(e.currentTarget);
+                      const name = formData.get("name") as string;
+                      addCategoryMutation.mutate({ name, type });
+                    }}
+                    className="space-y-4"
+                  >
+                    <div>
+                      <label
+                        htmlFor="category-name"
+                        className="text-sm font-medium"
                       >
-                        <X className="h-4 w-4" />
+                        Nama Kategori
+                      </label>
+                      <Input
+                        id="category-name"
+                        name="name"
+                        placeholder={`e.g., ${type === "INCOME" ? "Gaji, Bonus" : "Makanan, Transport"}`}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label
+                        htmlFor="category-type"
+                        className="text-sm font-medium"
+                      >
+                        Tipe
+                      </label>
+                      <Select defaultValue={type}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="INCOME">Pemasukan</SelectItem>
+                          <SelectItem value="EXPENSE">Pengeluaran</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        type="submit"
+                        disabled={addCategoryMutation.isPending}
+                        className="flex-1"
+                      >
+                        {addCategoryMutation.isPending
+                          ? "Membuat..."
+                          : "Buat Kategori"}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setShowAddCategory(false)}
+                      >
+                        Batal
                       </Button>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
+                  </form>
+                </DialogContent>
+              </Dialog>
             </div>
-          )}
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
-          <FileUpload
-            onUploadSuccess={handleFileUpload}
-            accept="image/*,.pdf"
-            maxSizeText="Max 5MB (JPEG, PNG, WebP, PDF)"
-          />
-        </div>
-      </form>
-    </Form>
+      <FormField
+        control={form.control}
+        name="date"
+        render={({ field }) => (
+          <FormItem className="flex flex-col">
+            <FormLabel>Tanggal</FormLabel>
+            <Popover>
+              <PopoverTrigger asChild>
+                <FormControl>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full pl-3 text-left font-normal",
+                      !field.value && "text-muted-foreground",
+                    )}
+                  >
+                    {field.value ? (
+                      format(field.value, "PPP", { locale: id })
+                    ) : (
+                      <span>Pilih tanggal</span>
+                    )}
+                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                  </Button>
+                </FormControl>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={field.value}
+                  onSelect={field.onChange}
+                  disabled={(date) =>
+                    date > new Date() || date < new Date("1900-01-01")
+                  }
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="description"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Keterangan (Opsional)</FormLabel>
+            <FormControl>
+              <Textarea
+                placeholder="Tambahkan catatan..."
+                className="resize-none"
+                {...field}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <div className="flex gap-2 pt-4">
+        <Button
+          type="submit"
+          disabled={mutation.isPending || accountsLoading || categoriesLoading}
+          className="flex-1"
+        >
+          {mutation.isPending ? "Menyimpan..." : "Simpan"}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => onSuccess?.()}
+          className="flex-1"
+        >
+          Batal
+        </Button>
+      </div>
+
+      {/* File Upload Section */}
+      <div className="space-y-4 pt-4 border-t">
+        <h3 className="text-lg font-semibold flex items-center gap-2">
+          <Receipt className="h-5 w-5" />
+          Upload Receipt (Opsional)
+        </h3>
+
+        {uploadedFiles.length > 0 && (
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium">File yang Diupload:</h4>
+            {uploadedFiles.map((file) => (
+              <Card key={file.id} className="p-3">
+                <CardContent className="p-0">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <Receipt className="h-4 w-4 text-green-500" />
+                      <div>
+                        <p className="text-sm font-medium">
+                          {file.originalName}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {file.fileType}
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeFile(file.id)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        <FileUpload
+          onUploadSuccess={handleFileUpload}
+          accept="image/*,.pdf"
+          maxSizeText="Max 5MB (JPEG, PNG, WebP, PDF)"
+        />
+      </div>
+    </>
   );
 }
