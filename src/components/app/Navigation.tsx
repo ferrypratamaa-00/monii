@@ -9,6 +9,7 @@ import {
   Menu,
   PiggyBank,
   Settings,
+  Tags,
   Target,
   TrendingUp,
   Wallet,
@@ -31,7 +32,7 @@ const navigation = [
   { name: "nav.dashboard", href: "/dashboard", icon: Home },
   { name: "nav.transactions", href: "/transactions", icon: CreditCard },
   { name: "nav.accounts", href: "/accounts", icon: Wallet },
-  { name: "nav.categories", href: "/categories", icon: BarChart3 },
+  { name: "nav.categories", href: "/categories", icon: Tags },
   { name: "nav.budget", href: "/budget", icon: PiggyBank },
   { name: "nav.reports", href: "/reports", icon: TrendingUp },
   { name: "nav.debts", href: "/debts", icon: DollarSign },
@@ -43,7 +44,7 @@ const mobileNavigation = [
   { name: "nav.dashboard", href: "/dashboard", icon: Home },
   { name: "nav.transactions", href: "/transactions", icon: CreditCard },
   { name: "nav.accounts", href: "/accounts", icon: Wallet },
-  { name: "nav.budget", href: "/budget", icon: PiggyBank },
+  { name: "nav.categories", href: "/categories", icon: BarChart3 },
   { name: "nav.more", href: "/more", icon: Menu },
 ];
 
