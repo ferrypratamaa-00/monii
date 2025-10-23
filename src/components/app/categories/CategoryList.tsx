@@ -73,6 +73,7 @@ export default function CategoryList() {
                 setIsCreateOpen(false);
                 refetch();
               }}
+              onInvalidateCache={refetch}
             />
           </DialogContent>
         </Dialog>
@@ -107,6 +108,7 @@ export default function CategoryList() {
                 setIsCreateOpen(false);
                 refetch();
               }}
+              onInvalidateCache={refetch}
             />
           </DialogContent>
         </Dialog>
@@ -150,6 +152,7 @@ export default function CategoryList() {
                           setEditingCategory(null);
                           refetch();
                         }}
+                        onInvalidateCache={refetch}
                       />
                     </DialogContent>
                   </Dialog>
@@ -203,6 +206,7 @@ export default function CategoryList() {
                           setEditingCategory(null);
                           refetch();
                         }}
+                        onInvalidateCache={refetch}
                       />
                     </DialogContent>
                   </Dialog>

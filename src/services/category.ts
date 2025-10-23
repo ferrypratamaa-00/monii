@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { db } from "@/db";
 import { categories } from "@/db/schema";
 
@@ -40,7 +40,7 @@ export async function updateCategory(
   const [category] = await db
     .update(categories)
     .set(updateData)
-    .where(eq(categories.id, categoryId) && eq(categories.userId, userId))
+    .where(and(eq(categories.id, categoryId), eq(categories.userId, userId)))
     .returning();
   return category;
 }
@@ -48,5 +48,5 @@ export async function updateCategory(
 export async function deleteCategory(userId: number, categoryId: number) {
   await db
     .delete(categories)
-    .where(eq(categories.id, categoryId) && eq(categories.userId, userId));
+    .where(and(eq(categories.id, categoryId), eq(categories.userId, userId)));
 }
