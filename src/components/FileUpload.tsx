@@ -185,6 +185,7 @@ export default function FileUpload({
       if (item.type.indexOf("image") !== -1) {
         const file = item.getAsFile();
         if (file) {
+          // biome-ignore lint/suspicious/noExplicitAny: <>
           handleFileSelect({ target: { files: [file] } } as any);
           break;
         }

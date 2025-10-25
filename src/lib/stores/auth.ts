@@ -48,8 +48,7 @@ export const useAuthStore = create<AuthState>()(
           isLoading: false,
           lastTokenRefresh: null,
         });
-        // Clear server-side session
-        fetch("/api/auth/logout", { method: "POST" }).catch(console.error);
+        // Note: Logout is handled by server action, no need for API call here
       },
 
       refreshToken: async () => {
