@@ -51,7 +51,10 @@ interface CreateBudgetDialogProps {
   onSuccess?: () => void;
 }
 
-export function CreateBudgetDialog({ categories, onSuccess }: CreateBudgetDialogProps) {
+export function CreateBudgetDialog({
+  categories,
+  onSuccess,
+}: CreateBudgetDialogProps) {
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
 

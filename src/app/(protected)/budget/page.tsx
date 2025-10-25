@@ -149,9 +149,14 @@ export default function BudgetPage() {
             <RotateCcw className="h-4 w-4 mr-2" />
             {resetMutation.isPending ? "Resetting..." : "Reset Monthly"}
           </Button>
-          {categories && <CreateBudgetDialog categories={categories} onSuccess={() => {
-            // Optional: could add additional logic here if needed
-          }} />}
+          {categories && (
+            <CreateBudgetDialog
+              categories={categories}
+              onSuccess={() => {
+                // Optional: could add additional logic here if needed
+              }}
+            />
+          )}
         </div>
       </div>
 
@@ -231,9 +236,14 @@ export default function BudgetPage() {
                 membuat budget untuk kategori pengeluaran utama.
               </p>
               <div className="flex justify-center">
-                {categories && <CreateBudgetDialog categories={categories} onSuccess={() => {
-                  // Optional: could add additional logic here if needed
-                }} />}
+                {categories && (
+                  <CreateBudgetDialog
+                    categories={categories}
+                    onSuccess={() => {
+                      // Optional: could add additional logic here if needed
+                    }}
+                  />
+                )}
               </div>
             </Card>
           )}

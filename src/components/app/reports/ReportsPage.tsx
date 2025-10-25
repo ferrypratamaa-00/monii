@@ -26,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 
 export default function ReportsPage() {
@@ -63,10 +64,13 @@ export default function ReportsPage() {
       const endpoint =
         exportFormat === "pdf"
           ? `/api/export/pdf?${params.toString()}`
-          : `/api/export?${params.toString()}`;
+          : `/api/export?type=transactions&${params.toString()}`;
 
       const response = await fetch(endpoint);
-      if (!response.ok) throw new Error("Export failed");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Export failed");
+      }
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
@@ -77,9 +81,16 @@ export default function ReportsPage() {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
+
+      toast.success(
+        `Report exported successfully as ${exportFormat.toUpperCase()}`,
+      );
     } catch (error) {
       console.error("Export error:", error);
-      // TODO: Show error toast
+      toast.error("Failed to export report", {
+        description:
+          error instanceof Error ? error.message : "Unknown error occurred",
+      });
     } finally {
       setIsExporting(false);
     }

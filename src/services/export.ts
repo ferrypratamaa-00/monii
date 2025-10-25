@@ -1,8 +1,8 @@
 import { eq, sql } from "drizzle-orm";
 import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import { db } from "@/db";
 import { budgets, categories, transactions } from "@/db/schema";
-import "jspdf-autotable";
 
 export async function generateTransactionCSV(
   userId: number,
@@ -103,7 +103,7 @@ export async function generateTransactionPDF(
     row.category,
   ]);
 
-  (doc as any).autoTable({
+  autoTable(doc, {
     head: [["Tanggal", "Tipe", "Jumlah", "Deskripsi", "Kategori"]],
     body: tableData,
     startY: 45,

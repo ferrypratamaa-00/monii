@@ -55,7 +55,11 @@ interface EditBudgetDialogProps {
   onSuccess?: () => void;
 }
 
-export function EditBudgetDialog({ budget, trigger, onSuccess }: EditBudgetDialogProps) {
+export function EditBudgetDialog({
+  budget,
+  trigger,
+  onSuccess,
+}: EditBudgetDialogProps) {
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
 
