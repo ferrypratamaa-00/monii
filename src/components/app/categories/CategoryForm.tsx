@@ -1,6 +1,42 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  Banknote,
+  Book,
+  Briefcase,
+  Bus,
+  Camera,
+  Car,
+  Circle,
+  Coffee,
+  CreditCard,
+  DollarSign,
+  Droplets,
+  Dumbbell,
+  Film,
+  Gamepad2,
+  Gift,
+  GraduationCap,
+  Heart,
+  Home,
+  Minus,
+  Music,
+  Phone,
+  PiggyBank,
+  Pill,
+  Plane,
+  Plus,
+  Shirt,
+  ShoppingBag,
+  Stethoscope,
+  TrendingDown,
+  TrendingUp,
+  Utensils,
+  Wifi,
+  Zap,
+} from "lucide-react";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 import {
@@ -25,49 +61,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CategorySchema } from "@/lib/validations/category";
-import { Circle,
-  Home,
-  Car,
-  Utensils,
-  ShoppingBag,
-  DollarSign,
-  Heart,
-  Briefcase,
-  GraduationCap,
-  Gamepad2,
-  Plane,
-  Bus,
-  Wifi,
-  Phone,
-  Zap,
-  Droplets,
-  Shirt,
-  Pill,
-  Stethoscope,
-  Dumbbell,
-  Book,
-  Music,
-  Film,
-  Camera,
-  Coffee,
-  Gift,
-  Banknote,
-  CreditCard,
-  PiggyBank,
-  TrendingUp,
-  TrendingDown,
-  Plus,
-  Minus
-} from "lucide-react";
-
-const renderIcon = (iconName?: string | null) => {
-  if (!iconName) {
-    return <span className="h-4 w-4 flex items-center justify-center text-muted-foreground">•</span>;
-  }
-  const selectedIcon = iconOptions.find((opt) => opt.name === iconName);
-  const IconComponent = selectedIcon?.icon;
-  return IconComponent ? <IconComponent className="h-4 w-4" /> : <span className="h-4 w-4 flex items-center justify-center text-muted-foreground">•</span>;
-};
 
 const iconOptions = [
   { name: "Circle", icon: Circle, label: "Default" },
@@ -105,6 +98,25 @@ const iconOptions = [
   { name: "Minus", icon: Minus, label: "Subtract" },
 ];
 
+const renderIcon = (iconName?: string | null) => {
+  if (!iconName) {
+    return (
+      <span className="h-4 w-4 flex items-center justify-center text-muted-foreground">
+        •
+      </span>
+    );
+  }
+  const selectedIcon = iconOptions.find((opt) => opt.name === iconName);
+  const IconComponent = selectedIcon?.icon;
+  return IconComponent ? (
+    <IconComponent className="h-4 w-4" />
+  ) : (
+    <span className="h-4 w-4 flex items-center justify-center text-muted-foreground">
+      •
+    </span>
+  );
+};
+
 interface CategoryFormProps {
   category?: {
     id: number;
@@ -112,42 +124,119 @@ interface CategoryFormProps {
     type: "INCOME" | "EXPENSE";
     iconName?: string;
   };
+  // support two different parent APIs used in the codebase:
+  // - CategoryManager passes `onCloseModal` (function)
+  // - CategoryList passes `onSuccess` and `onInvalidateCache`
+  // make both optional and call whichever is provided
+  onCloseModal?: () => void;
   onSuccess?: () => void;
   onInvalidateCache?: () => void;
 }
 
 export default function CategoryForm({
   category,
+  onCloseModal,
   onSuccess,
   onInvalidateCache,
 }: CategoryFormProps) {
-  const form = useForm({
+  const queryClient = useQueryClient();
+
+  const form = useForm<z.infer<typeof CategorySchema>>({
     resolver: zodResolver(CategorySchema),
     defaultValues: {
-      name: category?.name || "",
-      type: category?.type || "EXPENSE",
-      iconName: category?.iconName || "Circle",
+      name: category?.name ?? "",
+      type: category?.type ?? "EXPENSE",
+      iconName: category?.iconName ?? "Circle",
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof CategorySchema>) => {
-    const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("type", data.type);
-    if (data.iconName) formData.append("iconName", data.iconName);
+  const createMutation = useMutation({
+    mutationFn: async (data: z.infer<typeof CategorySchema>) => {
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("type", data.type);
+      if (data.iconName) {
+        formData.append("iconName", data.iconName);
+      }
+      const result = await createCategoryAction(formData);
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      // call whichever callback the parent provided
+      try {
+        form.reset();
+        if (typeof onCloseModal === "function") {
+          onCloseModal();
+        } else if (typeof onSuccess === "function") {
+          onSuccess();
+        }
+        if (typeof onInvalidateCache === "function") {
+          onInvalidateCache();
+        }
+      } catch (err) {
+        // swallow errors from callbacks to avoid breaking mutation flow
+        // but log for debugging
+        // eslint-disable-next-line no-console
+        console.warn("CategoryForm: callback threw", err);
+      }
+    },
+    onError: (error) => {
+      alert("Failed to create category: " + error.message);
+    },
+  });
 
-    const result = category
-      ? await updateCategoryAction(category.id, formData)
-      : await createCategoryAction(formData);
+  const updateMutation = useMutation({
+    mutationFn: async (
+      data: z.infer<typeof CategorySchema> & { id: number },
+    ) => {
+      const formData = new FormData();
+      formData.append("categoryId", data.id.toString());
+      formData.append("name", data.name);
+      formData.append("type", data.type);
+      if (data.iconName) {
+        formData.append("iconName", data.iconName);
+      }
+      const result = await updateCategoryAction(formData);
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      try {
+        form.reset();
+        if (typeof onCloseModal === "function") {
+          onCloseModal();
+        } else if (typeof onSuccess === "function") {
+          onSuccess();
+        }
+        if (typeof onInvalidateCache === "function") {
+          onInvalidateCache();
+        }
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.warn("CategoryForm: callback threw", err);
+      }
+    },
+    onError: (error) => {
+      alert("Failed to update category: " + error.message);
+    },
+  });
 
-    if (result.success) {
-      form.reset();
-      onInvalidateCache?.();
-      onSuccess?.();
+  const onSubmit = (data: z.infer<typeof CategorySchema>) => {
+    if (category) {
+      updateMutation.mutate({ ...data, id: category.id });
     } else {
-      console.error(result.error);
+      createMutation.mutate(data);
     }
   };
+
+  const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
   return (
     <Form {...form}>
@@ -165,13 +254,14 @@ export default function CategoryForm({
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="type"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Type</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select type" />
@@ -186,13 +276,14 @@ export default function CategoryForm({
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="iconName"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Icon</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select icon">
@@ -200,7 +291,8 @@ export default function CategoryForm({
                         <div className="flex items-center gap-2">
                           {renderIcon(field.value)}
                           <span>
-                            {iconOptions.find((opt) => opt.name === field.value)?.label || field.value}
+                            {iconOptions.find((opt) => opt.name === field.value)
+                              ?.label || field.value}
                           </span>
                         </div>
                       )}
@@ -222,7 +314,8 @@ export default function CategoryForm({
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={form.formState.isSubmitting}>
+
+        <Button type="submit" disabled={isSubmitting}>
           {category ? "Update Category" : "Create Category"}
         </Button>
       </form>

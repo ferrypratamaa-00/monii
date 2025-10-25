@@ -1,8 +1,9 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
 import * as LucideIcons from "lucide-react";
+import { useState } from "react";
+import { getCategoriesAction } from "@/app/actions/category";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,81 +16,112 @@ import {
 import type { categories } from "@/db/schema";
 import CategoryForm from "./CategoryForm";
 
-const renderIcon = (iconName?: string | null) => {
-  if (!iconName) {
-    return <span className="h-4 w-4 flex items-center justify-center text-muted-foreground">•</span>;
-  }
-  const IconComponent = (LucideIcons as any)[iconName];
-  return IconComponent ? <IconComponent className="h-4 w-4" /> : <span className="h-4 w-4 flex items-center justify-center text-muted-foreground">•</span>;
-};
-
 type Category = typeof categories.$inferSelect;
+
+const SafeDot = () => (
+  <span className="h-4 w-4 flex items-center justify-center text-muted-foreground">
+    •
+  </span>
+);
+
+const renderIcon = (iconName?: string | null) => {
+  if (!iconName) return <SafeDot />;
+  const IconComponent = (LucideIcons as Record<string, any>)[iconName];
+  return IconComponent ? <IconComponent className="h-4 w-4" /> : <SafeDot />;
+};
 
 export function CategoryManager() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-
   const queryClient = useQueryClient();
 
-  const { data: categories, isLoading } = useQuery({
+  const {
+    data: categories,
+    isLoading,
+    isFetching,
+    error,
+  } = useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
-      const response = await fetch("/api/categories");
-      if (!response.ok) throw new Error("Failed to fetch categories");
-      return response.json();
+      const result = await getCategoriesAction();
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      return result.categories as Category[];
     },
+    // staleTime: 0, // boleh 0
+    // gcTime: 0,    // ❌ jangan 0; biarkan default agar cache tidak langsung dibuang
+    refetchOnWindowFocus: false,
   });
 
-  const handleAdd = () => {
+  const openAdd = () => {
     setEditingCategory(null);
     setIsModalOpen(true);
   };
 
-  const handleEdit = (category: Category) => {
+  const openEdit = (category: Category) => {
     setEditingCategory(category);
     setIsModalOpen(true);
   };
 
-  const handleModalClose = () => {
+  const closeModalHard = () => {
     setIsModalOpen(false);
     setEditingCategory(null);
   };
 
   if (isLoading) return <div>Loading...</div>;
+  if (error) return <div className="text-red-500">Gagal memuat kategori.</div>;
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Kategori</h2>
-        <Button onClick={handleAdd}>Tambah Kategori</Button>
+        <div className="flex items-center gap-2">
+          {isFetching ? (
+            <span className="text-sm text-muted-foreground">Sync…</span>
+          ) : null}
+          <Button onClick={openAdd}>Tambah Kategori</Button>
+        </div>
       </div>
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {editingCategory ? "Edit Kategori" : "Tambah Kategori"}
-            </DialogTitle>
-          </DialogHeader>
-          <CategoryForm
-            category={
-              editingCategory
-                ? {
-                    id: editingCategory.id,
-                    name: editingCategory.name,
-                    type: editingCategory.type,
-                    iconName: editingCategory.iconName || undefined,
-                  }
-                : undefined
-            }
-            onSuccess={() => {
-              handleModalClose();
-            }}
-            onInvalidateCache={() => {
-              queryClient.invalidateQueries({ queryKey: ["categories"] });
-            }}
-          />
-        </DialogContent>
+
+      <Dialog
+        open={isModalOpen}
+        onOpenChange={(open) => {
+          setIsModalOpen(open);
+          if (!open) setEditingCategory(null);
+        }}
+      >
+        {/* Render content HANYA saat open agar child benar2 unmount saat close */}
+        {isModalOpen && (
+          <DialogContent
+          // Kalau masih ada masalah fokus, bisa aktifkan ini:
+          // onOpenAutoFocus={(e) => e.preventDefault()}
+          // onCloseAutoFocus={(e) => e.preventDefault()}
+          >
+            <DialogHeader>
+              <DialogTitle>
+                {editingCategory ? "Edit Kategori" : "Tambah Kategori"}
+              </DialogTitle>
+            </DialogHeader>
+
+            <CategoryForm
+              key={editingCategory?.id ?? "new"} // force remount tiap buka
+              category={
+                editingCategory
+                  ? {
+                      id: editingCategory.id,
+                      name: editingCategory.name,
+                      type: editingCategory.type,
+                      iconName: editingCategory.iconName || undefined,
+                    }
+                  : undefined
+              }
+              onCloseModal={closeModalHard}
+            />
+          </DialogContent>
+        )}
       </Dialog>
+
       <div className="grid gap-4">
         {categories?.map((category: Category) => (
           <Card key={category.id}>
@@ -110,7 +142,7 @@ export function CategoryManager() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handleEdit(category)}
+                    onClick={() => openEdit(category)}
                   >
                     Edit
                   </Button>

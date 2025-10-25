@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import * as LucideIcons from "lucide-react";
 import { Edit, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { deleteCategoryAction } from "@/app/actions/category";
@@ -14,6 +15,22 @@ import {
 } from "@/components/ui/dialog";
 import CategoryForm from "./CategoryForm";
 
+const renderIcon = (iconName?: string | null) => {
+  if (!iconName) {
+    return (
+      <span className="h-4 w-4 flex items-center justify-center text-muted-foreground">
+        •
+      </span>
+    );
+  }
+  const IconComponent = (LucideIcons as any)[iconName];
+  return IconComponent ? (
+    <IconComponent className="h-4 w-4" />
+  ) : (
+    <span className="h-4 w-4 flex items-center justify-center text-muted-foreground" />
+  );
+};
+
 interface Category {
   id: number;
   name: string;
@@ -24,6 +41,7 @@ interface Category {
 export default function CategoryList() {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   const {
     data: categories,
@@ -127,17 +145,20 @@ export default function CategoryList() {
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                    <span className="text-sm">{category.iconName || "📈"}</span>
+                    {renderIcon(category.iconName)}
                   </div>
                   <span className="font-medium">{category.name}</span>
                 </div>
                 <div className="flex gap-2">
-                  <Dialog>
+                  <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
                     <DialogTrigger asChild>
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setEditingCategory(category)}
+                        onClick={() => {
+                          setEditingCategory(category);
+                          setIsEditOpen(true);
+                        }}
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -150,6 +171,7 @@ export default function CategoryList() {
                         category={editingCategory || undefined}
                         onSuccess={() => {
                           setEditingCategory(null);
+                          setIsEditOpen(false);
                           refetch();
                         }}
                         onInvalidateCache={refetch}
@@ -181,17 +203,20 @@ export default function CategoryList() {
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                    <span className="text-sm">{category.iconName || "📉"}</span>
+                    {renderIcon(category.iconName)}
                   </div>
                   <span className="font-medium">{category.name}</span>
                 </div>
                 <div className="flex gap-2">
-                  <Dialog>
+                  <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
                     <DialogTrigger asChild>
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setEditingCategory(category)}
+                        onClick={() => {
+                          setEditingCategory(category);
+                          setIsEditOpen(true);
+                        }}
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -204,6 +229,7 @@ export default function CategoryList() {
                         category={editingCategory || undefined}
                         onSuccess={() => {
                           setEditingCategory(null);
+                          setIsEditOpen(false);
                           refetch();
                         }}
                         onInvalidateCache={refetch}
