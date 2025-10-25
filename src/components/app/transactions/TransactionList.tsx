@@ -75,18 +75,15 @@ export default function TransactionList() {
     [],
   );
 
+  const hasActiveFilters = Object.values(filters).some(
+    (value) => value !== undefined && value !== "" && value !== null,
+  );
+
   const { data: result, isLoading } = useQuery({
-    queryKey: ["transactions", filters, page],
+    queryKey: hasActiveFilters
+      ? ["transactions", "filtered", filters, page]
+      : ["transactions", "all", page],
     queryFn: async () => {
-      const params = new URLSearchParams({
-        page: page.toString(),
-        limit: limit.toString(),
-      });
-
-      const hasActiveFilters = Object.values(filters).some(
-        (value) => value !== undefined && value !== "" && value !== null,
-      );
-
       if (hasActiveFilters) {
         // Use filtered transactions API
         const response = await fetch("/api/transactions/search", {
@@ -99,6 +96,10 @@ export default function TransactionList() {
         return response.json();
       } else {
         // Use regular API for all transactions
+        const params = new URLSearchParams({
+          page: page.toString(),
+          limit: limit.toString(),
+        });
         const response = await fetch(`/api/transactions?${params}`);
         if (!response.ok) throw new Error("Failed to fetch transactions");
         return response.json();
@@ -154,51 +155,6 @@ export default function TransactionList() {
     },
   });
 
-  if (isLoading) {
-    return (
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <div className="h-8 bg-gray-200 rounded w-48 animate-pulse"></div>
-          <div className="h-10 bg-gray-200 rounded w-32 animate-pulse"></div>
-        </div>
-        <div className="h-16 bg-gray-200 rounded animate-pulse"></div>
-        <div className="space-y-2">
-          {[...Array(5)].map((_, i) => {
-            let idx = i;
-            return (
-              <div
-                key={idx++}
-                className="h-16 bg-gray-200 rounded animate-pulse"
-              ></div>
-            );
-          })}
-        </div>
-      </div>
-    );
-  }
-
-  if (!transactions || transactions.length === 0) {
-    const hasActiveFilters = Object.values(filters).some(
-      (value) => value !== undefined && value !== "" && value !== null,
-    );
-
-    return (
-      <div className="text-center py-8">
-        <p className="text-muted-foreground mb-4">
-          {hasActiveFilters
-            ? "Tidak ada transaksi yang sesuai dengan kriteria pencarian Anda"
-            : "Belum ada transaksi"}
-        </p>
-        {hasActiveFilters && (
-          <p className="text-sm text-muted-foreground mb-4">
-            Coba ubah filter atau hapus beberapa kriteria pencarian
-          </p>
-        )}
-        <TransactionModal />
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -214,100 +170,128 @@ export default function TransactionList() {
         accounts={accounts}
       />
 
-      <div
-        className="space-y-2"
-        role="list"
-        aria-labelledby="transactions-heading"
-      >
-        {transactions.map((transaction: Transaction) => (
-          <div key={transaction.id}>
-            {/* Mobile: Swipeable Item */}
-            <div className="md:hidden">
-              <SwipeableTransactionItem
-                transaction={transaction}
-                onDelete={handleDeleteTransaction}
-              />
-            </div>
-
-            {/* Desktop: Regular Item */}
-            <div className="hidden md:block">
-              <div
-                className="flex items-center justify-between p-4 border rounded-lg hover:bg-primary/5 focus-within:ring-2 focus-within:ring-primary focus-within:ring-inset"
-                role="listitem"
-                tabIndex={0}
-                aria-label={`Transaction: ${transaction.description}, ${transaction.type === "INCOME" ? "Income" : "Expense"} of ${parseFloat(transaction.amount).toLocaleString("id-ID")} rupiah`}
-              >
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`px-2 py-1 text-xs rounded ${
-                        transaction.type === "INCOME"
-                          ? "bg-income/20 text-income"
-                          : "bg-expense/20 text-expense"
-                      }`}
-                      aria-label={`Transaction type: ${transaction.type === "INCOME" ? "Income" : "Expense"}`}
-                    >
-                      {transaction.type}
-                    </span>
-                    <span className="font-medium">
-                      {transaction.description}
-                    </span>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {transaction.account.name}
-                    {transaction.category && ` • ${transaction.category.name}`}
-                    {" • "}
-                    {format(new Date(transaction.date), "MMM dd, yyyy")}
-                  </div>
-                </div>
+      {isLoading ? (
+        <div className="space-y-4">
+          <div className="h-16 bg-gray-200 rounded animate-pulse"></div>
+          <div className="space-y-2">
+            {[...Array(5)].map((_, i) => {
+              let idx = i;
+              return (
                 <div
-                  className={`font-semibold ${
-                    transaction.type === "INCOME"
-                      ? "text-income"
-                      : "text-expense"
-                  }`}
-                  aria-label={`Amount: ${transaction.type === "INCOME" ? "plus" : "minus"} ${parseFloat(transaction.amount).toLocaleString("id-ID")} rupiah`}
-                >
-                  {transaction.type === "INCOME" ? "+" : "-"}Rp{" "}
-                  {parseFloat(transaction.amount).toLocaleString("id-ID")}
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Pagination */}
-      {pagination && pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between mt-6">
-          <div className="text-sm text-muted-foreground">
-            Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
-            {Math.min(pagination.page * pagination.limit, pagination.total)} of{" "}
-            {pagination.total} transactions
-          </div>
-          <div className="flex items-center space-x-2">
-            <button
-              type="button"
-              onClick={() => setPage(Math.max(1, page - 1))}
-              disabled={page === 1}
-              className="px-3 py-1 text-sm border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/10"
-            >
-              Previous
-            </button>
-            <span className="text-sm">
-              Page {pagination.page} of {pagination.totalPages}
-            </span>
-            <button
-              type="button"
-              onClick={() => setPage(Math.min(pagination.totalPages, page + 1))}
-              disabled={page === pagination.totalPages}
-              className="px-3 py-1 text-sm border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/10"
-            >
-              Next
-            </button>
+                  key={idx++}
+                  className="h-16 bg-gray-200 rounded animate-pulse"
+                ></div>
+              );
+            })}
           </div>
         </div>
+      ) : transactions && transactions.length > 0 ? (
+        <>
+          <div
+            className="space-y-2"
+            role="list"
+            aria-labelledby="transactions-heading"
+          >
+            {transactions.map((transaction: Transaction) => (
+              <div key={transaction.id}>
+                {/* Mobile: Swipeable Item */}
+                <div className="md:hidden">
+                  <SwipeableTransactionItem
+                    transaction={transaction}
+                    onDelete={handleDeleteTransaction}
+                  />
+                </div>
+
+                {/* Desktop: Regular Item */}
+                <div className="hidden md:block">
+                  <div
+                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-primary/5 focus-within:ring-2 focus-within:ring-primary focus-within:ring-inset"
+                    role="listitem"
+                    tabIndex={0}
+                    aria-label={`Transaction: ${transaction.description}, ${transaction.type === "INCOME" ? "Income" : "Expense"} of ${parseFloat(transaction.amount).toLocaleString("id-ID")} rupiah`}
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`px-2 py-1 text-xs rounded ${
+                            transaction.type === "INCOME"
+                              ? "bg-income/20 text-income"
+                              : "bg-expense/20 text-expense"
+                          }`}
+                          aria-label={`Transaction type: ${transaction.type === "INCOME" ? "Income" : "Expense"}`}
+                        >
+                          {transaction.type}
+                        </span>
+                        <span className="font-medium">
+                          {transaction.description}
+                        </span>
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {transaction.account.name}
+                        {transaction.category && ` • ${transaction.category.name}`}
+                        {" • "}
+                        {format(new Date(transaction.date), "MMM dd, yyyy")}
+                      </div>
+                    </div>
+                    <div
+                      className={`font-semibold ${
+                        transaction.type === "INCOME"
+                          ? "text-income"
+                          : "text-expense"
+                      }`}
+                      aria-label={`Amount: ${transaction.type === "INCOME" ? "plus" : "minus"} ${parseFloat(transaction.amount).toLocaleString("id-ID")} rupiah`}
+                    >
+                      {transaction.type === "INCOME" ? "+" : "-"}Rp{" "}
+                      {parseFloat(transaction.amount).toLocaleString("id-ID")}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {pagination && pagination.totalPages > 1 && (
+            <div className="flex items-center justify-between mt-6">
+              <div className="text-sm text-muted-foreground">
+                Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
+                {Math.min(pagination.page * pagination.limit, pagination.total)} of{" "}
+                {pagination.total} transactions
+              </div>
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  onClick={() => setPage(Math.max(1, page - 1))}
+                  disabled={page === 1}
+                  className="px-3 py-1 text-sm border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/10"
+                >
+                  Previous
+                </button>
+                <span className="text-sm">
+                  Page {pagination.page} of {pagination.totalPages}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setPage(Math.min(pagination.totalPages, page + 1))}
+                  disabled={page === pagination.totalPages}
+                  className="px-3 py-1 text-sm border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/10"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="text-center py-8">
+          <p className="text-muted-foreground mb-4">
+            {hasActiveFilters
+              ? "Tidak ada transaksi yang sesuai dengan kriteria pencarian Anda"
+              : "Belum ada transaksi"}
+          </p>
+        </div>
       )}
+
       {dialog}
     </div>
   );
