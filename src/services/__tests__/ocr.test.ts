@@ -24,8 +24,8 @@ global.fetch = vi.fn();
 describe("OCRService", () => {
   beforeEach(() => {
     // Reset worker state
-    OCRService["worker"] = null;
-    OCRService["isInitialized"] = false;
+    OCRService.worker = null;
+    OCRService.isInitialized = false;
 
     // Mock fetch for blob conversion
     (global.fetch as any).mockResolvedValue({
@@ -62,7 +62,7 @@ describe("OCRService", () => {
       expect(result.data).toBeDefined();
       // biome-ignore lint/style/noNonNullAssertion: <>
       expect(result.data!.length).toBeGreaterThan(0);
-      expect(result.data![0].text).toContain("INDOMARET");
+      expect(result.data?.[0].text).toContain("INDOMARET");
     });
 
     it("should handle OCR failure and fallback to mock", async () => {
@@ -81,7 +81,7 @@ describe("OCRService", () => {
       // Should fallback to mock service
       expect(result.success).toBe(true);
       expect(result.data).toBeDefined();
-      expect(result.data!.some((item) => item.text.includes("INDOMARET"))).toBe(
+      expect(result.data?.some((item) => item.text.includes("INDOMARET"))).toBe(
         true,
       );
     });
@@ -147,13 +147,13 @@ describe("OCRService", () => {
       mockCreateWorker.mockResolvedValue(mockWorker);
 
       // Get worker to initialize it
-      await OCRService["getWorker"]();
+      await OCRService.getWorker();
 
       // Cleanup
       await OCRService.cleanup();
 
-      expect(OCRService["worker"]).toBeNull();
-      expect(OCRService["isInitialized"]).toBe(false);
+      expect(OCRService.worker).toBeNull();
+      expect(OCRService.isInitialized).toBe(false);
     });
   });
 });

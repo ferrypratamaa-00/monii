@@ -4,10 +4,10 @@ import { ArrowLeft, LogOut, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { logoutAction } from "@/app/actions/auth";
-import { useAuthStore } from "@/lib/stores/auth";
+import { useLanguage } from "@/components/LanguageProvider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useLanguage } from "@/components/LanguageProvider";
+import { useAuthStore } from "@/lib/stores/auth";
 
 export default function AccountSettingsPage() {
   const router = useRouter();
@@ -66,15 +66,21 @@ export default function AccountSettingsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Email</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Email
+                </p>
                 <p className="text-sm">user@example.com</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Member since</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Member since
+                </p>
                 <p className="text-sm">January 2024</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Account status</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Account status
+                </p>
                 <p className="text-sm text-green-600">Active</p>
               </div>
             </CardContent>

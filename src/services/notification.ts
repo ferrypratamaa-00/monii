@@ -63,7 +63,7 @@ export async function createNotification(
 
 async function sendBudgetAlertEmail(
   userId: number,
-  title: string,
+  _title: string,
   message: string,
 ) {
   try {

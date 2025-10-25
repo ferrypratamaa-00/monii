@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import * as LucideIcons from "lucide-react";
 import { useState } from "react";
 import { getCategoriesAction } from "@/app/actions/category";

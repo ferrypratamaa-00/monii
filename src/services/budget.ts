@@ -1,6 +1,6 @@
 import { and, eq, gte, lt, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { budgets, categories, transactions } from "@/db/schema";
+import { budgets, transactions } from "@/db/schema";
 
 export type BudgetInput = {
   categoryId: number;

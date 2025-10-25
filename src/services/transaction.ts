@@ -1,4 +1,4 @@
-import { and, eq, gte, like, lte, sql } from "drizzle-orm";
+import { and, eq, gte, lte, sql } from "drizzle-orm";
 import type { z } from "zod";
 import { db } from "@/db";
 import { accounts, transactions } from "@/db/schema";

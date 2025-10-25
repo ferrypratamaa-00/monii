@@ -2,8 +2,8 @@
 
 import { ArrowLeft, Globe } from "lucide-react";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function LanguageSettingsPage() {
   return (

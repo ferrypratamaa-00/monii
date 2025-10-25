@@ -15,7 +15,7 @@ import {
   Wallet,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname,  } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { KeyboardShortcutsHelp } from "@/components/KeyboardShortcutsHelp";

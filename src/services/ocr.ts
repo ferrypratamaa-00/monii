@@ -138,7 +138,7 @@ export class OCRService {
         return await OCRService.mockOCRCall(
           imageData.replace(/^data:image\/[a-z]+;base64,/, ""),
         );
-      } catch (mockError) {
+      } catch (_mockError) {
         return {
           success: false,
           error: `OCR failed: ${error instanceof Error ? error.message : "Unknown error"}`,

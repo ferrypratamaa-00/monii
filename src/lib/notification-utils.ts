@@ -44,8 +44,6 @@ export function playNotificationSound(
           audioContext.currentTime + 0.2,
         );
         break;
-      case "warning":
-      case "TRANSACTION_ALERT": // Transaction alerts are neutral warnings
       default:
         oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
         oscillator.frequency.exponentialRampToValueAtTime(

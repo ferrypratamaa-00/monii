@@ -74,4 +74,5 @@ export default withPWA({
   register: true,
   skipWaiting: true,
   disable: process.env.NODE_ENV === "development",
+  // biome-ignore lint/suspicious/noExplicitAny: <>
 })(nextConfig as any);

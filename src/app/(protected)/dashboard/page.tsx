@@ -8,6 +8,7 @@ import {
   getMonthlyTrendData,
   getTotalBalance,
 } from "@/services/dashboard";
+import { indexedDBService } from "@/services/indexedDB";
 import { localStorageService } from "@/services/localStorage";
 import DashboardClient from "./DashboardClient";
 
@@ -67,11 +68,23 @@ export default async function DashboardPage() {
       name: user.name ?? undefined,
       email: user.email || "",
     });
+    await indexedDBService.saveUserData({
+      id: userId,
+      name: user.name ?? undefined,
+      email: user.email || "",
+    });
   }
 
   if (allCategories.length > 0) {
+    const transformedCategories = allCategories.map((cat) => ({
+      ...cat,
+      iconName: cat.iconName || undefined,
+    }));
     localStorageService.saveCategoriesData({
-      categories: allCategories,
+      categories: transformedCategories,
+    });
+    await indexedDBService.saveCategoriesData({
+      categories: transformedCategories,
     });
   }
 
@@ -81,6 +94,19 @@ export default async function DashboardPage() {
         ...account,
         balance: parseFloat(account.balance),
       })),
+    });
+    await indexedDBService.saveAccountsData({
+      accounts: allAccounts.map((account) => ({
+        ...account,
+        balance: parseFloat(account.balance),
+      })),
+    });
+  }
+
+  if (totalBalance !== undefined && monthlySummary) {
+    await indexedDBService.saveDashboardData({
+      totalBalance,
+      monthlySummary,
     });
   }
 

@@ -9,8 +9,8 @@ import type {
   CachedCategoriesData,
   CachedDashboardData,
   CachedUserData,
-} from "@/services/localStorage";
-import { localStorageService } from "@/services/localStorage";
+} from "@/services/indexedDB";
+import { indexedDBService } from "@/services/indexedDB";
 
 interface OfflineDashboardProps {
   userName?: string | null;
@@ -32,12 +32,28 @@ export default function OfflineDashboard({ userName }: OfflineDashboardProps) {
 
   useEffect(() => {
     // Load cached data on component mount
-    setCachedData({
-      userData: localStorageService.getUserData(),
-      dashboardData: localStorageService.getDashboardData(),
-      categoriesData: localStorageService.getCategoriesData(),
-      accountsData: localStorageService.getAccountsData(),
-    });
+    const loadCachedData = async () => {
+      try {
+        const [userData, dashboardData, categoriesData, accountsData] =
+          await Promise.all([
+            indexedDBService.getUserData(),
+            indexedDBService.getDashboardData(),
+            indexedDBService.getCategoriesData(),
+            indexedDBService.getAccountsData(),
+          ]);
+
+        setCachedData({
+          userData,
+          dashboardData,
+          categoriesData,
+          accountsData,
+        });
+      } catch (error) {
+        console.warn("Failed to load cached data:", error);
+      }
+    };
+
+    loadCachedData();
   }, []);
 
   const { dashboardData, categoriesData, accountsData } = cachedData;

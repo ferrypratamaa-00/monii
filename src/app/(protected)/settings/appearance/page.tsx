@@ -2,9 +2,9 @@
 
 import { ArrowLeft, Palette } from "lucide-react";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ThemeSelector from "@/components/ThemeSelector";
 import ThemeSwitcher from "@/components/ThemeSwitcher";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function AppearanceSettingsPage() {
   return (

@@ -3,6 +3,8 @@
  * Handles synchronization of offline data when back online
  */
 
+import { indexedDBService } from "./indexedDB";
+
 interface PendingTransaction {
   id: string;
   type: "create_transaction" | "update_transaction" | "delete_transaction";
@@ -12,7 +14,6 @@ interface PendingTransaction {
 }
 
 class SyncService {
-  private readonly PENDING_TRANSACTIONS_KEY = "monii_pending_transactions";
   private readonly MAX_RETRY_COUNT = 3;
   private isOnline = navigator.onLine;
 
@@ -58,64 +59,6 @@ class SyncService {
     }
   }
 
-  // Add pending transaction to queue
-  addPendingTransaction(
-    type: PendingTransaction["type"],
-    data: Record<string, unknown>,
-  ): string {
-    const transaction: PendingTransaction = {
-      id: `pending_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      type,
-      data,
-      timestamp: new Date().toISOString(),
-      retryCount: 0,
-    };
-
-    const pending = this.getPendingTransactions();
-    pending.push(transaction);
-    localStorage.setItem(
-      this.PENDING_TRANSACTIONS_KEY,
-      JSON.stringify(pending),
-    );
-
-    console.log("Added pending transaction:", transaction.id);
-    return transaction.id;
-  }
-
-  // Get all pending transactions
-  private getPendingTransactions(): PendingTransaction[] {
-    try {
-      const data = localStorage.getItem(this.PENDING_TRANSACTIONS_KEY);
-      return data ? JSON.parse(data) : [];
-    } catch (error) {
-      console.warn("Failed to get pending transactions:", error);
-      return [];
-    }
-  }
-
-  // Remove completed transaction
-  private removePendingTransaction(id: string) {
-    const pending = this.getPendingTransactions();
-    const filtered = pending.filter((t) => t.id !== id);
-    localStorage.setItem(
-      this.PENDING_TRANSACTIONS_KEY,
-      JSON.stringify(filtered),
-    );
-  }
-
-  // Update retry count
-  private updateRetryCount(id: string) {
-    const pending = this.getPendingTransactions();
-    const transaction = pending.find((t) => t.id === id);
-    if (transaction) {
-      transaction.retryCount++;
-      localStorage.setItem(
-        this.PENDING_TRANSACTIONS_KEY,
-        JSON.stringify(pending),
-      );
-    }
-  }
-
   // Sync pending data
   async syncPendingData(): Promise<void> {
     if (!this.isOnline) {
@@ -123,7 +66,7 @@ class SyncService {
       return;
     }
 
-    const pending = this.getPendingTransactions();
+    const pending = await indexedDBService.getPendingOperations();
     if (pending.length === 0) {
       console.log("No pending transactions to sync");
       return;
@@ -133,38 +76,40 @@ class SyncService {
 
     for (const transaction of pending) {
       try {
-        await this.processTransaction(transaction);
-        this.removePendingTransaction(transaction.id);
+        await this.processPendingOperation(transaction);
+        await indexedDBService.removePendingOperation(transaction.id);
         console.log("Successfully synced transaction:", transaction.id);
       } catch (error) {
         console.warn("Failed to sync transaction:", transaction.id, error);
 
         // Increment retry count
-        this.updateRetryCount(transaction.id);
+        const newRetryCount = transaction.retryCount + 1;
+        await indexedDBService.updatePendingOperationRetryCount(
+          transaction.id,
+          newRetryCount,
+        );
 
         // Remove if max retries exceeded
-        if (transaction.retryCount >= this.MAX_RETRY_COUNT) {
+        if (newRetryCount >= this.MAX_RETRY_COUNT) {
           console.warn(
             "Max retries exceeded, removing transaction:",
             transaction.id,
           );
-          this.removePendingTransaction(transaction.id);
+          await indexedDBService.removePendingOperation(transaction.id);
         }
       }
     }
   }
 
-  // Process individual transaction
-  private async processTransaction(
-    transaction: PendingTransaction,
-  ): Promise<void> {
-    switch (transaction.type) {
+  // Process individual pending operation
+  async processPendingOperation(operation: PendingTransaction): Promise<void> {
+    switch (operation.type) {
       case "create_transaction": {
         // Call transaction creation API
         const response = await fetch("/api/transactions", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(transaction.data),
+          body: JSON.stringify(operation.data),
         });
 
         if (!response.ok) {
@@ -176,11 +121,11 @@ class SyncService {
       case "update_transaction": {
         // Call transaction update API
         const updateResponse = await fetch(
-          `/api/transactions/${transaction.data.id}`,
+          `/api/transactions/${operation.data.id}`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(transaction.data),
+            body: JSON.stringify(operation.data),
           },
         );
 
@@ -195,7 +140,7 @@ class SyncService {
       case "delete_transaction": {
         // Call transaction delete API
         const deleteResponse = await fetch(
-          `/api/transactions/${transaction.data.id}`,
+          `/api/transactions/${operation.data.id}`,
           {
             method: "DELETE",
           },
@@ -210,18 +155,18 @@ class SyncService {
       }
 
       default:
-        throw new Error(`Unknown transaction type: ${transaction.type}`);
+        throw new Error(`Unknown transaction type: ${operation.type}`);
     }
   }
 
   // Get sync status
-  getSyncStatus(): {
+  async getSyncStatus(): Promise<{
     isOnline: boolean;
     pendingCount: number;
     lastSyncTime: string | null;
     hasConflicts: boolean;
-  } {
-    const pending = this.getPendingTransactions();
+  }> {
+    const pending = await indexedDBService.getPendingOperations();
     const lastTransaction = pending.sort(
       (a, b) =>
         new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
@@ -244,9 +189,40 @@ class SyncService {
   }
 
   // Clear all pending transactions (for testing/debugging)
-  clearPendingTransactions(): void {
-    localStorage.removeItem(this.PENDING_TRANSACTIONS_KEY);
+  async clearPendingTransactions(): Promise<void> {
+    const pending = await indexedDBService.getPendingOperations();
+    for (const operation of pending) {
+      await indexedDBService.removePendingOperation(operation.id);
+    }
     console.log("Cleared all pending transactions");
+  }
+
+  // Add pending transaction (for backward compatibility)
+  async addPendingTransaction(
+    type: PendingTransaction["type"],
+    data: Record<string, unknown>,
+  ): Promise<string> {
+    const transaction: PendingTransaction = {
+      id: `pending_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      type,
+      data,
+      timestamp: new Date().toISOString(),
+      retryCount: 0,
+    };
+
+    await indexedDBService.addPendingOperation(transaction);
+    console.log("Added pending transaction:", transaction.id);
+    return transaction.id;
+  }
+
+  // Get pending transactions (for backward compatibility)
+  async getPendingTransactions(): Promise<PendingTransaction[]> {
+    return await indexedDBService.getPendingOperations();
+  }
+
+  // Remove pending transaction (for backward compatibility)
+  async removePendingTransaction(id: string): Promise<void> {
+    await indexedDBService.removePendingOperation(id);
   }
 }
 
