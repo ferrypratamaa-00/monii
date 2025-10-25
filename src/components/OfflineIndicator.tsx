@@ -91,14 +91,12 @@ export default function OfflineIndicator() {
             </div>
           )}
 
-          {syncStatus &&
-            syncStatus.pendingCount &&
-            syncStatus.pendingCount > 0 && (
-              <div className="mt-1 flex items-center gap-1 text-xs">
-                <RefreshCw className="w-3 h-3" />
-                <span>{syncStatus.pendingCount} perubahan menunggu sync</span>
-              </div>
-            )}
+          {syncStatus?.pendingCount && syncStatus.pendingCount > 0 && (
+            <div className="mt-1 flex items-center gap-1 text-xs">
+              <RefreshCw className="w-3 h-3" />
+              <span>{syncStatus.pendingCount} perubahan menunggu sync</span>
+            </div>
+          )}
         </div>
       </div>
     </div>
