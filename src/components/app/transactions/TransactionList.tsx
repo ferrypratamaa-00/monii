@@ -6,7 +6,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import type { z } from "zod";
 import { useConfirmDialog } from "@/components/ui/confirm-dialog";
 import { toast } from "@/lib/toast";
@@ -62,10 +62,18 @@ interface Transaction {
 }
 
 export default function TransactionList() {
-  const [filters, setFilters] = useState<SearchFilters | null>(null);
+  const [filters, setFilters] = useState<Partial<SearchFilters>>({});
   const [page, setPage] = useState(1);
   const limit = 50;
   const { confirm, dialog } = useConfirmDialog();
+
+  const handleFiltersChange = useCallback(
+    (newFilters: Partial<SearchFilters>) => {
+      setFilters(newFilters);
+      setPage(1); // Reset to first page when filters change
+    },
+    [],
+  );
 
   const { data: result, isLoading } = useQuery({
     queryKey: ["transactions", filters, page],
@@ -75,7 +83,11 @@ export default function TransactionList() {
         limit: limit.toString(),
       });
 
-      if (filters && Object.keys(filters).length > 0) {
+      const hasActiveFilters = Object.values(filters).some(
+        (value) => value !== undefined && value !== "" && value !== null,
+      );
+
+      if (hasActiveFilters) {
         // Use filtered transactions API
         const response = await fetch("/api/transactions/search", {
           method: "POST",
@@ -166,9 +178,22 @@ export default function TransactionList() {
   }
 
   if (!transactions || transactions.length === 0) {
+    const hasActiveFilters = Object.values(filters).some(
+      (value) => value !== undefined && value !== "" && value !== null,
+    );
+
     return (
       <div className="text-center py-8">
-        <p className="text-muted-foreground mb-4">No transactions yet</p>
+        <p className="text-muted-foreground mb-4">
+          {hasActiveFilters
+            ? "Tidak ada transaksi yang sesuai dengan kriteria pencarian Anda"
+            : "Belum ada transaksi"}
+        </p>
+        {hasActiveFilters && (
+          <p className="text-sm text-muted-foreground mb-4">
+            Coba ubah filter atau hapus beberapa kriteria pencarian
+          </p>
+        )}
         <TransactionModal />
       </div>
     );
@@ -184,10 +209,7 @@ export default function TransactionList() {
       </div>
 
       <AdvancedSearchForm
-        onFiltersChange={(newFilters) => {
-          setFilters(newFilters);
-          setPage(1); // Reset to first page when filters change
-        }}
+        onFiltersChange={handleFiltersChange}
         categories={categories}
         accounts={accounts}
       />

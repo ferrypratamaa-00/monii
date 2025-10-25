@@ -1,7 +1,7 @@
 "use client";
 import { format } from "date-fns";
 import { Filter, Search, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -47,10 +47,51 @@ export default function AdvancedSearchForm({
     type: undefined,
   });
 
+  const lastSentFiltersRef = useRef<Partial<SearchFilters> | null>(null);
+
+  // Clear invalid filters when data changes
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <>
+  useEffect(() => {
+    const newFilters = { ...filters };
+    let hasChanges = false;
+
+    if (
+      filters.categoryId &&
+      !categories.find((c) => c.id === filters.categoryId)
+    ) {
+      newFilters.categoryId = undefined;
+      hasChanges = true;
+    }
+
+    if (
+      filters.accountId &&
+      !accounts.find((a) => a.id === filters.accountId)
+    ) {
+      newFilters.accountId = undefined;
+      hasChanges = true;
+    }
+
+    if (hasChanges) {
+      setFilters(newFilters);
+    }
+  }, [categories, accounts]);
+
+  // Debounce search query updates only
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onFiltersChange({ query: filters.query });
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [filters.query, onFiltersChange]);
+
+  const applyFilters = () => {
+    onFiltersChange(filters);
+    lastSentFiltersRef.current = filters;
+  };
+
   const updateFilters = (newFilters: Partial<SearchFilters>) => {
-    const updated = { ...filters, ...newFilters };
-    setFilters(updated);
-    onFiltersChange(updated);
+    setFilters((prev) => ({ ...prev, ...newFilters }));
   };
 
   const clearFilters = () => {
@@ -65,7 +106,6 @@ export default function AdvancedSearchForm({
       type: undefined,
     };
     setFilters(cleared);
-    onFiltersChange(cleared);
   };
 
   const hasActiveFilters = Object.values(filters).some(
@@ -79,12 +119,18 @@ export default function AdvancedSearchForm({
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
-            placeholder="Search transactions..."
+            placeholder="Cari berdasarkan deskripsi transaksi..."
             value={filters.query || ""}
             onChange={(e) => updateFilters({ query: e.target.value })}
             className="pl-10"
           />
         </div>
+        {hasActiveFilters && (
+          <Button variant="ghost" size="sm" onClick={clearFilters}>
+            <X className="h-4 w-4 mr-1" />
+            Hapus Filter
+          </Button>
+        )}
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
             <Button
@@ -92,10 +138,15 @@ export default function AdvancedSearchForm({
               className={cn(hasActiveFilters && "border-primary")}
             >
               <Filter className="h-4 w-4 mr-2" />
-              Filters
+              Filter
               {hasActiveFilters && (
                 <span className="ml-2 bg-primary text-primary-foreground text-xs px-1 rounded">
-                  {Object.values(filters).filter(Boolean).length}
+                  {
+                    Object.values(filters).filter(
+                      (value) =>
+                        value !== undefined && value !== "" && value !== null,
+                    ).length
+                  }
                 </span>
               )}
             </Button>
@@ -103,53 +154,53 @@ export default function AdvancedSearchForm({
           <PopoverContent className="w-80" align="end">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h4 className="font-medium">Advanced Filters</h4>
+                <h4 className="font-medium">Filter Pencarian</h4>
                 {hasActiveFilters && (
                   <Button variant="ghost" size="sm" onClick={clearFilters}>
                     <X className="h-4 w-4 mr-1" />
-                    Clear
+                    Hapus Semua
                   </Button>
                 )}
               </div>
 
               {/* Type Filter */}
               <div className="space-y-2">
-                <Label htmlFor="type">Transaction Type</Label>
+                <Label htmlFor="type">Tipe Transaksi</Label>
                 <Select
-                  value={filters.type || ""}
+                  value={filters.type || "all"}
                   onValueChange={(value) =>
                     updateFilters({
-                      type: value as "INCOME" | "EXPENSE" | undefined,
+                      type: value === "all" ? undefined : (value as "INCOME" | "EXPENSE"),
                     })
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="All types" />
+                    <SelectValue placeholder="Semua tipe" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All types</SelectItem>
-                    <SelectItem value="INCOME">Income</SelectItem>
-                    <SelectItem value="EXPENSE">Expense</SelectItem>
+                    <SelectItem value="all">Semua tipe</SelectItem>
+                    <SelectItem value="INCOME">Pemasukan</SelectItem>
+                    <SelectItem value="EXPENSE">Pengeluaran</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               {/* Category Filter */}
               <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
+                <Label htmlFor="category">Kategori</Label>
                 <Select
-                  value={filters.categoryId?.toString() || ""}
+                  value={filters.categoryId?.toString() || "all"}
                   onValueChange={(value) =>
                     updateFilters({
-                      categoryId: value ? parseInt(value, 10) : undefined,
+                      categoryId: value === "all" ? undefined : value ? parseInt(value, 10) : undefined,
                     })
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="All categories" />
+                    <SelectValue placeholder="Semua kategori" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All categories</SelectItem>
+                    <SelectItem value="all">Semua kategori</SelectItem>
                     {categories.map((category) => (
                       <SelectItem
                         key={category.id}
@@ -164,20 +215,20 @@ export default function AdvancedSearchForm({
 
               {/* Account Filter */}
               <div className="space-y-2">
-                <Label htmlFor="account">Account</Label>
+                <Label htmlFor="account">Akun</Label>
                 <Select
-                  value={filters.accountId?.toString() || ""}
+                  value={filters.accountId?.toString() || "all"}
                   onValueChange={(value) =>
                     updateFilters({
-                      accountId: value ? parseInt(value, 10) : undefined,
+                      accountId: value === "all" ? undefined : value ? parseInt(value, 10) : undefined,
                     })
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="All accounts" />
+                    <SelectValue placeholder="Semua akun" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All accounts</SelectItem>
+                    <SelectItem value="all">Semua akun</SelectItem>
                     {accounts.map((account) => (
                       <SelectItem
                         key={account.id}
@@ -192,11 +243,11 @@ export default function AdvancedSearchForm({
 
               {/* Date Range */}
               <div className="space-y-2">
-                <Label>Date Range</Label>
+                <Label>Rentang Tanggal</Label>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <Label htmlFor="dateFrom" className="text-xs">
-                      From
+                      Dari
                     </Label>
                     <Popover>
                       <PopoverTrigger asChild>
@@ -208,8 +259,8 @@ export default function AdvancedSearchForm({
                           )}
                         >
                           {filters.dateFrom
-                            ? format(filters.dateFrom, "MMM dd, yyyy")
-                            : "Pick date"}
+                            ? format(filters.dateFrom, "dd/MM/yyyy")
+                            : "Pilih tanggal"}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
@@ -226,7 +277,7 @@ export default function AdvancedSearchForm({
                   </div>
                   <div>
                     <Label htmlFor="dateTo" className="text-xs">
-                      To
+                      Sampai
                     </Label>
                     <Popover>
                       <PopoverTrigger asChild>
@@ -238,8 +289,8 @@ export default function AdvancedSearchForm({
                           )}
                         >
                           {filters.dateTo
-                            ? format(filters.dateTo, "MMM dd, yyyy")
-                            : "Pick date"}
+                            ? format(filters.dateTo, "dd/MM/yyyy")
+                            : "Pilih tanggal"}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
@@ -259,11 +310,11 @@ export default function AdvancedSearchForm({
 
               {/* Amount Range */}
               <div className="space-y-2">
-                <Label>Amount Range (Rp)</Label>
+                <Label>Rentang Jumlah (Rp)</Label>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <Label htmlFor="amountMin" className="text-xs">
-                      Min
+                      Minimum
                     </Label>
                     <Input
                       id="amountMin"
@@ -281,12 +332,12 @@ export default function AdvancedSearchForm({
                   </div>
                   <div>
                     <Label htmlFor="amountMax" className="text-xs">
-                      Max
+                      Maksimum
                     </Label>
                     <Input
                       id="amountMax"
                       type="number"
-                      placeholder="No limit"
+                      placeholder="Tidak terbatas"
                       value={filters.amountMax || ""}
                       onChange={(e) =>
                         updateFilters({
@@ -298,6 +349,13 @@ export default function AdvancedSearchForm({
                     />
                   </div>
                 </div>
+              </div>
+
+              {/* Apply Button */}
+              <div className="flex justify-end pt-4 border-t">
+                <Button onClick={applyFilters} className="w-full">
+                  Terapkan Filter
+                </Button>
               </div>
             </div>
           </PopoverContent>

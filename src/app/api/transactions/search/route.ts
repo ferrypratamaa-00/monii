@@ -9,9 +9,20 @@ export async function POST(request: NextRequest) {
   }
 
   const userId = parseInt(session.user.id, 10);
-  const filters = await request.json();
+  const body = await request.json();
+  const { page = 1, limit = 50, ...rawFilters } = body;
 
-  const transactions = await getFilteredTransactions(userId, filters);
+  // Parse dates from ISO strings back to Date objects
+  const filters = {
+    ...rawFilters,
+    dateFrom: rawFilters.dateFrom ? new Date(rawFilters.dateFrom) : undefined,
+    dateTo: rawFilters.dateTo ? new Date(rawFilters.dateTo) : undefined,
+  };
 
-  return NextResponse.json(transactions);
+  const result = await getFilteredTransactions(userId, filters, {
+    page,
+    limit,
+  });
+
+  return NextResponse.json(result);
 }

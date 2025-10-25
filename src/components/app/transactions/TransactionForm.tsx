@@ -135,7 +135,12 @@ export default function TransactionForm({
         }
       }
 
-      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      queryClient.invalidateQueries({
+        predicate: (query) =>
+          query.queryKey[0] === "transactions" &&
+          (!query.queryKey[1] ||
+            Object.keys(query.queryKey[1] || {}).length === 0),
+      });
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
       form.reset();
       setUploadedFiles([]);

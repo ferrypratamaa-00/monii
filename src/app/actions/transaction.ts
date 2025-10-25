@@ -11,16 +11,31 @@ export async function createTransactionAction(formData: FormData) {
     return { success: false, error: "Unauthorized" };
   }
 
+  // Handle form data with potential prefixes (e.g., "1_accountId")
+  const getFormValue = (key: string) => {
+    // Try direct key first
+    const value = formData.get(key);
+    if (value !== null) return value;
+
+    // Try with numeric prefixes (common with React Hook Form arrays)
+    for (const [formKey, formValue] of formData.entries()) {
+      if (formKey.endsWith(`_${key}`)) {
+        return formValue;
+      }
+    }
+    return null;
+  };
+
   const data = {
-    accountId: parseInt(formData.get("accountId") as string, 10),
-    categoryId: formData.get("categoryId")
-      ? parseInt(formData.get("categoryId") as string, 10)
+    accountId: parseInt(getFormValue("accountId") as string, 10),
+    categoryId: getFormValue("categoryId")
+      ? parseInt(getFormValue("categoryId") as string, 10)
       : undefined,
-    type: formData.get("type") as "INCOME" | "EXPENSE",
-    amount: parseFloat(formData.get("amount") as string),
-    description: (formData.get("description") as string) || undefined,
-    date: new Date(formData.get("date") as string),
-    isRecurring: formData.get("isRecurring") === "true",
+    type: getFormValue("type") as "INCOME" | "EXPENSE",
+    amount: parseFloat(getFormValue("amount") as string),
+    description: (getFormValue("description") as string) || undefined,
+    date: new Date(getFormValue("date") as string),
+    isRecurring: getFormValue("isRecurring") === "true",
     userId,
   };
 
@@ -30,11 +45,14 @@ export async function createTransactionAction(formData: FormData) {
   }
 
   try {
+    console.log("Creating transaction with data:", result.data);
     const transaction = await createTransaction(result.data);
+    console.log("Transaction created successfully:", transaction);
     return { success: true, id: transaction.id };
   } catch (error: unknown) {
     const err = error as Error;
     console.error("Create transaction error:", err.message);
+    console.error("Error stack:", err.stack);
     return {
       success: false,
       error: "Gagal membuat transaksi. Silakan coba lagi.",
