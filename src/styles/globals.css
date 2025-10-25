@@ -126,6 +126,130 @@
   --radius: 1rem;
 }
 
+/* Theme 4: Professional Minimal (untuk orang tua/professional) */
+[data-theme="professional"] {
+  --background: #fafafa;
+  --foreground: #1a202c;
+  --card: #ffffff;
+  --card-foreground: #1a202c;
+  --popover: #ffffff;
+  --popover-foreground: #1a202c;
+  --primary: #2d3748;
+  --primary-foreground: #ffffff;
+  --secondary: #e2e8f0;
+  --secondary-foreground: #1a202c;
+  --muted: #f7fafc;
+  --muted-foreground: #718096;
+  --accent: #4a5568;
+  --accent-foreground: #ffffff;
+  --destructive: #e53e3e;
+  --destructive-foreground: #ffffff;
+  --border: #e2e8f0;
+  --input: #ffffff;
+  --ring: #2d3748;
+  --chart-1: #2d3748;
+  --chart-2: #4a5568;
+  --chart-3: #718096;
+  --chart-4: #a0aec0;
+  --chart-5: #cbd5e0;
+  --income-color: #38a169;
+  --expense-color: #e53e3e;
+  --radius: 0.5rem;
+}
+
+/* Theme 5: Vibrant Modern (untuk Gen Z) */
+[data-theme="vibrant"] {
+  --background: #fefefe;
+  --foreground: #0f1419;
+  --card: #ffffff;
+  --card-foreground: #0f1419;
+  --popover: #ffffff;
+  --popover-foreground: #0f1419;
+  --primary: #1da1f2;
+  --primary-foreground: #ffffff;
+  --secondary: #e1f5fe;
+  --secondary-foreground: #0f1419;
+  --muted: #f8f9fa;
+  --muted-foreground: #536471;
+  --accent: #ff6b35;
+  --accent-foreground: #ffffff;
+  --destructive: #ff4757;
+  --destructive-foreground: #ffffff;
+  --border: #e1e8ed;
+  --input: #ffffff;
+  --ring: #1da1f2;
+  --chart-1: #1da1f2;
+  --chart-2: #ff6b35;
+  --chart-3: #00d4aa;
+  --chart-4: #ffcc00;
+  --chart-5: #e91e63;
+  --income-color: #00d4aa;
+  --expense-color: #ff4757;
+  --radius: 1.5rem;
+}
+
+/* Theme 6: Warm Elegant (untuk wanita dewasa) */
+[data-theme="warm"] {
+  --background: #fdf8f4;
+  --foreground: #8b4513;
+  --card: #ffffff;
+  --card-foreground: #8b4513;
+  --popover: #ffffff;
+  --popover-foreground: #8b4513;
+  --primary: #d2691e;
+  --primary-foreground: #ffffff;
+  --secondary: #f5e6d3;
+  --secondary-foreground: #8b4513;
+  --muted: #faf4ed;
+  --muted-foreground: #a0522d;
+  --accent: #cd853f;
+  --accent-foreground: #ffffff;
+  --destructive: #dc143c;
+  --destructive-foreground: #ffffff;
+  --border: #f4e4bc;
+  --input: #ffffff;
+  --ring: #d2691e;
+  --chart-1: #d2691e;
+  --chart-2: #cd853f;
+  --chart-3: #daa520;
+  --chart-4: #f4a460;
+  --chart-5: #deb887;
+  --income-color: #228b22;
+  --expense-color: #dc143c;
+  --radius: 1.2rem;
+}
+
+/* Theme 7: Cool Tech (untuk pria muda) */
+[data-theme="tech"] {
+  --background: #0a0a0a;
+  --foreground: #f8f9fa;
+  --card: #1a1a1a;
+  --card-foreground: #f8f9fa;
+  --popover: #1a1a1a;
+  --popover-foreground: #f8f9fa;
+  --primary: #00ff88;
+  --primary-foreground: #000000;
+  --secondary: #2a2a2a;
+  --secondary-foreground: #f8f9fa;
+  --muted: #141414;
+  --muted-foreground: #a0a0a0;
+  --accent: #ff0080;
+  --accent-foreground: #ffffff;
+  --destructive: #ff4444;
+  --destructive-foreground: #ffffff;
+  --border: #333333;
+  --input: #1a1a1a;
+  --ring: #00ff88;
+  --chart-1: #00ff88;
+  --chart-2: #ff0080;
+  --chart-3: #0088ff;
+  --chart-4: #ffaa00;
+  --chart-5: #aa00ff;
+  --income-color: #00ff88;
+  --expense-color: #ff4444;
+  --radius: 0.75rem;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -225,4 +349,59 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Custom Scrollbar Styling */
+/* Webkit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--muted);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  opacity: 0.6;
+  border-radius: 4px;
+  transition: opacity 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  opacity: 0.8;
+}
+
+::-webkit-scrollbar-thumb:active {
+  opacity: 1;
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--muted);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) var(--muted);
+}
+
+/* Dark theme scrollbar adjustments */
+.dark ::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  opacity: 0.7;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  opacity: 0.9;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: var(--muted);
+}
+
+.dark {
+  scrollbar-color: var(--primary) var(--muted);
 }
