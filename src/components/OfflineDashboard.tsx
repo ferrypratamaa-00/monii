@@ -65,14 +65,14 @@ export default function OfflineDashboard({ userName }: OfflineDashboardProps) {
         <div className="text-center py-8">
           <div className="mb-4">
             <Badge variant="secondary" className="mb-2">
-              🔌 Mode Offline
+              🔌 {t("offline.mode")}
             </Badge>
           </div>
           <h1 className="text-xl md:text-2xl font-bold text-foreground mb-1">
             {userName ? `Hai ${userName}` : t("dashboard.greeting")} 👋
           </h1>
           <p className="text-sm text-muted-foreground">
-            Menampilkan data terakhir yang tersimpan
+            {t("offline.showingCachedData")}
           </p>
         </div>
 
@@ -84,7 +84,7 @@ export default function OfflineDashboard({ userName }: OfflineDashboardProps) {
                 Rp{dashboardData.totalBalance?.toLocaleString("id-ID") || "0"}
               </p>
               <div className="text-center text-sm text-muted-foreground">
-                Saldo terakhir (
+                {t("offline.lastBalance")} (
                 {new Date(dashboardData.lastSync).toLocaleDateString("id-ID")})
               </div>
             </CardContent>
@@ -143,7 +143,7 @@ export default function OfflineDashboard({ userName }: OfflineDashboardProps) {
           <Card className="shadow-md border-0">
             <CardHeader className="pb-3">
               <CardTitle className="text-base md:text-lg font-semibold text-foreground">
-                Akun Tersimpan
+                {t("offline.cachedAccounts")}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -159,7 +159,7 @@ export default function OfflineDashboard({ userName }: OfflineDashboardProps) {
                           {account.name}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          Update terakhir:{" "}
+                          {t("offline.lastUpdate")}{" "}
                           {new Date(accountsData.lastSync).toLocaleDateString(
                             "id-ID",
                           )}
@@ -181,7 +181,7 @@ export default function OfflineDashboard({ userName }: OfflineDashboardProps) {
           <Card className="shadow-md border-0">
             <CardHeader className="pb-3">
               <CardTitle className="text-base md:text-lg font-semibold text-foreground">
-                Kategori Tersimpan
+                {t("offline.cachedCategories")}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -212,14 +212,12 @@ export default function OfflineDashboard({ userName }: OfflineDashboardProps) {
             <div className="mb-4">
               <span className="text-2xl">📱</span>
             </div>
-            <h3 className="text-lg font-semibold mb-2">Mode Offline</h3>
+            <h3 className="text-lg font-semibold mb-2">{t("offline.offlineMode")}</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Anda sedang melihat data yang tersimpan di perangkat ini. Beberapa
-              fitur seperti menambah transaksi atau melihat laporan terbaru
-              memerlukan koneksi internet.
+              {t("offline.offlineDescription")}
             </p>
             <p className="text-xs text-muted-foreground">
-              Data akan diperbarui secara otomatis saat kembali online.
+              {t("offline.autoUpdate")}
             </p>
           </CardContent>
         </Card>

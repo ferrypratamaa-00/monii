@@ -10,6 +10,7 @@ import { useCallback, useState } from "react";
 import type { z } from "zod";
 import { useConfirmDialog } from "@/components/ui/confirm-dialog";
 import { toast } from "@/lib/toast";
+import { useLanguage } from "@/components/LanguageProvider";
 import type { SearchFiltersSchema } from "@/lib/validations/search";
 
 // Lazy load heavy components
@@ -62,6 +63,7 @@ interface Transaction {
 }
 
 export default function TransactionList() {
+  const { t } = useLanguage();
   const [filters, setFilters] = useState<Partial<SearchFilters>>({});
   const [page, setPage] = useState(1);
   const limit = 50;
@@ -112,9 +114,8 @@ export default function TransactionList() {
 
   const handleDeleteTransaction = async (transactionId: number) => {
     confirm({
-      title: "Delete Transaction",
-      description:
-        "Are you sure you want to delete this transaction? This action cannot be undone.",
+      title: t("transactions.deleteTransaction"),
+      description: t("transactions.deleteTransactionConfirm"),
       variant: "destructive",
       onConfirm: async () => {
         try {
@@ -126,12 +127,12 @@ export default function TransactionList() {
             throw new Error("Failed to delete transaction");
           }
 
-          toast.deleted("Transaction");
+          toast.deleted(t("transactions.pageTitle"));
           // Refetch transactions
           window.location.reload();
         } catch (error) {
           console.error("Error deleting transaction:", error);
-          toast.error("Failed to delete transaction");
+          toast.error(t("transactions.deleteFailed"));
         }
       },
     });
@@ -159,7 +160,7 @@ export default function TransactionList() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold" id="transactions-heading">
-          Transactions
+          {t("transactions.pageTitle")}
         </h2>
         <TransactionModal />
       </div>
@@ -218,7 +219,7 @@ export default function TransactionList() {
                               ? "bg-income/20 text-income"
                               : "bg-expense/20 text-expense"
                           }`}
-                          aria-label={`Transaction type: ${transaction.type === "INCOME" ? "Income" : "Expense"}`}
+                          aria-label={`Transaction type: ${transaction.type === "INCOME" ? t("transactions.income") : t("transactions.expense")}`}
                         >
                           {transaction.type}
                         </span>
@@ -255,9 +256,9 @@ export default function TransactionList() {
           {pagination && pagination.totalPages > 1 && (
             <div className="flex items-center justify-between mt-6">
               <div className="text-sm text-muted-foreground">
-                Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
+                {t("transactions.showing")} {(pagination.page - 1) * pagination.limit + 1} {t("transactions.to")}{" "}
                 {Math.min(pagination.page * pagination.limit, pagination.total)}{" "}
-                of {pagination.total} transactions
+                {t("transactions.of")} {pagination.total} {t("transactions.transactions")}
               </div>
               <div className="flex items-center space-x-2">
                 <button
@@ -266,10 +267,10 @@ export default function TransactionList() {
                   disabled={page === 1}
                   className="px-3 py-1 text-sm border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/10"
                 >
-                  Previous
+                  {t("transactions.previous")}
                 </button>
                 <span className="text-sm">
-                  Page {pagination.page} of {pagination.totalPages}
+                  {t("transactions.page")} {pagination.page} {t("transactions.of")} {pagination.totalPages}
                 </span>
                 <button
                   type="button"
@@ -279,7 +280,7 @@ export default function TransactionList() {
                   disabled={page === pagination.totalPages}
                   className="px-3 py-1 text-sm border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/10"
                 >
-                  Next
+                  {t("transactions.next")}
                 </button>
               </div>
             </div>
@@ -289,8 +290,8 @@ export default function TransactionList() {
         <div className="text-center py-8">
           <p className="text-muted-foreground mb-4">
             {hasActiveFilters
-              ? "Tidak ada transaksi yang sesuai dengan kriteria pencarian Anda"
-              : "Belum ada transaksi"}
+              ? t("transactions.noTransactionsFiltered")
+              : t("transactions.noTransactions")}
           </p>
         </div>
       )}

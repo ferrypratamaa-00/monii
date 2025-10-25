@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { LineChart } from "@/components/ui/charts/LineChart";
+import { useLanguage } from "@/components/LanguageProvider";
 
 interface TrendChartProps {
   data: {
@@ -18,11 +19,13 @@ interface TrendChartProps {
 }
 
 export default function TrendChart({ data }: TrendChartProps) {
+  const { t } = useLanguage();
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Income vs Expense Trend</CardTitle>
-        <CardDescription>Last 12 months</CardDescription>
+        <CardTitle>{t("charts.incomeVsExpense")}</CardTitle>
+        <CardDescription>{t("charts.last12Months")}</CardDescription>
       </CardHeader>
       <CardContent>
         <LineChart data={data} />

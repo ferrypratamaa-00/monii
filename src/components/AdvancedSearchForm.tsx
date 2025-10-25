@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/components/LanguageProvider";
 import type { SearchFiltersSchema } from "@/lib/validations/search";
 
 type SearchFilters = z.infer<typeof SearchFiltersSchema>;
@@ -35,6 +36,7 @@ export default function AdvancedSearchForm({
   categories,
   accounts,
 }: AdvancedSearchFormProps) {
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [filters, setFilters] = useState<Partial<SearchFilters>>({
     query: "",
@@ -119,16 +121,16 @@ export default function AdvancedSearchForm({
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
-            placeholder="Cari berdasarkan deskripsi transaksi..."
+            placeholder={t("search.placeholder")}
             value={filters.query || ""}
             onChange={(e) => updateFilters({ query: e.target.value })}
             className="pl-10"
           />
         </div>
-        {hasActiveFilters && (
+                {hasActiveFilters && (
           <Button variant="ghost" size="sm" onClick={clearFilters}>
             <X className="h-4 w-4 mr-1" />
-            Hapus Filter
+            {t("search.clearFilters")}
           </Button>
         )}
         <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -138,7 +140,7 @@ export default function AdvancedSearchForm({
               className={cn(hasActiveFilters && "border-primary")}
             >
               <Filter className="h-4 w-4 mr-2" />
-              Filter
+              {t("search.filter")}
               {hasActiveFilters && (
                 <span className="ml-2 bg-primary text-primary-foreground text-xs px-1 rounded">
                   {
@@ -154,18 +156,18 @@ export default function AdvancedSearchForm({
           <PopoverContent className="w-80" align="end">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h4 className="font-medium">Filter Pencarian</h4>
+                <h4 className="font-medium">{t("search.filterTitle")}</h4>
                 {hasActiveFilters && (
                   <Button variant="ghost" size="sm" onClick={clearFilters}>
                     <X className="h-4 w-4 mr-1" />
-                    Hapus Semua
+                    {t("search.clearAll")}
                   </Button>
                 )}
               </div>
 
               {/* Type Filter */}
               <div className="space-y-2">
-                <Label htmlFor="type">Tipe Transaksi</Label>
+                <Label htmlFor="type">{t("search.transactionType")}</Label>
                 <Select
                   value={filters.type || "all"}
                   onValueChange={(value) =>
@@ -178,19 +180,19 @@ export default function AdvancedSearchForm({
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Semua tipe" />
+                    <SelectValue placeholder={t("search.allTypes")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Semua tipe</SelectItem>
-                    <SelectItem value="INCOME">Pemasukan</SelectItem>
-                    <SelectItem value="EXPENSE">Pengeluaran</SelectItem>
+                    <SelectItem value="all">{t("search.allTypes")}</SelectItem>
+                    <SelectItem value="INCOME">{t("search.income")}</SelectItem>
+                    <SelectItem value="EXPENSE">{t("search.expense")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               {/* Category Filter */}
               <div className="space-y-2">
-                <Label htmlFor="category">Kategori</Label>
+                <Label htmlFor="category">{t("search.category")}</Label>
                 <Select
                   value={filters.categoryId?.toString() || "all"}
                   onValueChange={(value) =>
@@ -205,10 +207,10 @@ export default function AdvancedSearchForm({
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Semua kategori" />
+                    <SelectValue placeholder={t("search.allCategories")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Semua kategori</SelectItem>
+                    <SelectItem value="all">{t("search.allCategories")}</SelectItem>
                     {categories.map((category) => (
                       <SelectItem
                         key={category.id}
@@ -223,7 +225,7 @@ export default function AdvancedSearchForm({
 
               {/* Account Filter */}
               <div className="space-y-2">
-                <Label htmlFor="account">Akun</Label>
+                <Label htmlFor="account">{t("search.account")}</Label>
                 <Select
                   value={filters.accountId?.toString() || "all"}
                   onValueChange={(value) =>
@@ -238,10 +240,10 @@ export default function AdvancedSearchForm({
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Semua akun" />
+                    <SelectValue placeholder={t("search.allAccounts")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Semua akun</SelectItem>
+                    <SelectItem value="all">{t("search.allAccounts")}</SelectItem>
                     {accounts.map((account) => (
                       <SelectItem
                         key={account.id}
@@ -256,11 +258,11 @@ export default function AdvancedSearchForm({
 
               {/* Date Range */}
               <div className="space-y-2">
-                <Label>Rentang Tanggal</Label>
+                <Label>{t("search.dateRange")}</Label>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <Label htmlFor="dateFrom" className="text-xs">
-                      Dari
+                      {t("search.from")}
                     </Label>
                     <Popover>
                       <PopoverTrigger asChild>
@@ -273,7 +275,7 @@ export default function AdvancedSearchForm({
                         >
                           {filters.dateFrom
                             ? format(filters.dateFrom, "dd/MM/yyyy")
-                            : "Pilih tanggal"}
+                            : t("search.selectDate")}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
@@ -290,7 +292,7 @@ export default function AdvancedSearchForm({
                   </div>
                   <div>
                     <Label htmlFor="dateTo" className="text-xs">
-                      Sampai
+                      {t("search.to")}
                     </Label>
                     <Popover>
                       <PopoverTrigger asChild>
@@ -303,7 +305,7 @@ export default function AdvancedSearchForm({
                         >
                           {filters.dateTo
                             ? format(filters.dateTo, "dd/MM/yyyy")
-                            : "Pilih tanggal"}
+                            : t("search.selectDate")}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
@@ -323,11 +325,11 @@ export default function AdvancedSearchForm({
 
               {/* Amount Range */}
               <div className="space-y-2">
-                <Label>Rentang Jumlah (Rp)</Label>
+                <Label>{t("search.amountRange")}</Label>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <Label htmlFor="amountMin" className="text-xs">
-                      Minimum
+                      {t("search.minimum")}
                     </Label>
                     <Input
                       id="amountMin"
@@ -345,12 +347,12 @@ export default function AdvancedSearchForm({
                   </div>
                   <div>
                     <Label htmlFor="amountMax" className="text-xs">
-                      Maksimum
+                      {t("search.maximum")}
                     </Label>
                     <Input
                       id="amountMax"
                       type="number"
-                      placeholder="Tidak terbatas"
+                      placeholder={t("search.unlimited")}
                       value={filters.amountMax || ""}
                       onChange={(e) =>
                         updateFilters({
@@ -367,7 +369,7 @@ export default function AdvancedSearchForm({
               {/* Apply Button */}
               <div className="flex justify-end pt-4 border-t">
                 <Button onClick={applyFilters} className="w-full">
-                  Terapkan Filter
+                  {t("search.applyFilters")}
                 </Button>
               </div>
             </div>

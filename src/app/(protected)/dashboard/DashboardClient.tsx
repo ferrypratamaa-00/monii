@@ -186,16 +186,16 @@ export default function DashboardClient({
                 className={`w-2 h-2 rounded-full ${
                   isOnline ? "bg-green-500" : "bg-orange-500"
                 }`}
-                title={isOnline ? "Online" : "Offline"}
+                title={isOnline ? t("dashboard.online") : t("dashboard.offline")}
               />
               {syncStatus?.pendingCount && syncStatus.pendingCount > 0 && (
                 <span className="text-xs text-muted-foreground">
-                  {syncStatus.pendingCount} pending
+                  {syncStatus.pendingCount} {t("dashboard.pending")}
                 </span>
               )}
               {syncStatus?.hasConflicts && (
                 <span className="text-xs text-orange-600 font-medium">
-                  ⚠️ Sync conflict
+                  ⚠️ {t("dashboard.syncConflict")}
                 </span>
               )}
             </div>
@@ -314,7 +314,7 @@ export default function DashboardClient({
                       </div>
                       <div>
                         <p className="font-medium text-sm text-foreground">
-                          {transaction.category || "Lainnya"}
+                          {transaction.category || t("dashboard.other")}
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {new Date(transaction.date).toLocaleDateString(

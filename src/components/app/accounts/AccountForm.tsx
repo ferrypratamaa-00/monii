@@ -20,6 +20,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { toast } from "@/lib/toast";
 import { AccountSchema } from "@/lib/validations/account";
+import { useLanguage } from "@/components/LanguageProvider";
 
 interface AccountFormProps {
   account?: {
@@ -31,6 +32,7 @@ interface AccountFormProps {
 }
 
 export default function AccountForm({ account, onSuccess }: AccountFormProps) {
+  const { t } = useLanguage();
   const queryClient = useQueryClient();
 
   const form = useForm<z.infer<typeof AccountSchema>>({
@@ -113,9 +115,9 @@ export default function AccountForm({ account, onSuccess }: AccountFormProps) {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Account Name</FormLabel>
+              <FormLabel>{t("transaction.accountName")}</FormLabel>
               <FormControl>
-                <Input placeholder="e.g., BCA, Cash, GoPay" {...field} />
+                <Input placeholder={t("transaction.accountNamePlaceholder")} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -126,12 +128,12 @@ export default function AccountForm({ account, onSuccess }: AccountFormProps) {
           name="initialBalance"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Initial Balance</FormLabel>
+              <FormLabel>{t("transaction.initialBalance")}</FormLabel>
               <FormControl>
                 <Input
                   type="number"
                   step="0.01"
-                  placeholder="0.00"
+                  placeholder={t("account.balancePlaceholder")}
                   {...field}
                   onChange={(e) => field.onChange(parseFloat(e.target.value))}
                 />
@@ -141,7 +143,7 @@ export default function AccountForm({ account, onSuccess }: AccountFormProps) {
           )}
         />
         <Button type="submit" disabled={isSubmitting}>
-          {account ? "Update Account" : "Create Account"}
+          {account ? t("account.update") : t("account.create")}
         </Button>
       </form>
     </Form>

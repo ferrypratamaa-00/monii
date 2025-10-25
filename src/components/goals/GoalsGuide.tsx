@@ -12,6 +12,7 @@ import {
   Trophy,
 } from "lucide-react";
 import { useState } from "react";
+import { useLanguage } from "@/components/LanguageProvider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,38 +29,37 @@ interface GoalsGuideProps {
 }
 
 export function GoalsGuide({ onCreateGoal }: GoalsGuideProps) {
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
 
   const steps = [
     {
       id: "set-target",
       icon: Target,
-      title: "1. Tetapkan Target",
-      description:
-        "Buat goal dengan nama, jumlah target, dan deadline opsional",
-      details:
-        "Misal: 'Tabungan Liburan Bali - Rp 5.000.000' dengan deadline 6 bulan",
+      title: t("goals.guide.step1.title"),
+      description: t("goals.guide.step1.description"),
+      details: t("goals.guide.step1.details"),
     },
     {
       id: "contribute",
       icon: DollarSign,
-      title: "2. Kontribusi Rutin",
-      description: "Transfer uang dari rekening kamu ke goal secara berkala",
-      details: "Setiap bulan/gajian, alokasikan sebagian untuk goal ini",
+      title: t("goals.guide.step2.title"),
+      description: t("goals.guide.step2.description"),
+      details: t("goals.guide.step2.details"),
     },
     {
       id: "monitor",
       icon: TrendingUp,
-      title: "3. Pantau Progress",
-      description: "Lihat progress bar dan persentase pencapaian goal",
-      details: "Sistem akan tracking otomatis berapa yang sudah terkumpul",
+      title: t("goals.guide.step3.title"),
+      description: t("goals.guide.step3.description"),
+      details: t("goals.guide.step3.details"),
     },
     {
       id: "achieve",
       icon: Trophy,
-      title: "4. Raih Achievement",
-      description: "Dapatkan badge dan reward saat goal tercapai",
-      details: "Unlock achievement seperti 'First Goal', 'Millionaire', dll",
+      title: t("goals.guide.step4.title"),
+      description: t("goals.guide.step4.description"),
+      details: t("goals.guide.step4.details"),
     },
   ];
 
@@ -67,26 +67,26 @@ export function GoalsGuide({ onCreateGoal }: GoalsGuideProps) {
     {
       id: "realistic-deadline",
       icon: Calendar,
-      title: "Deadline Realistis",
-      tip: "Set deadline yang masuk akal. Goal jangka panjang (1-2 tahun) lebih sustainable",
+      title: t("goals.guide.tip1.title"),
+      tip: t("goals.guide.tip1.description"),
     },
     {
       id: "regular-contribution",
       icon: TrendingUp,
-      title: "Kontribusi Rutin",
-      tip: "Lebih baik sedikit tapi rutin, daripada banyak tapi jarang. Konsistensi adalah kunci",
+      title: t("goals.guide.tip2.title"),
+      tip: t("goals.guide.tip2.description"),
     },
     {
       id: "break-down",
       icon: Lightbulb,
-      title: "Break Down Goal",
-      tip: "Bagi goal besar jadi milestone kecil. Misal: Rp 5jt = 10 milestone Rp 500rb",
+      title: t("goals.guide.tip3.title"),
+      tip: t("goals.guide.tip3.description"),
     },
     {
       id: "track-celebrate",
       icon: CheckCircle,
-      title: "Track & Celebrate",
-      tip: "Rayakan setiap milestone! Ini akan memotivasi kamu untuk lanjut",
+      title: t("goals.guide.tip4.title"),
+      tip: t("goals.guide.tip4.description"),
     },
   ];
 
@@ -95,14 +95,14 @@ export function GoalsGuide({ onCreateGoal }: GoalsGuideProps) {
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           <Lightbulb className="h-4 w-4 mr-2" />
-          Panduan Goals
+          {t("goals.guide.title")}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Target className="h-5 w-5" />
-            Cara Kerja Goals & Cara Mencapainya
+            {t("goals.guide.subtitle")}
           </DialogTitle>
         </DialogHeader>
 
@@ -111,7 +111,7 @@ export function GoalsGuide({ onCreateGoal }: GoalsGuideProps) {
           <div>
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Clock className="h-5 w-5" />
-              Flow Goals Lengkap
+              {t("goals.guide.flowTitle")}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {steps.map((step) => (
@@ -139,7 +139,7 @@ export function GoalsGuide({ onCreateGoal }: GoalsGuideProps) {
           <div>
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Lightbulb className="h-5 w-5" />
-              Tips Sukses Capai Goals
+              {t("goals.guide.tipsTitle")}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {tips.map((tip) => (
@@ -164,28 +164,25 @@ export function GoalsGuide({ onCreateGoal }: GoalsGuideProps) {
 
           {/* Example */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Contoh Praktis</h3>
+            <h3 className="text-lg font-semibold mb-4">{t("goals.guide.exampleTitle")}</h3>
             <Card>
               <CardContent className="pt-4">
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline">Goal</Badge>
-                    <span className="font-medium">Tabungan Motor Baru</span>
+                    <Badge variant="outline">{t("goal.title")}</Badge>
+                    <span className="font-medium">{t("goals.guide.example.goal")}</span>
                   </div>
                   <div className="text-sm text-muted-foreground space-y-1">
-                    <p>• Target: Rp 15.000.000</p>
-                    <p>• Deadline: 12 bulan (1 tahun)</p>
-                    <p>• Kontribusi bulanan: Rp 1.250.000 (dari gaji)</p>
+                    <p>• {t("goals.guide.example.target")}</p>
+                    <p>• {t("goals.guide.example.deadline")}</p>
+                    <p>• {t("goals.guide.example.contribution")}</p>
                     <p>
-                      • Progress tracking: Lihat setiap bulan berapa yang sudah
-                      terkumpul
+                      • {t("goals.guide.example.progress")}
                     </p>
                   </div>
                   <div className="bg-muted p-3 rounded-md">
                     <p className="text-sm">
-                      <strong>Flow:</strong> Setiap tanggal 25 (gajian) →
-                      Transfer Rp 1.250.000 ke goal → Sistem otomatis update
-                      progress → Dapat badge milestone setiap Rp 3jt
+                      <strong>{t("goals.guide.flowTitle")}:</strong> {t("goals.guide.example.flow")}
                     </p>
                   </div>
                 </div>
@@ -203,7 +200,7 @@ export function GoalsGuide({ onCreateGoal }: GoalsGuideProps) {
               size="lg"
             >
               <Plus className="h-4 w-4 mr-2" />
-              Mulai Buat Goal Pertama Kamu
+              {t("goals.guide.startButton")}
             </Button>
           </div>
         </div>

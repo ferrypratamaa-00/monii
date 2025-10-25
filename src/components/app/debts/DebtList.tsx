@@ -14,6 +14,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "@/lib/toast";
+import { useLanguage } from "@/components/LanguageProvider";
 import DebtForm from "./DebtForm";
 
 interface Debt {
@@ -26,6 +27,7 @@ interface Debt {
 }
 
 export default function DebtList() {
+  const { t } = useLanguage();
   const [editingDebt, setEditingDebt] = useState<Debt | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const { confirm, dialog } = useConfirmDialog();
@@ -45,18 +47,19 @@ export default function DebtList() {
 
   const handleDelete = async (debtId: number) => {
     confirm({
-      title: "Delete Debt",
-      description:
-        "Are you sure you want to delete this debt? This action cannot be undone.",
+      title: t("debts.deleteDebt"),
+      description: t("debts.deleteDebtConfirm"),
+      confirmText: t("common.delete"),
+      cancelText: t("common.cancel"),
       variant: "destructive",
       onConfirm: async () => {
         const result = await deleteDebtAction(debtId);
         if (result.success) {
-          toast.deleted("Debt");
+          toast.deleted(t("debts.pageTitle"));
           refetch();
         } else {
           console.error(result.error);
-          toast.error("Failed to delete debt");
+          toast.error(t("debts.deleteFailed"));
         }
       },
     });
@@ -72,25 +75,23 @@ export default function DebtList() {
   };
 
   if (isLoading) {
-    return <div className="text-center py-8">Loading debts...</div>;
+    return <div className="text-center py-8">{t("debts.loading")}</div>;
   }
 
   if (!debts || debts.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-muted-foreground mb-4">
-          No debts or receivables yet
-        </p>
+        <p className="text-muted-foreground mb-4">{t("debts.noDebts")}</p>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="h-4 w-4 mr-2" />
-              Add Debt/Receivable
+              {t("debts.addDebt")}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add New Debt or Receivable</DialogTitle>
+              <DialogTitle>{t("debts.addNewDebt")}</DialogTitle>
             </DialogHeader>
             <DebtForm
               onSuccess={() => {
@@ -110,17 +111,17 @@ export default function DebtList() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Debts & Receivables</h2>
+        <h2 className="text-2xl font-bold">{t("debts.pageTitle")}</h2>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="h-4 w-4 mr-2" />
-              Add New
+              {t("debts.addNew")}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add New Debt or Receivable</DialogTitle>
+              <DialogTitle>{t("debts.addNewDebt")}</DialogTitle>
             </DialogHeader>
             <DebtForm
               onSuccess={() => {
@@ -136,7 +137,7 @@ export default function DebtList() {
         {activeDebts.length > 0 && (
           <div>
             <h3 className="text-lg font-semibold text-orange-600 mb-2">
-              Active
+              {t("debts.active")}
             </h3>
             <div className="space-y-2">
               {activeDebts.map((debt: Debt) => (
@@ -153,17 +154,17 @@ export default function DebtList() {
                             : "bg-green-100 text-green-800"
                         }`}
                       >
-                        {debt.type === "DEBT" ? "I Owe" : "Owed To Me"}
+                        {debt.type === "DEBT" ? t("debts.iOwe") : t("debts.owedToMe")}
                       </span>
                       <span className="font-medium">{debt.personName}</span>
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      Amount: Rp{" "}
+                      {t("debts.amount")}: Rp{" "}
                       {parseFloat(debt.amount).toLocaleString("id-ID")}
                       {debt.dueDate && (
                         <>
                           {" "}
-                          • Due: {new Date(debt.dueDate).toLocaleDateString()}
+                          • {t("debts.due")}: {new Date(debt.dueDate).toLocaleDateString()}
                         </>
                       )}
                     </div>
@@ -189,7 +190,7 @@ export default function DebtList() {
                       </DialogTrigger>
                       <DialogContent>
                         <DialogHeader>
-                          <DialogTitle>Edit Debt</DialogTitle>
+                          <DialogTitle>{t("debts.editDebt")}</DialogTitle>
                         </DialogHeader>
                         <DebtForm
                           debt={editingDebt || undefined}
@@ -217,7 +218,7 @@ export default function DebtList() {
 
         {paidDebts.length > 0 && (
           <div>
-            <h3 className="text-lg font-semibold text-green-600 mb-2">Paid</h3>
+            <h3 className="text-lg font-semibold text-green-600 mb-2">{t("debts.paid")}</h3>
             <div className="space-y-2">
               {paidDebts.map((debt: Debt) => (
                 <div
@@ -227,7 +228,7 @@ export default function DebtList() {
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <span className="px-2 py-1 text-xs rounded bg-gray-100 text-gray-800">
-                        PAID
+                        {t("debts.paidStatus")}
                       </span>
                       <span
                         className={`px-2 py-1 text-xs rounded ${
@@ -236,12 +237,12 @@ export default function DebtList() {
                             : "bg-green-100 text-green-800"
                         }`}
                       >
-                        {debt.type === "DEBT" ? "I Owed" : "Owed To Me"}
+                        {debt.type === "DEBT" ? t("debts.iOwed") : t("debts.owedToMe")}
                       </span>
                       <span className="font-medium">{debt.personName}</span>
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      Amount: Rp{" "}
+                      {t("debts.amount")}: Rp{" "}
                       {parseFloat(debt.amount).toLocaleString("id-ID")}
                     </div>
                   </div>

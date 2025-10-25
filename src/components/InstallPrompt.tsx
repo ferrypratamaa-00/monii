@@ -4,6 +4,7 @@ import { Download } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/lib/toast";
+import { useLanguage } from "@/components/LanguageProvider";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -19,6 +20,7 @@ interface InstallPromptProps {
 }
 
 export function InstallPrompt({ className }: InstallPromptProps) {
+  const { t } = useLanguage();
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
   const [isInstallable, setIsInstallable] = useState(false);
@@ -88,15 +90,11 @@ export function InstallPrompt({ className }: InstallPromptProps) {
   };
 
   const handleIOSInstall = () => {
-    toast.info(
-      'To install on iOS:\n1. Tap the Share button (⬆️)\n2. Select "Add to Home Screen"\n3. Tap "Add"',
-    );
+    toast.info(t("install.iosInstructions"));
   };
 
   const handleAndroidInstall = () => {
-    toast.info(
-      'To install on Android:\n1. Tap menu (⋮) in browser\n2. Select "Add to Home screen"\n3. Tap "Add"',
-    );
+    toast.info(t("install.androidInstructions"));
   };
 
   // Don't show if not installable and not on mobile

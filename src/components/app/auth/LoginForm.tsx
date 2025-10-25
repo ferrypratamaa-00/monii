@@ -16,8 +16,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { LoginSchema } from "@/lib/validations/auth";
+import { useLanguage } from "@/components/LanguageProvider";
 
 export default function LoginForm() {
+  const { t } = useLanguage();
   const form = useForm({
     resolver: zodResolver(LoginSchema),
     defaultValues: { email: "", password: "" },
@@ -49,7 +51,7 @@ export default function LoginForm() {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>{t("auth.email")}</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -62,7 +64,7 @@ export default function LoginForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>{t("auth.password")}</FormLabel>
               <FormControl>
                 <Input type="password" {...field} />
               </FormControl>
@@ -71,7 +73,7 @@ export default function LoginForm() {
           )}
         />
         <Button type="submit" disabled={mutation.isPending}>
-          Login
+          {t("auth.login")}
         </Button>
       </form>
     </Form>

@@ -14,6 +14,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "@/lib/toast";
+import { useLanguage } from "@/components/LanguageProvider";
 import renderIcon from "../../renderIcon";
 import CategoryForm from "./CategoryForm";
 
@@ -25,6 +26,7 @@ interface Category {
 }
 
 export default function CategoryList() {
+  const { t } = useLanguage();
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -45,18 +47,18 @@ export default function CategoryList() {
 
   const handleDelete = async (categoryId: number, categoryName: string) => {
     confirm({
-      title: "Delete Category",
-      description: `Are you sure you want to delete "${categoryName}"? This action cannot be undone.`,
-      confirmText: "Delete",
-      cancelText: "Cancel",
+      title: t("categories.deleteCategory"),
+      description: t("categories.deleteCategoryConfirm").replace("{name}", categoryName),
+      confirmText: t("common.delete"),
+      cancelText: t("common.cancel"),
       variant: "destructive",
       onConfirm: async () => {
         const result = await deleteCategoryAction(categoryId);
         if (result.success) {
-          toast.deleted("Category");
+          toast.deleted(t("categories.pageTitle"));
           refetch();
         } else {
-          toast.error("Failed to delete category", {
+          toast.error(t("categories.deleteFailed"), {
             description: result.error,
           });
         }
@@ -65,23 +67,23 @@ export default function CategoryList() {
   };
 
   if (isLoading) {
-    return <div className="text-center py-8">Loading categories...</div>;
+    return <div className="text-center py-8">{t("categories.loading")}</div>;
   }
 
   if (!categories || categories.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-muted-foreground mb-4">No categories yet</p>
+        <p className="text-muted-foreground mb-4">{t("categories.noCategories")}</p>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="h-4 w-4 mr-2" />
-              Create Category
+              {t("categories.createCategory")}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Create New Category</DialogTitle>
+              <DialogTitle>{t("categories.createNewCategory")}</DialogTitle>
             </DialogHeader>
             <CategoryForm
               onSuccess={() => {
@@ -106,17 +108,17 @@ export default function CategoryList() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Categories</h2>
+        <h2 className="text-2xl font-bold">{t("categories.pageTitle")}</h2>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="h-4 w-4 mr-2" />
-              Add Category
+              {t("categories.addCategory")}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Create New Category</DialogTitle>
+              <DialogTitle>{t("categories.createNewCategory")}</DialogTitle>
             </DialogHeader>
             <CategoryForm
               onSuccess={() => {
@@ -132,7 +134,7 @@ export default function CategoryList() {
       <div className="space-y-4">
         <div>
           <h3 className="text-lg font-semibold text-green-600 mb-2">
-            Income Categories
+            {t("categories.incomeCategories")}
           </h3>
           <div className="space-y-2">
             {incomeCategories.map((category: Category) => (
@@ -162,7 +164,7 @@ export default function CategoryList() {
                     </DialogTrigger>
                     <DialogContent>
                       <DialogHeader>
-                        <DialogTitle>Edit Category</DialogTitle>
+                        <DialogTitle>{t("categories.editCategory")}</DialogTitle>
                       </DialogHeader>
                       <CategoryForm
                         category={editingCategory || undefined}
@@ -190,7 +192,7 @@ export default function CategoryList() {
 
         <div>
           <h3 className="text-lg font-semibold text-red-600 mb-2">
-            Expense Categories
+            {t("categories.expenseCategories")}
           </h3>
           <div className="space-y-2">
             {expenseCategories.map((category: Category) => (
@@ -220,7 +222,7 @@ export default function CategoryList() {
                     </DialogTrigger>
                     <DialogContent>
                       <DialogHeader>
-                        <DialogTitle>Edit Category</DialogTitle>
+                        <DialogTitle>{t("categories.editCategory")}</DialogTitle>
                       </DialogHeader>
                       <CategoryForm
                         category={editingCategory || undefined}

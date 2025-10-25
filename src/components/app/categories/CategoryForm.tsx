@@ -62,6 +62,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "@/lib/toast";
 import { CategorySchema } from "@/lib/validations/category";
+import { useLanguage } from "@/components/LanguageProvider";
 
 const iconOptions = [
   { name: "Circle", icon: Circle, label: "Default" },
@@ -140,6 +141,7 @@ export default function CategoryForm({
   onSuccess,
   onInvalidateCache,
 }: CategoryFormProps) {
+  const { t } = useLanguage();
   const queryClient = useQueryClient();
 
   const form = useForm<z.infer<typeof CategorySchema>>({
@@ -249,9 +251,9 @@ export default function CategoryForm({
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Category Name</FormLabel>
+              <FormLabel>{t("category.name")}</FormLabel>
               <FormControl>
-                <Input placeholder="e.g., Food, Transport, Salary" {...field} />
+                <Input placeholder={t("category.namePlaceholder")} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -263,16 +265,16 @@ export default function CategoryForm({
           name="type"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Type</FormLabel>
+              <FormLabel>{t("category.type")}</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select type" />
+                    <SelectValue placeholder={t("category.selectType")} />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="INCOME">Income</SelectItem>
-                  <SelectItem value="EXPENSE">Expense</SelectItem>
+                  <SelectItem value="INCOME">{t("category.income")}</SelectItem>
+                  <SelectItem value="EXPENSE">{t("category.expense")}</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
@@ -285,11 +287,11 @@ export default function CategoryForm({
           name="iconName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Icon</FormLabel>
+              <FormLabel>{t("category.icon")}</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select icon">
+                    <SelectValue placeholder={t("category.selectIcon")}>
                       {field.value && (
                         <div className="flex items-center gap-2">
                           {renderIcon(field.value)}
@@ -319,7 +321,7 @@ export default function CategoryForm({
         />
 
         <Button type="submit" disabled={isSubmitting}>
-          {category ? "Update Category" : "Create Category"}
+          {category ? t("category.update") : t("category.create")}
         </Button>
       </form>
     </Form>

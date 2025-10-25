@@ -87,14 +87,14 @@ export default function OfflineIndicator() {
           {hasAnyCache && (
             <div className="mt-2 flex items-center gap-1 text-xs">
               <Database className="w-3 h-3" />
-              <span>Data tersimpan tersedia</span>
+              <span>{t("offline.cachedDataAvailable")}</span>
             </div>
           )}
 
           {syncStatus?.pendingCount && syncStatus.pendingCount > 0 && (
             <div className="mt-1 flex items-center gap-1 text-xs">
               <RefreshCw className="w-3 h-3" />
-              <span>{syncStatus.pendingCount} perubahan menunggu sync</span>
+              <span>{syncStatus.pendingCount} {t("offline.pendingChanges")}</span>
             </div>
           )}
         </div>

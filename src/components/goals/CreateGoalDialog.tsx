@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useLanguage } from "@/components/LanguageProvider";
 
 interface GoalUser {
   id: number;
@@ -30,6 +31,7 @@ interface GoalUser {
 }
 
 export function CreateGoalDialog({ users }: { users: GoalUser[] }) {
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [goalType, setGoalType] = useState<"personal" | "joint">("personal");
   const [name, setName] = useState("");
@@ -114,17 +116,17 @@ export function CreateGoalDialog({ users }: { users: GoalUser[] }) {
       <DialogTrigger asChild>
         <Button>
           <Plus className="h-4 w-4 mr-2" />
-          Buat Goal
+          {t("goal.create")}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Buat Goal Baru</DialogTitle>
+          <DialogTitle>{t("goal.createNew")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Goal Type */}
           <div>
-            <Label>Tipe Goal</Label>
+            <Label>{t("goal.type")}</Label>
             <Select
               value={goalType}
               onValueChange={(value: "personal" | "joint") =>
@@ -138,13 +140,13 @@ export function CreateGoalDialog({ users }: { users: GoalUser[] }) {
                 <SelectItem value="personal">
                   <div className="flex items-center gap-2">
                     <User className="h-4 w-4" />
-                    Goal Pribadi
+                    {t("goal.personal")}
                   </div>
                 </SelectItem>
                 <SelectItem value="joint">
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4" />
-                    Goal Bersama
+                    {t("goal.joint")}
                   </div>
                 </SelectItem>
               </SelectContent>
@@ -153,10 +155,10 @@ export function CreateGoalDialog({ users }: { users: GoalUser[] }) {
 
           {/* Goal Name */}
           <div>
-            <Label htmlFor="name">Nama Goal</Label>
+            <Label htmlFor="name">{t("goal.name")}</Label>
             <Input
               id="name"
-              placeholder="contoh: Tabungan Darurat, Liburan Bali"
+              placeholder={t("goal.namePlaceholder")}
               value={name}
               onChange={(e) => setName(e.target.value)}
               maxLength={120}
@@ -165,12 +167,12 @@ export function CreateGoalDialog({ users }: { users: GoalUser[] }) {
 
           {/* Target Amount */}
           <div>
-            <Label htmlFor="amount">Target Jumlah (Rp)</Label>
+            <Label htmlFor="amount">{t("goal.targetAmount")}</Label>
             <Input
               id="amount"
               type="number"
               step="0.01"
-              placeholder="0.00"
+              placeholder={t("goal.amountPlaceholder")}
               value={targetAmount}
               onChange={(e) => setTargetAmount(e.target.value)}
             />
@@ -178,7 +180,7 @@ export function CreateGoalDialog({ users }: { users: GoalUser[] }) {
 
           {/* Deadline */}
           <div>
-            <Label htmlFor="deadline">Deadline (Opsional)</Label>
+            <Label htmlFor="deadline">{t("goal.deadlineOptional")}</Label>
             <Input
               id="deadline"
               type="date"
@@ -191,7 +193,7 @@ export function CreateGoalDialog({ users }: { users: GoalUser[] }) {
           {/* Members Selection (for joint goals) */}
           {goalType === "joint" && (
             <div>
-              <Label>Anggota</Label>
+              <Label>{t("goal.members")}</Label>
               <div className="space-y-2 max-h-32 overflow-y-auto border rounded-md p-2">
                 {users.map((user) => (
                   <button
@@ -215,14 +217,14 @@ export function CreateGoalDialog({ users }: { users: GoalUser[] }) {
                       </p>
                     </div>
                     {selectedMembers.includes(user.id) && (
-                      <Badge variant="secondary">Dipilih</Badge>
+                      <Badge variant="secondary">{t("goal.selected")}</Badge>
                     )}
                   </button>
                 ))}
               </div>
               {selectedMembers.length > 0 && (
                 <p className="text-sm text-muted-foreground">
-                  {selectedMembers.length} anggota dipilih
+                  {selectedMembers.length} {t("goal.membersSelected")}
                 </p>
               )}
             </div>
@@ -235,14 +237,14 @@ export function CreateGoalDialog({ users }: { users: GoalUser[] }) {
               onClick={() => setIsOpen(false)}
               className="flex-1"
             >
-              Batal
+              {t("common.cancel")}
             </Button>
             <Button
               type="submit"
               disabled={createGoalMutation.isPending}
               className="flex-1"
             >
-              {createGoalMutation.isPending ? "Membuat..." : "Buat Goal"}
+              {createGoalMutation.isPending ? t("goal.creating") : t("goal.create")}
             </Button>
           </div>
         </form>

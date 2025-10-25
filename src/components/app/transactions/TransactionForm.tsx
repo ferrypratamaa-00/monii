@@ -58,6 +58,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 import { cn } from "@/lib/utils";
 import { TransactionFormSchema } from "@/lib/validations/transaction";
+import { useLanguage } from "@/components/LanguageProvider";
 
 interface UploadedFile {
   id: number;
@@ -74,6 +75,7 @@ interface TransactionFormProps {
 export default function TransactionForm({
   onSuccess,
 }: TransactionFormProps = {}) {
+  const { t } = useLanguage();
   const queryClient = useQueryClient();
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [showAddAccount, setShowAddAccount] = useState(false);
@@ -237,7 +239,7 @@ export default function TransactionForm({
   if (accountsLoading || categoriesLoading) {
     return (
       <div className="text-center py-8">
-        <p className="text-muted-foreground">Loading form data...</p>
+        <p className="text-muted-foreground">{t("transaction.loadingForm")}</p>
       </div>
     );
   }
@@ -256,11 +258,11 @@ export default function TransactionForm({
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="expense" className="flex items-center gap-2">
             <span className="text-red-500">📤</span>
-            Pengeluaran
+            {t("transaction.expense")}
           </TabsTrigger>
           <TabsTrigger value="income" className="flex items-center gap-2">
             <span className="text-green-500">📥</span>
-            Pemasukan
+            {t("transaction.income")}
           </TabsTrigger>
         </TabsList>
 
@@ -369,6 +371,7 @@ function TransactionFormFields({
   handleFileUpload,
   removeFile,
 }: TransactionFormFieldsProps) {
+  const { t } = useLanguage();
   // Quick amount presets based on transaction type
   const quickAmounts =
     type === "EXPENSE"
@@ -382,7 +385,7 @@ function TransactionFormFields({
         name="amount"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Jumlah</FormLabel>
+            <FormLabel>{t("transaction.amount")}</FormLabel>
             <FormControl>
               <Input
                 placeholder="0"
@@ -401,7 +404,7 @@ function TransactionFormFields({
       {/* Quick Amount Buttons */}
       <div className="space-y-2">
         <FormLabel className="text-sm text-muted-foreground">
-          Jumlah Cepat
+          {t("transaction.quickAmount")}
         </FormLabel>
         <div className="grid grid-cols-3 gap-2">
           {quickAmounts.map((amount) => (
@@ -424,7 +427,7 @@ function TransactionFormFields({
         name="accountId"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Akun</FormLabel>
+            <FormLabel>{t("transaction.account")}</FormLabel>
             <div className="flex gap-2">
               <Select
                 onValueChange={(value) => field.onChange(parseInt(value, 10))}
@@ -435,7 +438,7 @@ function TransactionFormFields({
                   <SelectTrigger className="flex-1">
                     <SelectValue
                       placeholder={
-                        accountsLoading ? "Loading accounts..." : "Pilih akun"
+                        accountsLoading ? t("transaction.loadingAccounts") : t("transaction.selectAccount")
                       }
                     />
                   </SelectTrigger>
@@ -463,7 +466,7 @@ function TransactionFormFields({
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-md">
                   <DialogHeader>
-                    <DialogTitle>Tambah Akun Baru</DialogTitle>
+                    <DialogTitle>{t("transaction.addNewAccount")}</DialogTitle>
                   </DialogHeader>
                   <form
                     onSubmit={(e) => {
@@ -482,12 +485,12 @@ function TransactionFormFields({
                         htmlFor="account-name"
                         className="text-sm font-medium"
                       >
-                        Nama Akun
+                        {t("transaction.accountName")}
                       </label>
                       <Input
                         id="account-name"
                         name="name"
-                        placeholder="e.g., Bank BCA, Cash"
+                        placeholder={t("transaction.accountNamePlaceholder")}
                         required
                       />
                     </div>
@@ -496,7 +499,7 @@ function TransactionFormFields({
                         htmlFor="account-balance"
                         className="text-sm font-medium"
                       >
-                        Saldo Awal
+                        {t("transaction.initialBalance")}
                       </label>
                       <Input
                         id="account-balance"
@@ -514,15 +517,15 @@ function TransactionFormFields({
                         className="flex-1"
                       >
                         {addAccountMutation.isPending
-                          ? "Membuat..."
-                          : "Buat Akun"}
+                          ? t("transaction.creating")
+                          : t("transaction.createAccount")}
                       </Button>
                       <Button
                         type="button"
                         variant="outline"
                         onClick={() => setShowAddAccount(false)}
                       >
-                        Batal
+                        {t("transaction.cancel")}
                       </Button>
                     </div>
                   </form>
@@ -539,7 +542,7 @@ function TransactionFormFields({
         name="categoryId"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Kategori (Opsional)</FormLabel>
+            <FormLabel>{t("transaction.categoryOptional")}</FormLabel>
             <div className="flex gap-2">
               <Select
                 onValueChange={(value) =>
@@ -553,10 +556,10 @@ function TransactionFormFields({
                     <SelectValue
                       placeholder={
                         categoriesLoading
-                          ? "Loading categories..."
+                          ? t("transaction.loadingCategories")
                           : categories.length === 0
-                            ? `Tidak ada kategori untuk ${type === "INCOME" ? "pemasukan" : "pengeluaran"}`
-                            : "Pilih kategori"
+                            ? type === "INCOME" ? t("transaction.noCategoriesIncome") : t("transaction.noCategoriesExpense")
+                            : t("transaction.selectCategory")
                       }
                     />
                   </SelectTrigger>
@@ -582,7 +585,7 @@ function TransactionFormFields({
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-md">
                   <DialogHeader>
-                    <DialogTitle>Tambah Kategori Baru</DialogTitle>
+                    <DialogTitle>{t("transaction.addNewCategory")}</DialogTitle>
                   </DialogHeader>
                   <form
                     onSubmit={(e) => {
@@ -598,12 +601,12 @@ function TransactionFormFields({
                         htmlFor="category-name"
                         className="text-sm font-medium"
                       >
-                        Nama Kategori
+                        {t("transaction.categoryName")}
                       </label>
                       <Input
                         id="category-name"
                         name="name"
-                        placeholder={`e.g., ${type === "INCOME" ? "Gaji, Bonus" : "Makanan, Transport"}`}
+                        placeholder={type === "INCOME" ? t("transaction.categoryIncomePlaceholder") : t("transaction.categoryExpensePlaceholder")}
                         required
                       />
                     </div>
@@ -612,15 +615,15 @@ function TransactionFormFields({
                         htmlFor="category-type"
                         className="text-sm font-medium"
                       >
-                        Tipe
+                        {t("transaction.type")}
                       </label>
                       <Select defaultValue={type}>
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="INCOME">Pemasukan</SelectItem>
-                          <SelectItem value="EXPENSE">Pengeluaran</SelectItem>
+                          <SelectItem value="INCOME">{t("transaction.income")}</SelectItem>
+                          <SelectItem value="EXPENSE">{t("transaction.expense")}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -631,15 +634,15 @@ function TransactionFormFields({
                         className="flex-1"
                       >
                         {addCategoryMutation.isPending
-                          ? "Membuat..."
-                          : "Buat Kategori"}
+                          ? t("transaction.creating")
+                          : t("transaction.createCategory")}
                       </Button>
                       <Button
                         type="button"
                         variant="outline"
                         onClick={() => setShowAddCategory(false)}
                       >
-                        Batal
+                        {t("transaction.cancel")}
                       </Button>
                     </div>
                   </form>
@@ -656,7 +659,7 @@ function TransactionFormFields({
         name="date"
         render={({ field }) => (
           <FormItem className="flex flex-col">
-            <FormLabel>Tanggal</FormLabel>
+            <FormLabel>{t("transaction.date")}</FormLabel>
             <Popover>
               <PopoverTrigger asChild>
                 <FormControl>
@@ -670,7 +673,7 @@ function TransactionFormFields({
                     {field.value ? (
                       format(field.value, "PPP", { locale: id })
                     ) : (
-                      <span>Pilih tanggal</span>
+                      <span>{t("transaction.selectDate")}</span>
                     )}
                     <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                   </Button>
@@ -698,10 +701,10 @@ function TransactionFormFields({
         name="description"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Keterangan (Opsional)</FormLabel>
+            <FormLabel>{t("transaction.descriptionOptional")}</FormLabel>
             <FormControl>
               <Textarea
-                placeholder="Tambahkan catatan..."
+                placeholder={t("transaction.descriptionPlaceholder")}
                 className="resize-none"
                 {...field}
               />
@@ -717,7 +720,7 @@ function TransactionFormFields({
           disabled={mutation.isPending || accountsLoading || categoriesLoading}
           className="flex-1"
         >
-          {mutation.isPending ? "Menyimpan..." : "Simpan"}
+          {mutation.isPending ? t("transaction.saving") : t("transaction.save")}
         </Button>
         <Button
           type="button"
@@ -725,7 +728,7 @@ function TransactionFormFields({
           onClick={() => onSuccess?.()}
           className="flex-1"
         >
-          Batal
+          {t("transaction.cancel")}
         </Button>
       </div>
 
@@ -733,12 +736,12 @@ function TransactionFormFields({
       <div className="space-y-4 pt-4 border-t">
         <h3 className="text-lg font-semibold flex items-center gap-2">
           <Receipt className="h-5 w-5" />
-          Upload Receipt (Opsional)
+          {t("transaction.uploadReceiptOptional")}
         </h3>
 
         {uploadedFiles.length > 0 && (
           <div className="space-y-2">
-            <h4 className="text-sm font-medium">File yang Diupload:</h4>
+            <h4 className="text-sm font-medium">{t("transaction.uploadedFiles")}</h4>
             {uploadedFiles.map((file) => (
               <Card key={file.id} className="p-3">
                 <CardContent className="p-0">
@@ -771,7 +774,7 @@ function TransactionFormFields({
         <FileUpload
           onUploadSuccess={handleFileUpload}
           accept="image/*,.pdf"
-          maxSizeText="Max 5MB (JPEG, PNG, WebP, PDF)"
+          maxSizeText={t("transaction.maxFileSize")}
         />
       </div>
     </>

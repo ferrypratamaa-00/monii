@@ -14,6 +14,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "@/lib/toast";
+import { useLanguage } from "@/components/LanguageProvider";
 import AccountForm from "./AccountForm";
 
 interface Account {
@@ -24,6 +25,7 @@ interface Account {
 }
 
 export default function AccountList() {
+  const { t } = useLanguage();
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -44,41 +46,40 @@ export default function AccountList() {
 
   const handleDelete = async (accountId: number) => {
     confirm({
-      title: "Delete Account",
-      description:
-        "Are you sure you want to delete this account? This action cannot be undone.",
+      title: t("accounts.deleteAccount"),
+      description: t("accounts.deleteAccountConfirm"),
       variant: "destructive",
       onConfirm: async () => {
         const result = await deleteAccountAction(accountId);
         if (result.success) {
-          toast.deleted("Account");
+          toast.deleted(t("accounts.pageTitle"));
           refetch();
         } else {
           console.error(result.error);
-          toast.error("Failed to delete account");
+          toast.error(t("accounts.deleteFailed"));
         }
       },
     });
   };
 
   if (isLoading) {
-    return <div className="text-center py-8">Loading accounts...</div>;
+    return <div className="text-center py-8">{t("accounts.loading")}</div>;
   }
 
   if (!accounts || accounts.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-muted-foreground mb-4">No accounts yet</p>
+        <p className="text-muted-foreground mb-4">{t("accounts.noAccounts")}</p>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="h-4 w-4 mr-2" />
-              Create Account
+              {t("accounts.createAccount")}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Create New Account</DialogTitle>
+              <DialogTitle>{t("accounts.createNewAccount")}</DialogTitle>
             </DialogHeader>
             <AccountForm
               onSuccess={() => {
@@ -95,17 +96,17 @@ export default function AccountList() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Accounts</h2>
+        <h2 className="text-2xl font-bold">{t("accounts.pageTitle")}</h2>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="h-4 w-4 mr-2" />
-              Add Account
+              {t("accounts.addAccount")}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Create New Account</DialogTitle>
+              <DialogTitle>{t("accounts.createNewAccount")}</DialogTitle>
             </DialogHeader>
             <AccountForm
               onSuccess={() => {
@@ -126,7 +127,7 @@ export default function AccountList() {
             <div className="flex-1">
               <h3 className="font-medium">{account.name}</h3>
               <p className="text-sm text-muted-foreground">
-                Initial: Rp{" "}
+                {t("accounts.initialBalance")}: Rp{" "}
                 {parseFloat(account.initialBalance).toLocaleString("id-ID")}
               </p>
             </div>
@@ -134,7 +135,7 @@ export default function AccountList() {
               <p className="font-semibold">
                 Rp {parseFloat(account.balance).toLocaleString("id-ID")}
               </p>
-              <p className="text-sm text-muted-foreground">Current Balance</p>
+              <p className="text-sm text-muted-foreground">{t("accounts.currentBalance")}</p>
             </div>
             <div className="flex gap-2 ml-4">
               <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
@@ -152,7 +153,7 @@ export default function AccountList() {
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Edit Account</DialogTitle>
+                    <DialogTitle>{t("accounts.editAccount")}</DialogTitle>
                   </DialogHeader>
                   <AccountForm
                     account={editingAccount || undefined}

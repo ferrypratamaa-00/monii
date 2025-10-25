@@ -16,8 +16,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { SignupSchema } from "@/lib/validations/auth";
+import { useLanguage } from "@/components/LanguageProvider";
 
 export default function SignUpForm() {
+  const { t } = useLanguage();
   const form = useForm({
     resolver: zodResolver(SignupSchema),
     defaultValues: { email: "", password: "", confirmPassword: "" },
@@ -50,7 +52,7 @@ export default function SignUpForm() {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel>{t("auth.email")}</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -63,7 +65,7 @@ export default function SignUpForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>{t("auth.password")}</FormLabel>
               <FormControl>
                 <Input type="password" {...field} />
               </FormControl>
@@ -76,7 +78,7 @@ export default function SignUpForm() {
           name="confirmPassword"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Confirm Password</FormLabel>
+              <FormLabel>{t("auth.confirmPassword")}</FormLabel>
               <FormControl>
                 <Input type="password" {...field} />
               </FormControl>
@@ -85,7 +87,7 @@ export default function SignUpForm() {
           )}
         />
         <Button type="submit" disabled={mutation.isPending}>
-          Sign Up
+          {t("auth.signUp")}
         </Button>
       </form>
     </Form>

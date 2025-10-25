@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import * as LucideIcons from "lucide-react";
 import { useState } from "react";
+import { useLanguage } from "@/components/LanguageProvider";
 import { getCategoriesAction } from "@/app/actions/category";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ const renderIcon = (iconName?: string | null) => {
 };
 
 export function CategoryManager() {
+  const { t } = useLanguage();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
@@ -68,18 +70,18 @@ export function CategoryManager() {
     setEditingCategory(null);
   };
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div className="text-red-500">Gagal memuat kategori.</div>;
+  if (isLoading) return <div>{t("categories.loading")}</div>;
+  if (error) return <div className="text-red-500">{t("categories.loadError")}</div>;
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Kategori</h2>
+        <h2 className="text-2xl font-bold">{t("categories.pageTitle")}</h2>
         <div className="flex items-center gap-2">
           {isFetching ? (
-            <span className="text-sm text-muted-foreground">Sync…</span>
+            <span className="text-sm text-muted-foreground">{t("categories.syncIndicator")}</span>
           ) : null}
-          <Button onClick={openAdd}>Tambah Kategori</Button>
+          <Button onClick={openAdd}>{t("categories.addButton")}</Button>
         </div>
       </div>
 
@@ -99,7 +101,7 @@ export function CategoryManager() {
           >
             <DialogHeader>
               <DialogTitle>
-                {editingCategory ? "Edit Kategori" : "Tambah Kategori"}
+                {editingCategory ? t("categories.editTitle") : t("categories.addTitle")}
               </DialogTitle>
             </DialogHeader>
 
@@ -136,14 +138,14 @@ export function CategoryManager() {
                       category.type === "INCOME" ? "default" : "secondary"
                     }
                   >
-                    {category.type === "INCOME" ? "Pemasukan" : "Pengeluaran"}
+                    {category.type === "INCOME" ? t("categories.income") : t("categories.expense")}
                   </Badge>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => openEdit(category)}
                   >
-                    Edit
+                    {t("categories.editButton")}
                   </Button>
                 </div>
               </CardTitle>

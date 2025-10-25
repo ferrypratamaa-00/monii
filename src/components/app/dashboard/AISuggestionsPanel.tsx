@@ -159,6 +159,19 @@ function AISuggestionCard({ suggestion, t }: AISuggestionCardProps) {
     }
   };
 
+  const getTranslatedImpact = () => {
+    switch (suggestion.impact) {
+      case "HIGH":
+        return t("ai.impact.high");
+      case "MEDIUM":
+        return t("ai.impact.medium");
+      case "LOW":
+        return t("ai.impact.low");
+      default:
+        return suggestion.impact;
+    }
+  };
+
   return (
     <div className="flex items-start gap-3 p-4 border rounded-lg">
       {getIcon()}
@@ -166,7 +179,7 @@ function AISuggestionCard({ suggestion, t }: AISuggestionCardProps) {
         <div className="flex items-center justify-between">
           <h4 className="font-medium">{suggestion.title}</h4>
           <Badge variant={getBadgeVariant()}>
-            {suggestion.impact} {t("ai.impact")}
+            {getTranslatedImpact()} {t("ai.impact")}
           </Badge>
         </div>
         <p className="text-sm text-muted-foreground">
@@ -336,6 +349,19 @@ function RiskAssessment({ assessment, t }: RiskAssessmentProps) {
     }
   };
 
+  const getTranslatedRiskLevel = () => {
+    switch (assessment.level) {
+      case "HIGH":
+        return t("ai.risk.high");
+      case "MEDIUM":
+        return t("ai.risk.medium");
+      case "LOW":
+        return t("ai.risk.low");
+      default:
+        return assessment.level;
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -351,12 +377,12 @@ function RiskAssessment({ assessment, t }: RiskAssessmentProps) {
         >
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-medium">
-              {t("ai.riskLevel")}: {assessment.level}
+              {t("ai.riskLevel")}: {getTranslatedRiskLevel()}
             </h3>
             <Badge
               variant={assessment.level === "HIGH" ? "destructive" : "default"}
             >
-              {assessment.level}
+              {getTranslatedRiskLevel()}
             </Badge>
           </div>
 
