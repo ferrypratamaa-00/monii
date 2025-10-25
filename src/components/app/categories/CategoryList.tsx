@@ -5,9 +5,7 @@ import { Edit, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { deleteCategoryAction } from "@/app/actions/category";
 import { Button } from "@/components/ui/button";
-import {
-  useConfirmDialog,
-} from "@/components/ui/confirm-dialog";
+import { useConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   Dialog,
   DialogContent,
@@ -16,9 +14,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "@/lib/toast";
-import CategoryForm from "./CategoryForm";
 import renderIcon from "../../renderIcon";
-
+import CategoryForm from "./CategoryForm";
 
 interface Category {
   id: number;

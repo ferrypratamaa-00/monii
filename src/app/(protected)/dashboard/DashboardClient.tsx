@@ -81,7 +81,7 @@ interface DashboardClientProps {
     amount: number;
     description: string | null;
     category: string | null;
-    categoryIcon:string | null;
+    categoryIcon: string | null;
     date: Date;
   }>;
   userId: number;
@@ -322,7 +322,8 @@ export default function DashboardClient({
                           : "text-expense"
                       }`}
                     >
-                      {transaction.type === "INCOME" ? "+" : "-"}Rp{Math.abs(transaction.amount).toLocaleString("id-ID")}
+                      {transaction.type === "INCOME" ? "+" : "-"}Rp
+                      {Math.abs(transaction.amount).toLocaleString("id-ID")}
                     </p>
                   </div>
                 ))}

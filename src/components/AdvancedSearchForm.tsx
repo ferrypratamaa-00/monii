@@ -170,7 +170,10 @@ export default function AdvancedSearchForm({
                   value={filters.type || "all"}
                   onValueChange={(value) =>
                     updateFilters({
-                      type: value === "all" ? undefined : (value as "INCOME" | "EXPENSE"),
+                      type:
+                        value === "all"
+                          ? undefined
+                          : (value as "INCOME" | "EXPENSE"),
                     })
                   }
                 >
@@ -192,7 +195,12 @@ export default function AdvancedSearchForm({
                   value={filters.categoryId?.toString() || "all"}
                   onValueChange={(value) =>
                     updateFilters({
-                      categoryId: value === "all" ? undefined : value ? parseInt(value, 10) : undefined,
+                      categoryId:
+                        value === "all"
+                          ? undefined
+                          : value
+                            ? parseInt(value, 10)
+                            : undefined,
                     })
                   }
                 >
@@ -220,7 +228,12 @@ export default function AdvancedSearchForm({
                   value={filters.accountId?.toString() || "all"}
                   onValueChange={(value) =>
                     updateFilters({
-                      accountId: value === "all" ? undefined : value ? parseInt(value, 10) : undefined,
+                      accountId:
+                        value === "all"
+                          ? undefined
+                          : value
+                            ? parseInt(value, 10)
+                            : undefined,
                     })
                   }
                 >

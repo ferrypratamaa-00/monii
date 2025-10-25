@@ -107,7 +107,7 @@ export function InstallPrompt({ className }: InstallPromptProps) {
       {isInstallable ? (
         <Button
           onClick={handleInstallClick}
-          className="flex items-center gap-2 bg-primary hover:bg-primary/90"
+          className="flex items-center gap-2"
           size="sm"
         >
           <Download className="w-6 h-6" />

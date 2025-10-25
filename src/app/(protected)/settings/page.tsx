@@ -27,18 +27,18 @@ const settingsSections = [
     color: "text-purple-600",
   },
   {
-    title: "Account",
-    description: "Update your account information and security settings",
-    icon: User,
-    href: "/settings/account",
-    color: "text-green-600",
-  },
-  {
     title: "Language",
     description: "Change the language and regional settings",
     icon: Globe,
     href: "/settings/language",
     color: "text-orange-600",
+  },
+  {
+    title: "Account",
+    description: "Update your account information and preferences",
+    icon: User,
+    href: "/settings/account",
+    color: "text-green-600",
   },
 ];
 

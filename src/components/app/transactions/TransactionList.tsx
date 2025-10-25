@@ -228,7 +228,8 @@ export default function TransactionList() {
                       </div>
                       <div className="text-sm text-muted-foreground">
                         {transaction.account.name}
-                        {transaction.category && ` • ${transaction.category.name}`}
+                        {transaction.category &&
+                          ` • ${transaction.category.name}`}
                         {" • "}
                         {format(new Date(transaction.date), "MMM dd, yyyy")}
                       </div>
@@ -255,8 +256,8 @@ export default function TransactionList() {
             <div className="flex items-center justify-between mt-6">
               <div className="text-sm text-muted-foreground">
                 Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
-                {Math.min(pagination.page * pagination.limit, pagination.total)} of{" "}
-                {pagination.total} transactions
+                {Math.min(pagination.page * pagination.limit, pagination.total)}{" "}
+                of {pagination.total} transactions
               </div>
               <div className="flex items-center space-x-2">
                 <button
@@ -272,7 +273,9 @@ export default function TransactionList() {
                 </span>
                 <button
                   type="button"
-                  onClick={() => setPage(Math.min(pagination.totalPages, page + 1))}
+                  onClick={() =>
+                    setPage(Math.min(pagination.totalPages, page + 1))
+                  }
                   disabled={page === pagination.totalPages}
                   className="px-3 py-1 text-sm border rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/10"
                 >

@@ -39,7 +39,7 @@ export default async function DashboardPage() {
         description: transactions.description,
         date: transactions.date,
         categoryName: categories.name,
-        categoryIcon:categories.iconName
+        categoryIcon: categories.iconName,
       })
       .from(transactions)
       .leftJoin(categories, eq(transactions.categoryId, categories.id))
@@ -96,7 +96,7 @@ export default async function DashboardPage() {
       amount: parseFloat(transaction.amount),
       description: transaction.description,
       category: transaction.categoryName,
-      categoryIcon:transaction.categoryIcon,
+      categoryIcon: transaction.categoryIcon,
       date: transaction.date,
     }),
   );
