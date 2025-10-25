@@ -3,6 +3,7 @@
 import { Download } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/lib/toast";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -87,14 +88,14 @@ export function InstallPrompt({ className }: InstallPromptProps) {
   };
 
   const handleIOSInstall = () => {
-    alert(
-      'Untuk menginstall di iOS:\n1. Tap tombol Share (⬆️)\n2. Pilih "Add to Home Screen"\n3. Tap "Add"',
+    toast.info(
+      'To install on iOS:\n1. Tap the Share button (⬆️)\n2. Select "Add to Home Screen"\n3. Tap "Add"',
     );
   };
 
   const handleAndroidInstall = () => {
-    alert(
-      'Untuk menginstall di Android:\n1. Tap menu (⋮) di browser\n2. Pilih "Add to Home screen"\n3. Tap "Add"',
+    toast.info(
+      'To install on Android:\n1. Tap menu (⋮) in browser\n2. Select "Add to Home screen"\n3. Tap "Add"',
     );
   };
 

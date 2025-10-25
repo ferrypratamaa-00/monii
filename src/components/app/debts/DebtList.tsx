@@ -5,6 +5,7 @@ import { CheckCircle, Edit, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { deleteDebtAction, markAsPaidAction } from "@/app/actions/debt";
 import { Button } from "@/components/ui/button";
+import { useConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   Dialog,
   DialogContent,
@@ -12,6 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { toast } from "@/lib/toast";
 import DebtForm from "./DebtForm";
 
 interface Debt {
@@ -26,6 +28,7 @@ interface Debt {
 export default function DebtList() {
   const [editingDebt, setEditingDebt] = useState<Debt | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const { confirm, dialog } = useConfirmDialog();
 
   const {
     data: debts,
@@ -41,14 +44,22 @@ export default function DebtList() {
   });
 
   const handleDelete = async (debtId: number) => {
-    if (confirm("Are you sure you want to delete this debt?")) {
-      const result = await deleteDebtAction(debtId);
-      if (result.success) {
-        refetch();
-      } else {
-        console.error(result.error);
-      }
-    }
+    confirm({
+      title: "Delete Debt",
+      description:
+        "Are you sure you want to delete this debt? This action cannot be undone.",
+      variant: "destructive",
+      onConfirm: async () => {
+        const result = await deleteDebtAction(debtId);
+        if (result.success) {
+          toast.deleted("Debt");
+          refetch();
+        } else {
+          console.error(result.error);
+          toast.error("Failed to delete debt");
+        }
+      },
+    });
   };
 
   const handleMarkAsPaid = async (debtId: number) => {
@@ -250,6 +261,7 @@ export default function DebtList() {
           </div>
         )}
       </div>
+      {dialog}
     </div>
   );
 }

@@ -7,8 +7,9 @@ import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import dynamic from "next/dynamic";
 import { useState } from "react";
-import { toast } from "sonner";
 import type { z } from "zod";
+import { useConfirmDialog } from "@/components/ui/confirm-dialog";
+import { toast } from "@/lib/toast";
 import type { SearchFiltersSchema } from "@/lib/validations/search";
 
 // Lazy load heavy components
@@ -64,6 +65,7 @@ export default function TransactionList() {
   const [filters, setFilters] = useState<SearchFilters | null>(null);
   const [page, setPage] = useState(1);
   const limit = 50;
+  const { confirm, dialog } = useConfirmDialog();
 
   const { data: result, isLoading } = useQuery({
     queryKey: ["transactions", filters, page],
@@ -96,26 +98,30 @@ export default function TransactionList() {
   const pagination = result?.pagination;
 
   const handleDeleteTransaction = async (transactionId: number) => {
-    if (!confirm("Are you sure you want to delete this transaction?")) {
-      return;
-    }
+    confirm({
+      title: "Delete Transaction",
+      description:
+        "Are you sure you want to delete this transaction? This action cannot be undone.",
+      variant: "destructive",
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`/api/transactions/${transactionId}`, {
+            method: "DELETE",
+          });
 
-    try {
-      const response = await fetch(`/api/transactions/${transactionId}`, {
-        method: "DELETE",
-      });
+          if (!response.ok) {
+            throw new Error("Failed to delete transaction");
+          }
 
-      if (!response.ok) {
-        throw new Error("Failed to delete transaction");
-      }
-
-      toast.success("Transaction deleted successfully");
-      // Refetch transactions
-      window.location.reload();
-    } catch (error) {
-      console.error("Error deleting transaction:", error);
-      toast.error("Failed to delete transaction");
-    }
+          toast.deleted("Transaction");
+          // Refetch transactions
+          window.location.reload();
+        } catch (error) {
+          console.error("Error deleting transaction:", error);
+          toast.error("Failed to delete transaction");
+        }
+      },
+    });
   };
 
   const { data: categories = [] } = useQuery({
@@ -280,6 +286,7 @@ export default function TransactionList() {
           </div>
         </div>
       )}
+      {dialog}
     </div>
   );
 }

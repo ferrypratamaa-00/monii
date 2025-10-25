@@ -60,6 +60,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "@/lib/toast";
 import { CategorySchema } from "@/lib/validations/category";
 
 const iconOptions = [
@@ -169,6 +170,7 @@ export default function CategoryForm({
       // call whichever callback the parent provided
       try {
         form.reset();
+        toast.created("Category");
         if (typeof onCloseModal === "function") {
           onCloseModal();
         } else if (typeof onSuccess === "function") {
@@ -185,7 +187,7 @@ export default function CategoryForm({
       }
     },
     onError: (error) => {
-      alert("Failed to create category: " + error.message);
+      toast.error("Failed to create category", { description: error.message });
     },
   });
 
@@ -210,6 +212,7 @@ export default function CategoryForm({
       queryClient.invalidateQueries({ queryKey: ["categories"] });
       try {
         form.reset();
+        toast.updated("Category");
         if (typeof onCloseModal === "function") {
           onCloseModal();
         } else if (typeof onSuccess === "function") {
@@ -224,7 +227,7 @@ export default function CategoryForm({
       }
     },
     onError: (error) => {
-      alert("Failed to update category: " + error.message);
+      toast.error("Failed to update category", { description: error.message });
     },
   });
 

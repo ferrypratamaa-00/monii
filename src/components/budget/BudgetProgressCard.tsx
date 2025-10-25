@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Progress } from "@/components/ui/progress";
+import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import { EditBudgetDialog } from "./EditBudgetDialog";
 
@@ -37,6 +39,7 @@ export function BudgetProgressCard({
 }: BudgetProgressCardProps) {
   const queryClient = useQueryClient();
   const [isDeleting, setIsDeleting] = useState(false);
+  const { confirm, dialog } = useConfirmDialog();
 
   const deleteMutation = useMutation({
     mutationFn: async (budgetId: number) => {
@@ -53,20 +56,23 @@ export function BudgetProgressCard({
   });
 
   const handleDelete = async () => {
-    if (
-      confirm(
-        `Are you sure you want to delete the budget for ${budget.categoryName}?`,
-      )
-    ) {
-      setIsDeleting(true);
-      try {
-        await deleteMutation.mutateAsync(budget.id);
-      } catch (error) {
-        console.error("Failed to delete budget:", error);
-      } finally {
-        setIsDeleting(false);
-      }
-    }
+    confirm({
+      title: "Delete Budget",
+      description: `Are you sure you want to delete the budget for ${budget.categoryName}? This action cannot be undone.`,
+      variant: "destructive",
+      onConfirm: async () => {
+        setIsDeleting(true);
+        try {
+          await deleteMutation.mutateAsync(budget.id);
+          toast.deleted("Budget");
+        } catch (error) {
+          console.error("Failed to delete budget:", error);
+          toast.error("Failed to delete budget");
+        } finally {
+          setIsDeleting(false);
+        }
+      },
+    });
   };
 
   const spendingPercentage =
@@ -229,6 +235,7 @@ export function BudgetProgressCard({
           </div>
         </div>
       </CardContent>
+      {dialog}
     </Card>
   );
 }

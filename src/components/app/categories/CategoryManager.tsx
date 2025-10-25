@@ -33,7 +33,6 @@ const renderIcon = (iconName?: string | null) => {
 export function CategoryManager() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const queryClient = useQueryClient();
 
   const {
     data: categories,

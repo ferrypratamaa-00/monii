@@ -7,12 +7,17 @@ import { useState } from "react";
 import { deleteCategoryAction } from "@/app/actions/category";
 import { Button } from "@/components/ui/button";
 import {
+  ConfirmDialog,
+  useConfirmDialog,
+} from "@/components/ui/confirm-dialog";
+import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { toast } from "@/lib/toast";
 import CategoryForm from "./CategoryForm";
 
 const renderIcon = (iconName?: string | null) => {
@@ -42,6 +47,7 @@ export default function CategoryList() {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const { confirm, dialog } = useConfirmDialog();
 
   const {
     data: categories,
@@ -56,15 +62,25 @@ export default function CategoryList() {
     },
   });
 
-  const handleDelete = async (categoryId: number) => {
-    if (confirm("Are you sure you want to delete this category?")) {
-      const result = await deleteCategoryAction(categoryId);
-      if (result.success) {
-        refetch();
-      } else {
-        console.error(result.error);
-      }
-    }
+  const handleDelete = async (categoryId: number, categoryName: string) => {
+    confirm({
+      title: "Delete Category",
+      description: `Are you sure you want to delete "${categoryName}"? This action cannot be undone.`,
+      confirmText: "Delete",
+      cancelText: "Cancel",
+      variant: "destructive",
+      onConfirm: async () => {
+        const result = await deleteCategoryAction(categoryId);
+        if (result.success) {
+          toast.deleted("Category");
+          refetch();
+        } else {
+          toast.error("Failed to delete category", {
+            description: result.error,
+          });
+        }
+      },
+    });
   };
 
   if (isLoading) {
@@ -181,7 +197,7 @@ export default function CategoryList() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handleDelete(category.id)}
+                    onClick={() => handleDelete(category.id, category.name)}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -239,7 +255,7 @@ export default function CategoryList() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handleDelete(category.id)}
+                    onClick={() => handleDelete(category.id, category.name)}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -249,6 +265,7 @@ export default function CategoryList() {
           </div>
         </div>
       </div>
+      {dialog}
     </div>
   );
 }

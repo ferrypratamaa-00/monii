@@ -5,6 +5,7 @@ import { Edit, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { deleteAccountAction } from "@/app/actions/account";
 import { Button } from "@/components/ui/button";
+import { useConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   Dialog,
   DialogContent,
@@ -12,6 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { toast } from "@/lib/toast";
 import AccountForm from "./AccountForm";
 
 interface Account {
@@ -24,6 +26,7 @@ interface Account {
 export default function AccountList() {
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const { confirm, dialog } = useConfirmDialog();
 
   const {
     data: accounts,
@@ -39,14 +42,22 @@ export default function AccountList() {
   });
 
   const handleDelete = async (accountId: number) => {
-    if (confirm("Are you sure you want to delete this account?")) {
-      const result = await deleteAccountAction(accountId);
-      if (result.success) {
-        refetch();
-      } else {
-        console.error(result.error);
-      }
-    }
+    confirm({
+      title: "Delete Account",
+      description:
+        "Are you sure you want to delete this account? This action cannot be undone.",
+      variant: "destructive",
+      onConfirm: async () => {
+        const result = await deleteAccountAction(accountId);
+        if (result.success) {
+          toast.deleted("Account");
+          refetch();
+        } else {
+          console.error(result.error);
+          toast.error("Failed to delete account");
+        }
+      },
+    });
   };
 
   if (isLoading) {
@@ -159,6 +170,7 @@ export default function AccountList() {
           </div>
         ))}
       </div>
+      {dialog}
     </div>
   );
 }
