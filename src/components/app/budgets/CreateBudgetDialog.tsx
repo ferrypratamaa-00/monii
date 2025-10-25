@@ -2,8 +2,8 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Edit } from "lucide-react";
-import { useEffect } from "react";
+import { Plus } from "lucide-react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -30,44 +30,44 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "@/lib/toast";
 
-const EditBudgetSchema = z.object({
-  limitAmount: z.number().positive("Budget limit must be greater than 0"),
+const CreateBudgetSchema = z.object({
+  categoryId: z.number().int().positive("Please select a category"),
   period: z.enum(["MONTHLY", "YEARLY"]),
+  limitAmount: z.number().positive("Budget limit must be greater than 0"),
 });
 
-type EditBudgetFormData = z.infer<typeof EditBudgetSchema>;
+type CreateBudgetFormData = z.infer<typeof CreateBudgetSchema>;
 
-interface Budget {
+interface Category {
   id: number;
-  categoryId: number;
-  categoryName: string;
-  period: "MONTHLY" | "YEARLY";
-  limitAmount: number;
-  currentSpending: number;
-  createdAt: Date;
+  name: string;
+  type: "INCOME" | "EXPENSE";
 }
 
-interface EditBudgetDialogProps {
-  budget: Budget;
-  trigger?: React.ReactNode;
+interface CreateBudgetDialogProps {
+  categories: Category[];
+  onSuccess?: () => void;
 }
 
-export function EditBudgetDialog({ budget, trigger }: EditBudgetDialogProps) {
+export function CreateBudgetDialog({ categories, onSuccess }: CreateBudgetDialogProps) {
   const queryClient = useQueryClient();
+  const [isOpen, setIsOpen] = useState(false);
 
-  const form = useForm<EditBudgetFormData>({
-    resolver: zodResolver(EditBudgetSchema),
+  const form = useForm<CreateBudgetFormData>({
+    resolver: zodResolver(CreateBudgetSchema),
     defaultValues: {
-      limitAmount: budget.limitAmount,
-      period: budget.period,
+      categoryId: 0,
+      period: "MONTHLY",
+      limitAmount: 0,
     },
   });
 
-  const updateMutation = useMutation({
-    mutationFn: async (data: EditBudgetFormData) => {
-      const response = await fetch(`/api/budgets/${budget.id}`, {
-        method: "PUT",
+  const createMutation = useMutation({
+    mutationFn: async (data: CreateBudgetFormData) => {
+      const response = await fetch("/api/budgets", {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
@@ -76,7 +76,7 @@ export function EditBudgetDialog({ budget, trigger }: EditBudgetDialogProps) {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to update budget");
+        throw new Error(error.error || "Failed to create budget");
       }
 
       return response.json();
@@ -85,46 +85,70 @@ export function EditBudgetDialog({ budget, trigger }: EditBudgetDialogProps) {
       queryClient.invalidateQueries({ queryKey: ["budgets"] });
       queryClient.invalidateQueries({ queryKey: ["budget-stats"] });
       form.reset();
+      toast.created("Budget");
+      setIsOpen(false);
+      onSuccess?.();
+    },
+    onError: (error) => {
+      toast.error("Failed to create budget", { description: error.message });
     },
   });
 
-  const onSubmit = (data: EditBudgetFormData) => {
-    updateMutation.mutate(data);
+  const onSubmit = (data: CreateBudgetFormData) => {
+    createMutation.mutate(data);
   };
 
-  // Reset form when budget changes
-  useEffect(() => {
-    form.reset({
-      limitAmount: budget.limitAmount,
-      period: budget.period,
-    });
-  }, [budget, form]);
+  // Filter only expense categories for budgets
+  const expenseCategories = categories.filter((cat) => cat.type === "EXPENSE");
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        {trigger || (
-          <Button variant="ghost" size="sm">
-            <Edit className="h-4 w-4 mr-2" />
-            Edit Budget
-          </Button>
-        )}
+        <Button>
+          <Plus className="h-4 w-4 mr-2" />
+          Create Budget
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Edit Budget</DialogTitle>
+          <DialogTitle>Create New Budget</DialogTitle>
         </DialogHeader>
-
-        <div className="mb-4 p-3 bg-muted rounded-lg">
-          <p className="text-sm font-medium">{budget.categoryName}</p>
-          <p className="text-xs text-muted-foreground">
-            Current spending: Rp{" "}
-            {budget.currentSpending.toLocaleString("id-ID")}
-          </p>
-        </div>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="categoryId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Category</FormLabel>
+                  <Select
+                    onValueChange={(value) =>
+                      field.onChange(parseInt(value, 10))
+                    }
+                    value={field.value?.toString() || ""}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {expenseCategories.map((category) => (
+                        <SelectItem
+                          key={category.id}
+                          value={category.id.toString()}
+                        >
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="period"
@@ -173,18 +197,18 @@ export function EditBudgetDialog({ budget, trigger }: EditBudgetDialogProps) {
             <div className="flex gap-2 pt-4">
               <Button
                 type="submit"
-                disabled={updateMutation.isPending}
+                disabled={createMutation.isPending}
                 className="flex-1"
               >
-                {updateMutation.isPending ? "Updating..." : "Update Budget"}
+                {createMutation.isPending ? "Creating..." : "Create Budget"}
               </Button>
             </div>
           </form>
         </Form>
 
-        {updateMutation.isError && (
+        {createMutation.isError && (
           <div className="text-sm text-red-600 mt-2">
-            Error: {updateMutation.error?.message}
+            Error: {createMutation.error?.message}
           </div>
         )}
       </DialogContent>

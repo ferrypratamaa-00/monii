@@ -3,8 +3,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, RotateCcw, Target, TrendingUp } from "lucide-react";
 import { useState } from "react";
-import { BudgetProgressCard } from "@/components/budget/BudgetProgressCard";
-import { CreateBudgetDialog } from "@/components/budget/CreateBudgetDialog";
+import { BudgetProgressCard } from "@/components/app/budgets/BudgetProgressCard";
+import { CreateBudgetDialog } from "@/components/app/budgets/CreateBudgetDialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -149,7 +149,9 @@ export default function BudgetPage() {
             <RotateCcw className="h-4 w-4 mr-2" />
             {resetMutation.isPending ? "Resetting..." : "Reset Monthly"}
           </Button>
-          {categories && <CreateBudgetDialog categories={categories} />}
+          {categories && <CreateBudgetDialog categories={categories} onSuccess={() => {
+            // Optional: could add additional logic here if needed
+          }} />}
         </div>
       </div>
 
@@ -229,7 +231,9 @@ export default function BudgetPage() {
                 membuat budget untuk kategori pengeluaran utama.
               </p>
               <div className="flex justify-center">
-                {categories && <CreateBudgetDialog categories={categories} />}
+                {categories && <CreateBudgetDialog categories={categories} onSuccess={() => {
+                  // Optional: could add additional logic here if needed
+                }} />}
               </div>
             </Card>
           )}
