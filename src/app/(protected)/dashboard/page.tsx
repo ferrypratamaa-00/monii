@@ -8,8 +8,6 @@ import {
   getMonthlyTrendData,
   getTotalBalance,
 } from "@/services/dashboard";
-import { indexedDBService } from "@/services/indexedDB";
-import { localStorageService } from "@/services/localStorage";
 import DashboardClient from "./DashboardClient";
 
 export default async function DashboardPage() {
@@ -61,55 +59,6 @@ export default async function DashboardPage() {
     }),
   ]);
 
-  // Cache data for offline use
-  if (user) {
-    localStorageService.saveUserData({
-      id: userId,
-      name: user.name ?? undefined,
-      email: user.email || "",
-    });
-    await indexedDBService.saveUserData({
-      id: userId,
-      name: user.name ?? undefined,
-      email: user.email || "",
-    });
-  }
-
-  if (allCategories.length > 0) {
-    const transformedCategories = allCategories.map((cat) => ({
-      ...cat,
-      iconName: cat.iconName || undefined,
-    }));
-    localStorageService.saveCategoriesData({
-      categories: transformedCategories,
-    });
-    await indexedDBService.saveCategoriesData({
-      categories: transformedCategories,
-    });
-  }
-
-  if (allAccounts.length > 0) {
-    localStorageService.saveAccountsData({
-      accounts: allAccounts.map((account) => ({
-        ...account,
-        balance: parseFloat(account.balance),
-      })),
-    });
-    await indexedDBService.saveAccountsData({
-      accounts: allAccounts.map((account) => ({
-        ...account,
-        balance: parseFloat(account.balance),
-      })),
-    });
-  }
-
-  if (totalBalance !== undefined && monthlySummary) {
-    await indexedDBService.saveDashboardData({
-      totalBalance,
-      monthlySummary,
-    });
-  }
-
   const transformedExpenseByCategory = expenseByCategory.map((item) => ({
     category: item.name,
     total: item.value,
@@ -136,6 +85,9 @@ export default async function DashboardPage() {
       recentTransactions={transformedRecentTransactions}
       userId={userId}
       userName={user?.name || null}
+      user={user}
+      allCategories={allCategories}
+      allAccounts={allAccounts}
     />
   );
 }

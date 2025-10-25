@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import TransactionModal from "@/components/app/transactions/TransactionModal";
 import { useOnboardingGuide } from "@/hooks/useOnboardingGuide";
 import { indexedDBService } from "@/services/indexedDB";
+import { localStorageService } from "@/services/localStorage";
 import { syncService } from "@/services/sync";
 
 // Lazy load heavy chart components
@@ -80,6 +81,9 @@ interface DashboardClientProps {
   }>;
   userId: number;
   userName: string | null;
+  user: { name: string | null; email: string } | undefined;
+  allCategories: Array<{ id: number; name: string; type: string; iconName: string | null }>;
+  allAccounts: Array<{ id: number; name: string; balance: string }>;
 }
 
 export default function DashboardClient({
@@ -90,6 +94,9 @@ export default function DashboardClient({
   recentTransactions,
   userId,
   userName,
+  user,
+  allCategories,
+  allAccounts,
 }: DashboardClientProps) {
   const { t } = useLanguage();
   const [isOnline, setIsOnline] = useState(true);
@@ -106,6 +113,7 @@ export default function DashboardClient({
   // Initialize onboarding guide
   useOnboardingGuide();
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <>
   useEffect(() => {
     const initializeOfflineSupport = async () => {
       // Check initial online status
@@ -150,6 +158,51 @@ export default function DashboardClient({
 
     // Cache current data for offline use
     const cacheData = async () => {
+      // Cache user data
+      if (user) {
+        localStorageService.saveUserData({
+          id: userId,
+          name: user.name ?? undefined,
+          email: user.email || "",
+        });
+        await indexedDBService.saveUserData({
+          id: userId,
+          name: user.name ?? undefined,
+          email: user.email || "",
+        });
+      }
+
+      // Cache categories data
+      if (allCategories.length > 0) {
+        const transformedCategories = allCategories.map((cat) => ({
+          ...cat,
+          iconName: cat.iconName || undefined,
+        }));
+        localStorageService.saveCategoriesData({
+          categories: transformedCategories,
+        });
+        await indexedDBService.saveCategoriesData({
+          categories: transformedCategories,
+        });
+      }
+
+      // Cache accounts data
+      if (allAccounts.length > 0) {
+        localStorageService.saveAccountsData({
+          accounts: allAccounts.map((account) => ({
+            ...account,
+            balance: parseFloat(account.balance),
+          })),
+        });
+        await indexedDBService.saveAccountsData({
+          accounts: allAccounts.map((account) => ({
+            ...account,
+            balance: parseFloat(account.balance),
+          })),
+        });
+      }
+
+      // Cache dashboard data
       if (totalBalance !== undefined && monthlySummary) {
         await indexedDBService.saveDashboardData({
           totalBalance,
@@ -164,7 +217,7 @@ export default function DashboardClient({
       window.removeEventListener("offline", handleOffline);
       clearInterval(syncCheckInterval);
     };
-  }, [totalBalance, monthlySummary, showConflictDialog]);
+  }, [totalBalance, monthlySummary, showConflictDialog, user, userId, allCategories, allAccounts]);
 
   // Show offline dashboard if offline and we have cached data
   if (!isOnline && hasCachedData) {
