@@ -26,6 +26,7 @@ interface Account {
 export default function AccountList() {
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const { confirm, dialog } = useConfirmDialog();
 
   const {
@@ -136,12 +137,15 @@ export default function AccountList() {
               <p className="text-sm text-muted-foreground">Current Balance</p>
             </div>
             <div className="flex gap-2 ml-4">
-              <Dialog>
+              <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
                 <DialogTrigger asChild>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setEditingAccount(account)}
+                    onClick={() => {
+                      setEditingAccount(account);
+                      setIsEditOpen(true);
+                    }}
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
@@ -154,6 +158,7 @@ export default function AccountList() {
                     account={editingAccount || undefined}
                     onSuccess={() => {
                       setEditingAccount(null);
+                      setIsEditOpen(false);
                       refetch();
                     }}
                   />

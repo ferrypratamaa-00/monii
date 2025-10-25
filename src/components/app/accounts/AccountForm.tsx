@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
 import {
@@ -17,6 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { toast } from "@/lib/toast";
 import { AccountSchema } from "@/lib/validations/account";
 
 interface AccountFormProps {
@@ -29,30 +31,79 @@ interface AccountFormProps {
 }
 
 export default function AccountForm({ account, onSuccess }: AccountFormProps) {
-  const form = useForm({
+  const queryClient = useQueryClient();
+
+  const form = useForm<z.infer<typeof AccountSchema>>({
     resolver: zodResolver(AccountSchema),
     defaultValues: {
-      name: account?.name || "",
+      name: account?.name ?? "",
       initialBalance: account ? parseFloat(account.initialBalance) : 0,
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof AccountSchema>) => {
-    const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("initialBalance", data.initialBalance.toString());
+  const createMutation = useMutation({
+    mutationFn: async (data: z.infer<typeof AccountSchema>) => {
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("initialBalance", data.initialBalance.toString());
+      const result = await createAccountAction(formData);
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      try {
+        form.reset();
+        toast.created("Account");
+        onSuccess?.();
+      } catch (err) {
+        console.warn("AccountForm: callback threw", err);
+      }
+    },
+    onError: (error) => {
+      toast.error("Failed to create account", { description: error.message });
+    },
+  });
 
-    const result = account
-      ? await updateAccountAction(account.id, formData)
-      : await createAccountAction(formData);
+  const updateMutation = useMutation({
+    mutationFn: async (
+      data: z.infer<typeof AccountSchema> & { id: number },
+    ) => {
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("initialBalance", data.initialBalance.toString());
+      const result = await updateAccountAction(data.id, formData);
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      try {
+        form.reset();
+        toast.updated("Account");
+        onSuccess?.();
+      } catch (err) {
+        console.warn("AccountForm: callback threw", err);
+      }
+    },
+    onError: (error) => {
+      toast.error("Failed to update account", { description: error.message });
+    },
+  });
 
-    if (result.success) {
-      form.reset();
-      onSuccess?.();
+  const onSubmit = (data: z.infer<typeof AccountSchema>) => {
+    if (account) {
+      updateMutation.mutate({ ...data, id: account.id });
     } else {
-      console.error(result.error);
+      createMutation.mutate(data);
     }
   };
+
+  const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
   return (
     <Form {...form}>
@@ -89,7 +140,7 @@ export default function AccountForm({ account, onSuccess }: AccountFormProps) {
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={form.formState.isSubmitting}>
+        <Button type="submit" disabled={isSubmitting}>
           {account ? "Update Account" : "Create Account"}
         </Button>
       </form>
