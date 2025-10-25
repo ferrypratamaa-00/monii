@@ -45,8 +45,8 @@ export function QuickActionButton() {
     <>
       {/* Expanded Action Buttons */}
       {isExpanded && (
-        <div className="fixed right-6 bottom-32 flex flex-col gap-3 z-50">
-          {quickActions.slice(1).map((action, index) => {
+        <div className="fixed right-7.5 bottom-38 flex flex-col gap-3 z-50">
+          {quickActions.slice(1).map((action) => {
             const Icon = action.icon;
             return action.href ? (
               <Link key={action.label} href={action.href}>

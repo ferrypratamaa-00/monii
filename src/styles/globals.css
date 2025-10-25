@@ -59,8 +59,8 @@
   --chart-3: #e8c5d8;
   --chart-4: #d8b5c8;
   --chart-5: #c8a8b8;
-  --income-color: #10b981;
-  --expense-color: #ef4444;
+  --income-color: #31c493;
+  --expense-color: #f65454;
   --radius: 1rem;
 }
 
@@ -80,7 +80,7 @@
   --muted-foreground: #566573;
   --accent: #3498db;
   --accent-foreground: #ffffff;
-  --destructive: #e74c3c;
+  --destructive: #ef5c4c;
   --destructive-foreground: #ffffff;
   --border: #bdc3c7;
   --input: #ffffff;
@@ -111,7 +111,7 @@
   --muted-foreground: #76448a;
   --accent: #8e44ad;
   --accent-foreground: #ffffff;
-  --destructive: #c0392b;
+  --destructive: #ef5c4c;
   --destructive-foreground: #ffffff;
   --border: #c39bd3;
   --input: #ffffff;
@@ -199,7 +199,7 @@ body {
   --chart-3: #d5b8c9;
   --chart-4: #c8a8b8;
   --chart-5: #a8b8c8;
-  --income-color: #22c55e;
+  --income-color: #10b981;
   --expense-color: #f87171;
   --sidebar: #2d2433;
   --sidebar-foreground: #f5f5f5;

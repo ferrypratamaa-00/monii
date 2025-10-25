@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { useLanguage } from "@/components/LanguageProvider";
 import OfflineDashboard from "@/components/OfflineDashboard";
 import { QuickActionButton } from "@/components/QuickActionButton";
+import renderIcon from "@/components/renderIcon";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -80,6 +81,7 @@ interface DashboardClientProps {
     amount: number;
     description: string | null;
     category: string | null;
+    categoryIcon:string | null;
     date: Date;
   }>;
   userId: number;
@@ -296,25 +298,7 @@ export default function DashboardClient({
                             : "bg-expense/20"
                         }`}
                       >
-                        <span className="text-lg">
-                          {transaction.type === "INCOME"
-                            ? "💰"
-                            : transaction.category === "Makan"
-                              ? "🍔"
-                              : transaction.category === "Transport"
-                                ? "�"
-                                : transaction.category === "Belanja"
-                                  ? "🛒"
-                                  : transaction.category === "Tagihan"
-                                    ? "📄"
-                                    : transaction.category === "Hiburan"
-                                      ? "🎬"
-                                      : transaction.category === "Kesehatan"
-                                        ? "🏥"
-                                        : transaction.category === "Pendidikan"
-                                          ? "📚"
-                                          : "💸"}
-                        </span>
+                        {renderIcon(transaction.categoryIcon)}
                       </div>
                       <div>
                         <p className="font-medium text-sm text-foreground">
@@ -338,7 +322,7 @@ export default function DashboardClient({
                           : "text-expense"
                       }`}
                     >
-                      Rp{Math.abs(transaction.amount).toLocaleString("id-ID")}
+                      {transaction.type === "INCOME" ? "+" : "-"}Rp{Math.abs(transaction.amount).toLocaleString("id-ID")}
                     </p>
                   </div>
                 ))}

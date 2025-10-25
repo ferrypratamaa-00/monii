@@ -1,13 +1,11 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import * as LucideIcons from "lucide-react";
 import { Edit, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { deleteCategoryAction } from "@/app/actions/category";
 import { Button } from "@/components/ui/button";
 import {
-  ConfirmDialog,
   useConfirmDialog,
 } from "@/components/ui/confirm-dialog";
 import {
@@ -19,22 +17,8 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "@/lib/toast";
 import CategoryForm from "./CategoryForm";
+import renderIcon from "../../renderIcon";
 
-const renderIcon = (iconName?: string | null) => {
-  if (!iconName) {
-    return (
-      <span className="h-4 w-4 flex items-center justify-center text-muted-foreground">
-        •
-      </span>
-    );
-  }
-  const IconComponent = (LucideIcons as any)[iconName];
-  return IconComponent ? (
-    <IconComponent className="h-4 w-4" />
-  ) : (
-    <span className="h-4 w-4 flex items-center justify-center text-muted-foreground" />
-  );
-};
 
 interface Category {
   id: number;

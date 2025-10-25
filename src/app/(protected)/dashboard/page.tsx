@@ -39,6 +39,7 @@ export default async function DashboardPage() {
         description: transactions.description,
         date: transactions.date,
         categoryName: categories.name,
+        categoryIcon:categories.iconName
       })
       .from(transactions)
       .leftJoin(categories, eq(transactions.categoryId, categories.id))
@@ -51,7 +52,7 @@ export default async function DashboardPage() {
     }),
     db.query.categories.findMany({
       where: eq(categories.userId, userId),
-      columns: { id: true, name: true, type: true },
+      columns: { id: true, name: true, type: true, iconName: true },
     }),
     db.query.accounts.findMany({
       where: eq(accounts.userId, userId),
@@ -95,6 +96,7 @@ export default async function DashboardPage() {
       amount: parseFloat(transaction.amount),
       description: transaction.description,
       category: transaction.categoryName,
+      categoryIcon:transaction.categoryIcon,
       date: transaction.date,
     }),
   );
