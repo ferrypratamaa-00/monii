@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { accounts } from "@/db/schema";
 
@@ -39,7 +39,7 @@ export async function updateAccount(
   const [account] = await db
     .update(accounts)
     .set(updateData)
-    .where(eq(accounts.id, accountId) && eq(accounts.userId, userId))
+    .where(and(eq(accounts.id, accountId), eq(accounts.userId, userId)))
     .returning();
   return account;
 }
@@ -47,5 +47,5 @@ export async function updateAccount(
 export async function deleteAccount(userId: number, accountId: number) {
   await db
     .delete(accounts)
-    .where(eq(accounts.id, accountId) && eq(accounts.userId, userId));
+    .where(and(eq(accounts.id, accountId), eq(accounts.userId, userId)));
 }

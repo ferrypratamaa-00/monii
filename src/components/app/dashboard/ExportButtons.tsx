@@ -4,6 +4,7 @@ import { Database, Download } from "lucide-react";
 import { useState } from "react";
 import { useLanguage } from "@/components/LanguageProvider";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/lib/toast";
 
 export default function ExportButtons() {
   const { t } = useLanguage();
@@ -28,7 +29,7 @@ export default function ExportButtons() {
       document.body.removeChild(a);
     } catch (error) {
       console.error("Export error:", error);
-      alert(t("export.failed"));
+      toast.error(t("export.failed"));
     } finally {
       setIsExporting(null);
     }
@@ -53,7 +54,7 @@ export default function ExportButtons() {
       document.body.removeChild(a);
     } catch (error) {
       console.error("Backup error:", error);
-      alert(t("export.backupFailed"));
+      toast.error(t("export.backupFailed"));
     } finally {
       setIsExporting(null);
     }

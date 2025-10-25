@@ -8,7 +8,6 @@ import {
   getMonthlyTrendData,
   getTotalBalance,
 } from "@/services/dashboard";
-import { localStorageService } from "@/services/localStorage";
 import DashboardClient from "./DashboardClient";
 
 export default async function DashboardPage() {
@@ -39,6 +38,7 @@ export default async function DashboardPage() {
         description: transactions.description,
         date: transactions.date,
         categoryName: categories.name,
+        categoryIcon: categories.iconName,
       })
       .from(transactions)
       .leftJoin(categories, eq(transactions.categoryId, categories.id))
@@ -51,37 +51,13 @@ export default async function DashboardPage() {
     }),
     db.query.categories.findMany({
       where: eq(categories.userId, userId),
-      columns: { id: true, name: true, type: true },
+      columns: { id: true, name: true, type: true, iconName: true },
     }),
     db.query.accounts.findMany({
       where: eq(accounts.userId, userId),
       columns: { id: true, name: true, balance: true },
     }),
   ]);
-
-  // Cache data for offline use
-  if (user) {
-    localStorageService.saveUserData({
-      id: userId,
-      name: user.name ?? undefined,
-      email: user.email || "",
-    });
-  }
-
-  if (allCategories.length > 0) {
-    localStorageService.saveCategoriesData({
-      categories: allCategories,
-    });
-  }
-
-  if (allAccounts.length > 0) {
-    localStorageService.saveAccountsData({
-      accounts: allAccounts.map((account) => ({
-        ...account,
-        balance: parseFloat(account.balance),
-      })),
-    });
-  }
 
   const transformedExpenseByCategory = expenseByCategory.map((item) => ({
     category: item.name,
@@ -95,6 +71,7 @@ export default async function DashboardPage() {
       amount: parseFloat(transaction.amount),
       description: transaction.description,
       category: transaction.categoryName,
+      categoryIcon: transaction.categoryIcon,
       date: transaction.date,
     }),
   );
@@ -108,6 +85,9 @@ export default async function DashboardPage() {
       recentTransactions={transformedRecentTransactions}
       userId={userId}
       userName={user?.name || null}
+      user={user}
+      allCategories={allCategories}
+      allAccounts={allAccounts}
     />
   );
 }

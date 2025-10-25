@@ -5,6 +5,7 @@ import { Edit, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { deleteAccountAction } from "@/app/actions/account";
 import { Button } from "@/components/ui/button";
+import { useConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   Dialog,
   DialogContent,
@@ -12,6 +13,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { toast } from "@/lib/toast";
+import { useLanguage } from "@/components/LanguageProvider";
 import AccountForm from "./AccountForm";
 
 interface Account {
@@ -22,8 +25,11 @@ interface Account {
 }
 
 export default function AccountList() {
+  const { t } = useLanguage();
   const [editingAccount, setEditingAccount] = useState<Account | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const { confirm, dialog } = useConfirmDialog();
 
   const {
     data: accounts,
@@ -39,34 +45,41 @@ export default function AccountList() {
   });
 
   const handleDelete = async (accountId: number) => {
-    if (confirm("Are you sure you want to delete this account?")) {
-      const result = await deleteAccountAction(accountId);
-      if (result.success) {
-        refetch();
-      } else {
-        console.error(result.error);
-      }
-    }
+    confirm({
+      title: t("accounts.deleteAccount"),
+      description: t("accounts.deleteAccountConfirm"),
+      variant: "destructive",
+      onConfirm: async () => {
+        const result = await deleteAccountAction(accountId);
+        if (result.success) {
+          toast.deleted(t("accounts.pageTitle"));
+          refetch();
+        } else {
+          console.error(result.error);
+          toast.error(t("accounts.deleteFailed"));
+        }
+      },
+    });
   };
 
   if (isLoading) {
-    return <div className="text-center py-8">Loading accounts...</div>;
+    return <div className="text-center py-8">{t("accounts.loading")}</div>;
   }
 
   if (!accounts || accounts.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-muted-foreground mb-4">No accounts yet</p>
+        <p className="text-muted-foreground mb-4">{t("accounts.noAccounts")}</p>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="h-4 w-4 mr-2" />
-              Create Account
+              {t("accounts.createAccount")}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Create New Account</DialogTitle>
+              <DialogTitle>{t("accounts.createNewAccount")}</DialogTitle>
             </DialogHeader>
             <AccountForm
               onSuccess={() => {
@@ -83,17 +96,17 @@ export default function AccountList() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Accounts</h2>
+        <h2 className="text-2xl font-bold">{t("accounts.pageTitle")}</h2>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="h-4 w-4 mr-2" />
-              Add Account
+              {t("accounts.addAccount")}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Create New Account</DialogTitle>
+              <DialogTitle>{t("accounts.createNewAccount")}</DialogTitle>
             </DialogHeader>
             <AccountForm
               onSuccess={() => {
@@ -114,7 +127,7 @@ export default function AccountList() {
             <div className="flex-1">
               <h3 className="font-medium">{account.name}</h3>
               <p className="text-sm text-muted-foreground">
-                Initial: Rp{" "}
+                {t("accounts.initialBalance")}: Rp{" "}
                 {parseFloat(account.initialBalance).toLocaleString("id-ID")}
               </p>
             </div>
@@ -122,27 +135,31 @@ export default function AccountList() {
               <p className="font-semibold">
                 Rp {parseFloat(account.balance).toLocaleString("id-ID")}
               </p>
-              <p className="text-sm text-muted-foreground">Current Balance</p>
+              <p className="text-sm text-muted-foreground">{t("accounts.currentBalance")}</p>
             </div>
             <div className="flex gap-2 ml-4">
-              <Dialog>
+              <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
                 <DialogTrigger asChild>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setEditingAccount(account)}
+                    onClick={() => {
+                      setEditingAccount(account);
+                      setIsEditOpen(true);
+                    }}
                   >
                     <Edit className="h-4 w-4" />
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Edit Account</DialogTitle>
+                    <DialogTitle>{t("accounts.editAccount")}</DialogTitle>
                   </DialogHeader>
                   <AccountForm
                     account={editingAccount || undefined}
                     onSuccess={() => {
                       setEditingAccount(null);
+                      setIsEditOpen(false);
                       refetch();
                     }}
                   />
@@ -159,6 +176,7 @@ export default function AccountList() {
           </div>
         ))}
       </div>
+      {dialog}
     </div>
   );
 }

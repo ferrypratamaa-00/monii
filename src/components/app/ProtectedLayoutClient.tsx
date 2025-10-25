@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Navigation from "@/components/app/Navigation";
 import { KeyboardShortcutsHelp } from "@/components/KeyboardShortcutsHelp";
 import OfflineIndicator from "@/components/OfflineIndicator";

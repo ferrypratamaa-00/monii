@@ -8,12 +8,15 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
+import { useLanguage } from "@/components/LanguageProvider";
 
 interface PieChartProps {
   data: { name: string; value: number }[];
 }
 
 export default function ExpensePieChart({ data }: PieChartProps) {
+  const { t } = useLanguage();
+
   // Use CSS custom properties for chart colors
   const getChartColor = (index: number) => {
     // Get the computed style to access CSS custom properties
@@ -52,7 +55,7 @@ export default function ExpensePieChart({ data }: PieChartProps) {
         <Tooltip
           formatter={(value: number) => [
             `Rp ${value.toLocaleString("id-ID")}`,
-            "Jumlah",
+            t("charts.amount"),
           ]}
         />
         <Legend />

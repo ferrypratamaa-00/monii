@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "@/lib/toast";
 
 const CreateBudgetSchema = z.object({
   categoryId: z.number().int().positive("Please select a category"),
@@ -46,10 +48,15 @@ interface Category {
 
 interface CreateBudgetDialogProps {
   categories: Category[];
+  onSuccess?: () => void;
 }
 
-export function CreateBudgetDialog({ categories }: CreateBudgetDialogProps) {
+export function CreateBudgetDialog({
+  categories,
+  onSuccess,
+}: CreateBudgetDialogProps) {
   const queryClient = useQueryClient();
+  const [isOpen, setIsOpen] = useState(false);
 
   const form = useForm<CreateBudgetFormData>({
     resolver: zodResolver(CreateBudgetSchema),
@@ -81,6 +88,12 @@ export function CreateBudgetDialog({ categories }: CreateBudgetDialogProps) {
       queryClient.invalidateQueries({ queryKey: ["budgets"] });
       queryClient.invalidateQueries({ queryKey: ["budget-stats"] });
       form.reset();
+      toast.created("Budget");
+      setIsOpen(false);
+      onSuccess?.();
+    },
+    onError: (error) => {
+      toast.error("Failed to create budget", { description: error.message });
     },
   });
 
@@ -92,7 +105,7 @@ export function CreateBudgetDialog({ categories }: CreateBudgetDialogProps) {
   const expenseCategories = categories.filter((cat) => cat.type === "EXPENSE");
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button>
           <Plus className="h-4 w-4 mr-2" />

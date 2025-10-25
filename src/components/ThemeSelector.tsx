@@ -23,6 +23,30 @@ const themes = [
     colors: ["#F4ECF7", "#9B59B6", "#8E44AD"],
     emoji: "💜",
   },
+  {
+    id: "professional",
+    name: "Professional",
+    colors: ["#FAFAFA", "#2D3748", "#4A5568"],
+    emoji: "💼",
+  },
+  {
+    id: "vibrant",
+    name: "Vibrant Modern",
+    colors: ["#FEFEFE", "#1DA1F2", "#FF6B35"],
+    emoji: "✨",
+  },
+  {
+    id: "warm",
+    name: "Warm Elegant",
+    colors: ["#FDF8F4", "#D2691E", "#CD853F"],
+    emoji: "🌅",
+  },
+  {
+    id: "tech",
+    name: "Cool Tech",
+    colors: ["#0A0A0A", "#00FF88", "#FF0080"],
+    emoji: "🚀",
+  },
 ];
 
 export default function ThemeSelector() {

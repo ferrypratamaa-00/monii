@@ -1,26 +1,45 @@
 "use client";
 import { Database, RefreshCw, WifiOff } from "lucide-react";
 import { useEffect, useState } from "react";
-import { localStorageService } from "@/services/localStorage";
+import { indexedDBService } from "@/services/indexedDB";
 import { syncService } from "@/services/sync";
 import { useLanguage } from "./LanguageProvider";
 
 export default function OfflineIndicator() {
   const [isOnline, setIsOnline] = useState(true);
-  const [cacheStatus, setCacheStatus] = useState(
-    localStorageService.getCacheStatus(),
-  );
-  const [syncStatus, setSyncStatus] = useState(syncService.getSyncStatus());
+  const [cacheStatus, setCacheStatus] = useState<{
+    userData: boolean;
+    dashboardData: boolean;
+    categoriesData: boolean;
+    accountsData: boolean;
+    transactionsData: boolean;
+    isOnline: boolean;
+  } | null>(null);
+  const [syncStatus, setSyncStatus] = useState<{
+    isOnline: boolean;
+    pendingCount: number | undefined;
+    lastSyncTime: string | null;
+    hasConflicts: boolean;
+  } | null>(null);
   const { t } = useLanguage();
 
   useEffect(() => {
-    // Check initial online status
-    setIsOnline(navigator.onLine);
+    const initializeStatus = async () => {
+      setIsOnline(navigator.onLine);
+      const initialCacheStatus = await indexedDBService.getCacheStatus();
+      setCacheStatus(initialCacheStatus);
+      const initialSyncStatus = await syncService.getSyncStatus();
+      setSyncStatus(initialSyncStatus);
+    };
+
+    initializeStatus();
 
     // Update cache and sync status
-    const updateStatus = () => {
-      setCacheStatus(localStorageService.getCacheStatus());
-      setSyncStatus(syncService.getSyncStatus());
+    const updateStatus = async () => {
+      const newCacheStatus = await indexedDBService.getCacheStatus();
+      setCacheStatus(newCacheStatus);
+      const newSyncStatus = await syncService.getSyncStatus();
+      setSyncStatus(newSyncStatus);
     };
 
     // Listen for online/offline events
@@ -49,7 +68,7 @@ export default function OfflineIndicator() {
     };
   }, []);
 
-  if (isOnline) return null;
+  if (isOnline || !cacheStatus) return null;
 
   const hasAnyCache =
     cacheStatus.userData ||
@@ -68,14 +87,14 @@ export default function OfflineIndicator() {
           {hasAnyCache && (
             <div className="mt-2 flex items-center gap-1 text-xs">
               <Database className="w-3 h-3" />
-              <span>Data tersimpan tersedia</span>
+              <span>{t("offline.cachedDataAvailable")}</span>
             </div>
           )}
 
-          {syncStatus.pendingCount > 0 && (
+          {syncStatus?.pendingCount && syncStatus.pendingCount > 0 && (
             <div className="mt-1 flex items-center gap-1 text-xs">
               <RefreshCw className="w-3 h-3" />
-              <span>{syncStatus.pendingCount} perubahan menunggu sync</span>
+              <span>{syncStatus.pendingCount} {t("offline.pendingChanges")}</span>
             </div>
           )}
         </div>

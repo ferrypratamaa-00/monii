@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Edit } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "@/lib/toast";
 
 const EditBudgetSchema = z.object({
   limitAmount: z.number().positive("Budget limit must be greater than 0"),
@@ -51,10 +52,16 @@ interface Budget {
 interface EditBudgetDialogProps {
   budget: Budget;
   trigger?: React.ReactNode;
+  onSuccess?: () => void;
 }
 
-export function EditBudgetDialog({ budget, trigger }: EditBudgetDialogProps) {
+export function EditBudgetDialog({
+  budget,
+  trigger,
+  onSuccess,
+}: EditBudgetDialogProps) {
   const queryClient = useQueryClient();
+  const [isOpen, setIsOpen] = useState(false);
 
   const form = useForm<EditBudgetFormData>({
     resolver: zodResolver(EditBudgetSchema),
@@ -85,6 +92,12 @@ export function EditBudgetDialog({ budget, trigger }: EditBudgetDialogProps) {
       queryClient.invalidateQueries({ queryKey: ["budgets"] });
       queryClient.invalidateQueries({ queryKey: ["budget-stats"] });
       form.reset();
+      toast.updated("Budget");
+      setIsOpen(false);
+      onSuccess?.();
+    },
+    onError: (error) => {
+      toast.error("Failed to update budget", { description: error.message });
     },
   });
 
@@ -101,7 +114,7 @@ export function EditBudgetDialog({ budget, trigger }: EditBudgetDialogProps) {
   }, [budget, form]);
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {trigger || (
           <Button variant="ghost" size="sm">

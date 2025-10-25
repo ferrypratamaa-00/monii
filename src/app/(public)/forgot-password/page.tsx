@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useLanguage } from "@/components/LanguageProvider";
 
 type ActionResponse = {
   success?: boolean;
@@ -28,6 +29,7 @@ type ActionResponse = {
 };
 
 export default function ForgotPasswordPage() {
+  const { t } = useLanguage();
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
 
@@ -64,20 +66,19 @@ export default function ForgotPasswordPage() {
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
             <Mail className="h-6 w-6 text-blue-600" />
           </div>
-          <CardTitle className="text-2xl">Lupa Password</CardTitle>
+          <CardTitle className="text-2xl">{t("auth.forgotPassword")}</CardTitle>
           <CardDescription>
-            Masukkan email Anda dan kami akan mengirim link untuk reset
-            password.
+            {t("auth.forgotPasswordDesc")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("auth.email")}</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="nama@email.com"
+                placeholder={t("auth.emailPlaceholder")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -100,7 +101,7 @@ export default function ForgotPasswordPage() {
               className="w-full"
               disabled={mutation.isPending}
             >
-              {mutation.isPending ? "Mengirim..." : "Kirim Link Reset"}
+              {mutation.isPending ? t("auth.sending") : t("auth.sendResetLink")}
             </Button>
           </form>
 
@@ -110,7 +111,7 @@ export default function ForgotPasswordPage() {
               className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Kembali ke Login
+              {t("auth.backToLogin")}
             </Link>
           </div>
         </CardContent>

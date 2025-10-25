@@ -1,57 +1,60 @@
 "use client";
 
+// biome-ignore assist/source/organizeImports: <>
 import {
   BarChart3,
   CreditCard,
   DollarSign,
   Home,
-  LogOut,
   Menu,
   PiggyBank,
   Settings,
+  Tags,
   Target,
   TrendingUp,
   Wallet,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { logoutAction } from "@/app/actions/auth";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import { KeyboardShortcutsHelp } from "@/components/KeyboardShortcutsHelp";
-import { useAuthStore } from "@/lib/stores/auth";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "../LanguageProvider";
-import LanguageSwitcher from "../LanguageSwitcher";
 import NotificationBell from "../NotificationBell";
-import ThemeSelector from "../ThemeSelector";
-import ThemeSwitcher from "../ThemeSwitcher";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const navigation = [
   { name: "nav.dashboard", href: "/dashboard", icon: Home },
   { name: "nav.transactions", href: "/transactions", icon: CreditCard },
   { name: "nav.accounts", href: "/accounts", icon: Wallet },
-  { name: "nav.categories", href: "/categories", icon: BarChart3 },
+  { name: "nav.categories", href: "/categories", icon: Tags },
+  { name: "nav.settings", href: "/settings", icon: Settings },
+];
+
+const additionalNavigation = [
   { name: "nav.budget", href: "/budget", icon: PiggyBank },
   { name: "nav.reports", href: "/reports", icon: TrendingUp },
   { name: "nav.debts", href: "/debts", icon: DollarSign },
   { name: "nav.goals", href: "/goals", icon: Target },
-  { name: "nav.settings", href: "/settings", icon: Settings },
 ];
 
 const mobileNavigation = [
   { name: "nav.dashboard", href: "/dashboard", icon: Home },
   { name: "nav.transactions", href: "/transactions", icon: CreditCard },
   { name: "nav.accounts", href: "/accounts", icon: Wallet },
-  { name: "nav.budget", href: "/budget", icon: PiggyBank },
+  { name: "nav.categories", href: "/categories", icon: BarChart3 },
   { name: "nav.more", href: "/more", icon: Menu },
 ];
 
 export default function Navigation() {
   const pathname = usePathname();
-  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { logout } = useAuthStore();
 
   let t: (key: string) => string;
   try {
@@ -62,31 +65,6 @@ export default function Navigation() {
     // Fallback if context is not available
     t = (key: string) => key;
   }
-
-  const handleLogout = async () => {
-    const result = await logoutAction();
-    if (result.success) {
-      // Clear service worker cache to prevent stale data
-      if ("serviceWorker" in navigator && "caches" in window) {
-        try {
-          const cacheNames = await caches.keys();
-          await Promise.all(
-            cacheNames.map((cacheName) => caches.delete(cacheName)),
-          );
-          console.log("Cache cleared after logout");
-        } catch (error) {
-          console.error("Failed to clear cache:", error);
-        }
-      }
-
-      // Clear client-side auth state
-      logout();
-
-      router.push("/login");
-    } else {
-      console.error("Logout failed:", result.error);
-    }
-  };
 
   return (
     <>
@@ -106,7 +84,62 @@ export default function Navigation() {
                 className="hidden sm:ml-6 sm:flex sm:space-x-8"
                 role="menubar"
               >
-                {navigation.map((item) => {
+                {navigation.slice(0, 4).map((item) => {
+                  const isActive = pathname === item.href;
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className={cn(
+                        "inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary",
+                        isActive
+                          ? "border-primary text-foreground"
+                          : "border-transparent text-muted-foreground hover:border-primary/50 hover:text-foreground",
+                      )}
+                      role="menuitem"
+                      aria-current={isActive ? "page" : undefined}
+                    >
+                      <item.icon className="w-4 h-4 mr-2" aria-hidden="true" />
+                      {t(item.name)}
+                    </Link>
+                  );
+                })}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      className={cn(
+                        "inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary cursor-pointer",
+                        "border-transparent text-muted-foreground hover:border-primary/50 hover:text-foreground",
+                      )}
+                    >
+                      <BarChart3 className="w-4 h-4 mr-2" aria-hidden="true" />
+                      {t("nav.more")}
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-48">
+                    {additionalNavigation.map((item) => {
+                      const isActive = pathname === item.href;
+                      return (
+                        <DropdownMenuItem key={item.name} asChild>
+                          <Link
+                            href={item.href}
+                            className={cn(
+                              "flex items-center w-full px-3 py-2 text-sm font-medium transition-colors",
+                              isActive
+                                ? "text-primary bg-primary/10"
+                                : "text-muted-foreground hover:text-foreground hover:bg-primary/5",
+                            )}
+                          >
+                            <item.icon className="w-4 h-4 mr-3" />
+                            {t(item.name)}
+                          </Link>
+                        </DropdownMenuItem>
+                      );
+                    })}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                {navigation.slice(4).map((item) => {
                   const isActive = pathname === item.href;
                   return (
                     <Link
@@ -135,18 +168,7 @@ export default function Navigation() {
             >
               <InstallPrompt />
               <KeyboardShortcutsHelp />
-              <ThemeSelector />
-              <LanguageSwitcher />
-              <ThemeSwitcher />
               <NotificationBell />
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-foreground bg-muted hover:bg-muted/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-colors"
-                aria-label={t("nav.logout")}
-              >
-                <LogOut className="w-4 h-4" aria-hidden="true" />
-              </button>
             </div>
           </div>
         </div>
@@ -157,9 +179,6 @@ export default function Navigation() {
         <h1 className="text-lg font-bold text-foreground">Monii 👛</h1>
         <div className="flex items-center space-x-2">
           <InstallPrompt />
-          <ThemeSelector />
-          <LanguageSwitcher />
-          <ThemeSwitcher />
           <NotificationBell />
         </div>
       </div>
@@ -237,7 +256,7 @@ export default function Navigation() {
               <InstallPrompt />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              {navigation.slice(4).map((item) => {
+              {additionalNavigation.map((item) => {
                 const isActive = pathname === item.href;
                 return (
                   <Link
@@ -256,17 +275,6 @@ export default function Navigation() {
                   </Link>
                 );
               })}
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  handleLogout();
-                }}
-                className="flex flex-col items-center p-4 rounded-xl transition-colors border text-muted-foreground hover:bg-primary/5 border-border"
-              >
-                <LogOut className="w-6 h-6 mb-2" />
-                <span className="text-sm font-medium">{t("nav.logout")}</span>
-              </button>
             </div>
           </div>
         </div>

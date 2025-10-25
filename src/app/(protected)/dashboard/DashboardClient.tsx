@@ -4,19 +4,15 @@ import { ArrowRight } from "lucide-react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import ConflictResolutionDialog from "@/components/ConflictResolutionDialog";
 import { useLanguage } from "@/components/LanguageProvider";
 import OfflineDashboard from "@/components/OfflineDashboard";
 import { QuickActionButton } from "@/components/QuickActionButton";
-import { Button } from "@/components/ui/button";
+import renderIcon from "@/components/renderIcon";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import TransactionModal from "@/components/app/transactions/TransactionModal";
 import { useOnboardingGuide } from "@/hooks/useOnboardingGuide";
+import { indexedDBService } from "@/services/indexedDB";
 import { localStorageService } from "@/services/localStorage";
 import { syncService } from "@/services/sync";
 
@@ -80,10 +76,14 @@ interface DashboardClientProps {
     amount: number;
     description: string | null;
     category: string | null;
+    categoryIcon: string | null;
     date: Date;
   }>;
   userId: number;
   userName: string | null;
+  user: { name: string | null; email: string } | undefined;
+  allCategories: Array<{ id: number; name: string; type: string; iconName: string | null }>;
+  allAccounts: Array<{ id: number; name: string; balance: string }>;
 }
 
 export default function DashboardClient({
@@ -94,41 +94,60 @@ export default function DashboardClient({
   recentTransactions,
   userId,
   userName,
+  user,
+  allCategories,
+  allAccounts,
 }: DashboardClientProps) {
   const { t } = useLanguage();
   const [isOnline, setIsOnline] = useState(true);
   const [hasCachedData, setHasCachedData] = useState(false);
-  const [syncStatus, setSyncStatus] = useState(syncService.getSyncStatus());
+  const [syncStatus, setSyncStatus] = useState<{
+    isOnline: boolean;
+    pendingCount: number | undefined;
+    lastSyncTime: string | null;
+    hasConflicts: boolean;
+  } | null>(null);
   const [showConflictDialog, setShowConflictDialog] = useState(false);
+  const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
 
   // Initialize onboarding guide
   useOnboardingGuide();
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <>
   useEffect(() => {
-    // Check initial online status
-    setIsOnline(navigator.onLine);
+    const initializeOfflineSupport = async () => {
+      // Check initial online status
+      setIsOnline(navigator.onLine);
 
-    // Check if we have cached data
-    const cacheStatus = localStorageService.getCacheStatus();
-    setHasCachedData(cacheStatus.dashboardData || cacheStatus.userData);
+      // Check if we have cached data
+      const cacheStatus = await indexedDBService.getCacheStatus();
+      setHasCachedData(cacheStatus.dashboardData || cacheStatus.userData);
+
+      // Get initial sync status
+      const initialSyncStatus = await syncService.getSyncStatus();
+      setSyncStatus(initialSyncStatus);
+    };
+
+    initializeOfflineSupport();
 
     // Listen for online/offline events
-    const handleOnline = () => {
+    const handleOnline = async () => {
       setIsOnline(true);
-      setSyncStatus(syncService.getSyncStatus());
+      const newStatus = await syncService.getSyncStatus();
+      setSyncStatus(newStatus);
     };
-    const handleOffline = () => {
+    const handleOffline = async () => {
       setIsOnline(false);
-      setSyncStatus(syncService.getSyncStatus());
+      const newStatus = await syncService.getSyncStatus();
+      setSyncStatus(newStatus);
     };
 
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
 
     // Periodic sync status check
-    const syncCheckInterval = setInterval(() => {
-      const newStatus = syncService.getSyncStatus();
+    const syncCheckInterval = setInterval(async () => {
+      const newStatus = await syncService.getSyncStatus();
       setSyncStatus(newStatus);
 
       // Show conflict dialog if conflicts detected and not already showing
@@ -138,19 +157,67 @@ export default function DashboardClient({
     }, 5000); // Check every 5 seconds
 
     // Cache current data for offline use
-    if (totalBalance !== undefined && monthlySummary) {
-      localStorageService.saveDashboardData({
-        totalBalance,
-        monthlySummary,
-      });
-    }
+    const cacheData = async () => {
+      // Cache user data
+      if (user) {
+        localStorageService.saveUserData({
+          id: userId,
+          name: user.name ?? undefined,
+          email: user.email || "",
+        });
+        await indexedDBService.saveUserData({
+          id: userId,
+          name: user.name ?? undefined,
+          email: user.email || "",
+        });
+      }
+
+      // Cache categories data
+      if (allCategories.length > 0) {
+        const transformedCategories = allCategories.map((cat) => ({
+          ...cat,
+          iconName: cat.iconName || undefined,
+        }));
+        localStorageService.saveCategoriesData({
+          categories: transformedCategories,
+        });
+        await indexedDBService.saveCategoriesData({
+          categories: transformedCategories,
+        });
+      }
+
+      // Cache accounts data
+      if (allAccounts.length > 0) {
+        localStorageService.saveAccountsData({
+          accounts: allAccounts.map((account) => ({
+            ...account,
+            balance: parseFloat(account.balance),
+          })),
+        });
+        await indexedDBService.saveAccountsData({
+          accounts: allAccounts.map((account) => ({
+            ...account,
+            balance: parseFloat(account.balance),
+          })),
+        });
+      }
+
+      // Cache dashboard data
+      if (totalBalance !== undefined && monthlySummary) {
+        await indexedDBService.saveDashboardData({
+          totalBalance,
+          monthlySummary,
+        });
+      }
+    };
+    cacheData();
 
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
       clearInterval(syncCheckInterval);
     };
-  }, [totalBalance, monthlySummary]);
+  }, [totalBalance, monthlySummary, showConflictDialog, user, userId, allCategories, allAccounts]);
 
   // Show offline dashboard if offline and we have cached data
   if (!isOnline && hasCachedData) {
@@ -172,16 +239,16 @@ export default function DashboardClient({
                 className={`w-2 h-2 rounded-full ${
                   isOnline ? "bg-green-500" : "bg-orange-500"
                 }`}
-                title={isOnline ? "Online" : "Offline"}
+                title={isOnline ? t("dashboard.online") : t("dashboard.offline")}
               />
-              {syncStatus.pendingCount > 0 && (
+              {syncStatus?.pendingCount && syncStatus.pendingCount > 0 && (
                 <span className="text-xs text-muted-foreground">
-                  {syncStatus.pendingCount} pending
+                  {syncStatus.pendingCount} {t("dashboard.pending")}
                 </span>
               )}
-              {syncStatus.hasConflicts && (
+              {syncStatus?.hasConflicts && (
                 <span className="text-xs text-orange-600 font-medium">
-                  ⚠️ Sync conflict
+                  ⚠️ {t("dashboard.syncConflict")}
                 </span>
               )}
             </div>
@@ -201,13 +268,13 @@ export default function DashboardClient({
               Rp{totalBalance.toLocaleString("id-ID")}
             </p>
             <div className="grid grid-cols-2 gap-3">
-              <Link
-                href="/transactions?action=add"
-                className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 rounded-xl transition-all shadow-md text-center text-sm"
-                data-onboarding="add-transaction"
+              <button
+                type="button"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 rounded-xl transition-all shadow-md text-center text-sm w-full"
+                onClick={() => setIsTransactionModalOpen(true)}
               >
                 {t("dashboard.addNote")}
-              </Link>
+              </button>
               <Link
                 href="/reports"
                 className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold py-3 rounded-xl transition-all shadow-md text-center text-sm"
@@ -296,29 +363,11 @@ export default function DashboardClient({
                             : "bg-expense/20"
                         }`}
                       >
-                        <span className="text-lg">
-                          {transaction.type === "INCOME"
-                            ? "💰"
-                            : transaction.category === "Makan"
-                              ? "🍔"
-                              : transaction.category === "Transport"
-                                ? "�"
-                                : transaction.category === "Belanja"
-                                  ? "🛒"
-                                  : transaction.category === "Tagihan"
-                                    ? "📄"
-                                    : transaction.category === "Hiburan"
-                                      ? "🎬"
-                                      : transaction.category === "Kesehatan"
-                                        ? "🏥"
-                                        : transaction.category === "Pendidikan"
-                                          ? "📚"
-                                          : "💸"}
-                        </span>
+                        {renderIcon(transaction.categoryIcon)}
                       </div>
                       <div>
                         <p className="font-medium text-sm text-foreground">
-                          {transaction.category || "Lainnya"}
+                          {transaction.category || t("dashboard.other")}
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {new Date(transaction.date).toLocaleDateString(
@@ -338,7 +387,8 @@ export default function DashboardClient({
                           : "text-expense"
                       }`}
                     >
-                      Rp{Math.abs(transaction.amount).toLocaleString("id-ID")}
+                      {transaction.type === "INCOME" ? "+" : "-"}Rp
+                      {Math.abs(transaction.amount).toLocaleString("id-ID")}
                     </p>
                   </div>
                 ))}
@@ -401,37 +451,17 @@ export default function DashboardClient({
       {/* Quick Action Floating Button */}
       <QuickActionButton />
 
+      {/* Transaction Modal */}
+      <TransactionModal
+        isOpen={isTransactionModalOpen}
+        onClose={() => setIsTransactionModalOpen(false)}
+      />
+
       {/* Conflict Resolution Dialog */}
-      <Dialog open={showConflictDialog} onOpenChange={setShowConflictDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>⚠️ Sinkronisasi Konflik Terdeteksi</DialogTitle>
-            <DialogDescription>
-              Ada transaksi yang belum tersinkronisasi selama lebih dari 24 jam.
-              Pastikan Anda online untuk menyelesaikan sinkronisasi.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex gap-2 pt-4">
-            <Button
-              variant="outline"
-              onClick={() => setShowConflictDialog(false)}
-              className="flex-1"
-            >
-              Abaikan
-            </Button>
-            <Button
-              onClick={() => {
-                setShowConflictDialog(false);
-                // Force sync attempt
-                syncService.syncPendingData();
-              }}
-              className="flex-1"
-            >
-              Coba Sinkronkan
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <ConflictResolutionDialog
+        open={showConflictDialog}
+        onOpenChange={setShowConflictDialog}
+      />
     </div>
   );
 }

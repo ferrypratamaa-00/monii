@@ -3,6 +3,8 @@
 import { Download } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/lib/toast";
+import { useLanguage } from "@/components/LanguageProvider";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -18,6 +20,7 @@ interface InstallPromptProps {
 }
 
 export function InstallPrompt({ className }: InstallPromptProps) {
+  const { t } = useLanguage();
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
   const [isInstallable, setIsInstallable] = useState(false);
@@ -87,15 +90,11 @@ export function InstallPrompt({ className }: InstallPromptProps) {
   };
 
   const handleIOSInstall = () => {
-    alert(
-      'Untuk menginstall di iOS:\n1. Tap tombol Share (⬆️)\n2. Pilih "Add to Home Screen"\n3. Tap "Add"',
-    );
+    toast.info(t("install.iosInstructions"));
   };
 
   const handleAndroidInstall = () => {
-    alert(
-      'Untuk menginstall di Android:\n1. Tap menu (⋮) di browser\n2. Pilih "Add to Home screen"\n3. Tap "Add"',
-    );
+    toast.info(t("install.androidInstructions"));
   };
 
   // Don't show if not installable and not on mobile
@@ -106,7 +105,7 @@ export function InstallPrompt({ className }: InstallPromptProps) {
       {isInstallable ? (
         <Button
           onClick={handleInstallClick}
-          className="flex items-center gap-2 bg-primary hover:bg-primary/90"
+          className="flex items-center gap-2"
           size="sm"
         >
           <Download className="w-6 h-6" />

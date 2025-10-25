@@ -5,6 +5,7 @@ import { Camera, FileImage, FileText, Upload, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { toast } from "@/lib/toast";
 
 interface UploadedFile {
   id: number;
@@ -118,13 +119,13 @@ export default function FileUpload({
     },
     onSuccess: (data) => {
       console.log("File uploaded successfully:", data.file.originalName);
-      alert(`File uploaded successfully: ${data.file.originalName}`);
+      toast.success(`File uploaded successfully: ${data.file.originalName}`);
       onUploadSuccess?.(data.file);
       resetUpload();
     },
     onError: (error: Error) => {
       console.error("Upload failed:", error.message);
-      alert(`Upload failed: ${error.message}`);
+      toast.error(`Upload failed: ${error.message}`);
     },
   });
 
@@ -136,7 +137,7 @@ export default function FileUpload({
 
     // Basic client-side validation
     if (file.size > 5 * 1024 * 1024) {
-      alert("File too large. Please select a file smaller than 5MB.");
+      toast.error("File too large. Please select a file smaller than 5MB.");
       return;
     }
 
@@ -184,6 +185,7 @@ export default function FileUpload({
       if (item.type.indexOf("image") !== -1) {
         const file = item.getAsFile();
         if (file) {
+          // biome-ignore lint/suspicious/noExplicitAny: <>
           handleFileSelect({ target: { files: [file] } } as any);
           break;
         }

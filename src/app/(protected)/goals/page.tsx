@@ -10,6 +10,7 @@ import { GoalsGuide } from "@/components/goals/GoalsGuide";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useLanguage } from "@/components/LanguageProvider";
 
 interface Goal {
   id: number;
@@ -45,6 +46,7 @@ interface GoalUser {
 }
 
 export default function GoalsPage() {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState("goals");
 
   // Fetch goals
@@ -121,9 +123,9 @@ export default function GoalsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Goals & Achievements</h1>
+          <h1 className="text-3xl font-bold">{t("goals.pageTitle")}</h1>
           <p className="text-muted-foreground">
-            Lacak progress tabungan kamu dan dapatkan achievement badges
+            {t("goals.pageDescription")}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -136,7 +138,7 @@ export default function GoalsPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Goals</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("goals.totalGoals")}</CardTitle>
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -146,7 +148,7 @@ export default function GoalsPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completed</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("goals.completed")}</CardTitle>
             <Trophy className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -156,7 +158,7 @@ export default function GoalsPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Saved</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("goals.totalSaved")}</CardTitle>
             <User className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -168,7 +170,7 @@ export default function GoalsPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Target Amount</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("goals.targetAmount")}</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -182,8 +184,8 @@ export default function GoalsPage() {
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="goals">Goals</TabsTrigger>
-          <TabsTrigger value="achievements">Pencapaian</TabsTrigger>
+          <TabsTrigger value="goals">{t("goals.tabGoals")}</TabsTrigger>
+          <TabsTrigger value="achievements">{t("goals.tabAchievements")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="goals" className="space-y-6">
@@ -192,7 +194,7 @@ export default function GoalsPage() {
             <div>
               <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                 <User className="h-5 w-5" />
-                Goal Pribadi
+                {t("goals.personalGoals")}
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {personalGoals.map((goal) => (
@@ -211,7 +213,7 @@ export default function GoalsPage() {
             <div>
               <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                 <Users className="h-5 w-5" />
-                Goal Bersama
+                {t("goals.jointGoals")}
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {jointGoals.map((goal) => (
@@ -229,10 +231,9 @@ export default function GoalsPage() {
           {totalGoals === 0 && (
             <Card className="p-8 text-center">
               <Target className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Belum ada goals</h3>
+              <h3 className="text-lg font-semibold mb-2">{t("goals.noGoals")}</h3>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                Goals adalah cara terbaik untuk mencapai target finansial kamu.
-                Mulai dengan membuat goal pertama dan kontribusi secara rutin.
+                {t("goals.noGoalsDescription")}
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 {users && (
@@ -251,10 +252,10 @@ export default function GoalsPage() {
             <Card className="p-8 text-center">
               <Trophy className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
               <h3 className="text-lg font-semibold mb-2">
-                No achievements yet
+                {t("goals.noAchievements")}
               </h3>
               <p className="text-muted-foreground">
-                Complete goals and reach milestones to earn achievement badges.
+                {t("goals.noAchievementsDescription")}
               </p>
             </Card>
           )}

@@ -3,12 +3,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, RotateCcw, Target, TrendingUp } from "lucide-react";
 import { useState } from "react";
-import { BudgetProgressCard } from "@/components/budget/BudgetProgressCard";
-import { CreateBudgetDialog } from "@/components/budget/CreateBudgetDialog";
+import { BudgetProgressCard } from "@/components/app/budgets/BudgetProgressCard";
+import { CreateBudgetDialog } from "@/components/app/budgets/CreateBudgetDialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useLanguage } from "@/components/LanguageProvider";
 
 interface Budget {
   id: number;
@@ -29,6 +30,7 @@ interface BudgetStats {
 }
 
 export default function BudgetPage() {
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState("overview");
   const queryClient = useQueryClient();
 
@@ -125,9 +127,9 @@ export default function BudgetPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">Budget Management</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold">{t("budget.pageTitle")}</h1>
           <p className="text-muted-foreground text-sm sm:text-base">
-            Kelola anggaran bulanan dan pantau pengeluaran Anda
+            {t("budget.pageDescription")}
           </p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
@@ -138,7 +140,7 @@ export default function BudgetPage() {
             className="w-full sm:w-auto"
           >
             <RotateCcw className="h-4 w-4 mr-2" />
-            {recalculateMutation.isPending ? "Recalculating..." : "Recalculate"}
+            {recalculateMutation.isPending ? t("budget.recalculating") : t("budget.recalculate")}
           </Button>
           <Button
             variant="outline"
@@ -147,9 +149,16 @@ export default function BudgetPage() {
             className="w-full sm:w-auto"
           >
             <RotateCcw className="h-4 w-4 mr-2" />
-            {resetMutation.isPending ? "Resetting..." : "Reset Monthly"}
+            {resetMutation.isPending ? t("budget.resetting") : t("budget.resetMonthly")}
           </Button>
-          {categories && <CreateBudgetDialog categories={categories} />}
+          {categories && (
+            <CreateBudgetDialog
+              categories={categories}
+              onSuccess={() => {
+                // Optional: could add additional logic here if needed
+              }}
+            />
+          )}
         </div>
       </div>
 
@@ -157,7 +166,7 @@ export default function BudgetPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Budgets</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("budget.totalBudgets")}</CardTitle>
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -168,7 +177,7 @@ export default function BudgetPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Active Budgets
+              {t("budget.activeBudgets")}
             </CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -181,7 +190,7 @@ export default function BudgetPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Over Budget</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("budget.overBudget")}</CardTitle>
             <AlertTriangle className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
@@ -193,7 +202,7 @@ export default function BudgetPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Limit</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("budget.totalLimit")}</CardTitle>
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -207,9 +216,9 @@ export default function BudgetPage() {
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="active">Active Budgets</TabsTrigger>
-          <TabsTrigger value="alerts">Alerts</TabsTrigger>
+          <TabsTrigger value="overview">{t("budget.tabOverview")}</TabsTrigger>
+          <TabsTrigger value="active">{t("budget.tabActive")}</TabsTrigger>
+          <TabsTrigger value="alerts">{t("budget.tabAlerts")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -223,13 +232,19 @@ export default function BudgetPage() {
           ) : (
             <Card className="p-8 text-center">
               <Target className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Belum ada budget</h3>
+              <h3 className="text-lg font-semibold mb-2">{t("budget.noBudgets")}</h3>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                Budget membantu Anda mengontrol pengeluaran. Mulai dengan
-                membuat budget untuk kategori pengeluaran utama.
+                {t("budget.noBudgetsDescription")}
               </p>
               <div className="flex justify-center">
-                {categories && <CreateBudgetDialog categories={categories} />}
+                {categories && (
+                  <CreateBudgetDialog
+                    categories={categories}
+                    onSuccess={() => {
+                      // Optional: could add additional logic here if needed
+                    }}
+                  />
+                )}
               </div>
             </Card>
           )}
@@ -246,9 +261,11 @@ export default function BudgetPage() {
           ) : (
             <Card className="p-8 text-center">
               <TrendingUp className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No Active Budgets</h3>
+              <h3 className="text-lg font-semibold mb-2">
+                {t("budget.noActiveBudgets")}
+              </h3>
               <p className="text-muted-foreground">
-                Create budgets to start tracking your spending limits.
+                {t("budget.noActiveBudgetsDescription")}
               </p>
             </Card>
           )}
@@ -260,7 +277,7 @@ export default function BudgetPage() {
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5 text-red-500" />
-                <h3 className="text-lg font-semibold">Over Budget Alerts</h3>
+                <h3 className="text-lg font-semibold">{t("budget.overBudgetAlerts")}</h3>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {overBudgetBudgets.map((budget) => (
@@ -280,11 +297,10 @@ export default function BudgetPage() {
                 </div>
               </div>
               <h3 className="text-lg font-semibold mb-2">
-                All Budgets On Track
+                {t("budget.allBudgetsOnTrack")}
               </h3>
               <p className="text-muted-foreground">
-                Great job! All your budgets are within limits. Keep up the good
-                work!
+                {t("budget.allBudgetsOnTrackDescription")}
               </p>
             </Card>
           )}

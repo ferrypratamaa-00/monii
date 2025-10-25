@@ -2,12 +2,14 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useLanguage } from "@/components/LanguageProvider";
 
 interface SplashScreenProps {
   onComplete: () => void;
 }
 
 export function SplashScreen({ onComplete }: SplashScreenProps) {
+  const { t } = useLanguage();
   const [isVisible, setIsVisible] = useState(true);
   const [progress, setProgress] = useState(0);
 
@@ -60,7 +62,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
 
         {/* Tagline */}
         <p className="text-muted-foreground text-base mb-8">
-          Personal Finance Manager
+          {t("splash.tagline")}
         </p>
 
         {/* Progress bar */}
@@ -74,7 +76,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
         </div>
 
         {/* Loading text */}
-        <p className="text-xs text-muted-foreground">Loading...</p>
+        <p className="text-xs text-muted-foreground">{t("splash.loading")}</p>
       </div>
     </div>
   );

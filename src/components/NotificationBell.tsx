@@ -1,25 +1,17 @@
 "use client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  Bell,
-  Check,
-  CheckCheck,
-  Settings,
-  Volume2,
-  VolumeX,
-} from "lucide-react";
+import { Bell, Check, CheckCheck, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/lib/auth";
 import { playNotificationSound, vibrate } from "@/lib/notification-utils";
+import { useLanguage } from "@/components/LanguageProvider";
 
 type Notification = {
   id: number;
@@ -33,6 +25,7 @@ type Notification = {
 
 export default function NotificationBell() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const queryClient = useQueryClient();
@@ -142,10 +135,10 @@ export default function NotificationBell() {
       queryClient.invalidateQueries({
         queryKey: ["notifications", "unread", user.id],
       });
-      toast.success("All notifications marked as read");
+      toast.success(t("notification.markedAsRead"));
     } catch (error) {
       console.error("Failed to mark all notifications as read:", error);
-      toast.error("Failed to mark notifications as read");
+      toast.error(t("notification.failedToMark"));
     }
   };
 
@@ -155,7 +148,7 @@ export default function NotificationBell() {
     localStorage.setItem("notification-sound", newValue.toString());
 
     toast.success(
-      newValue ? "Notification sounds enabled" : "Notification sounds disabled",
+      newValue ? t("notification.soundsEnabled") : t("notification.soundsDisabled"),
     );
   };
 
@@ -182,14 +175,14 @@ export default function NotificationBell() {
           className="w-80 max-h-96 overflow-hidden"
         >
           <div className="flex items-center justify-between p-3 border-b">
-            <h3 className="font-semibold text-sm">Notifications</h3>
+            <h3 className="font-semibold text-sm">{t("notification.title")}</h3>
             <div className="flex items-center gap-1">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={toggleSound}
                 className="h-8 w-8 p-0"
-                title={soundEnabled ? "Disable sounds" : "Enable sounds"}
+                title={soundEnabled ? t("notification.disableSounds") : t("notification.enableSounds")}
               >
                 {soundEnabled ? (
                   <Volume2 className="h-4 w-4" />
@@ -205,7 +198,7 @@ export default function NotificationBell() {
                   className="h-8 px-2 text-xs"
                 >
                   <CheckCheck className="h-3 w-3 mr-1" />
-                  Mark all read
+                  {t("notification.markAllRead")}
                 </Button>
               )}
             </div>
@@ -215,8 +208,8 @@ export default function NotificationBell() {
             {notifications.length === 0 ? (
               <div className="p-4 text-center text-sm text-muted-foreground">
                 <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p>No new notifications</p>
-                <p className="text-xs mt-1">You're all caught up!</p>
+                <p>{t("notification.noNewNotifications")}</p>
+                <p className="text-xs mt-1">{t("notification.allCaughtUp")}</p>
               </div>
             ) : (
               <div>
@@ -233,7 +226,7 @@ export default function NotificationBell() {
                           </h4>
                           {notification.type === "BUDGET_ALERT" && (
                             <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
-                              Budget
+                              {t("notification.budget")}
                             </span>
                           )}
                         </div>
@@ -257,7 +250,7 @@ export default function NotificationBell() {
                         size="sm"
                         onClick={() => handleMarkAsRead(notification.id)}
                         className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                        title="Mark as read"
+                        title={t("notification.markAsRead")}
                       >
                         <Check className="h-3 w-3" />
                       </Button>
@@ -276,7 +269,7 @@ export default function NotificationBell() {
                 onClick={() => setIsOpen(false)}
                 className="w-full text-xs"
               >
-                View all notifications
+                {t("notification.viewAll")}
               </Button>
             </div>
           )}
