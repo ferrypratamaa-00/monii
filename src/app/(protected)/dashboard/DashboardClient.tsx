@@ -7,10 +7,10 @@ import { useEffect, useState } from "react";
 import ConflictResolutionDialog from "@/components/ConflictResolutionDialog";
 import { useLanguage } from "@/components/LanguageProvider";
 import OfflineDashboard from "@/components/OfflineDashboard";
-import OfflineTransactionForm from "@/components/OfflineTransactionForm";
 import { QuickActionButton } from "@/components/QuickActionButton";
 import renderIcon from "@/components/renderIcon";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import TransactionModal from "@/components/app/transactions/TransactionModal";
 import { useOnboardingGuide } from "@/hooks/useOnboardingGuide";
 import { indexedDBService } from "@/services/indexedDB";
 import { syncService } from "@/services/sync";
@@ -101,6 +101,7 @@ export default function DashboardClient({
     hasConflicts: boolean;
   } | null>(null);
   const [showConflictDialog, setShowConflictDialog] = useState(false);
+  const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
 
   // Initialize onboarding guide
   useOnboardingGuide();
@@ -214,22 +215,13 @@ export default function DashboardClient({
               Rp{totalBalance.toLocaleString("id-ID")}
             </p>
             <div className="grid grid-cols-2 gap-3">
-              <OfflineTransactionForm
-                trigger={
-                  <button
-                    type="button"
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 rounded-xl transition-all shadow-md text-center text-sm w-full"
-                  >
-                    {t("dashboard.addNote")}
-                  </button>
-                }
-                onSuccess={() => {
-                  // Refresh dashboard data if online
-                  if (isOnline) {
-                    window.location.reload();
-                  }
-                }}
-              />
+              <button
+                type="button"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 rounded-xl transition-all shadow-md text-center text-sm w-full"
+                onClick={() => setIsTransactionModalOpen(true)}
+              >
+                {t("dashboard.addNote")}
+              </button>
               <Link
                 href="/reports"
                 className="bg-secondary hover:bg-secondary/90 text-secondary-foreground font-semibold py-3 rounded-xl transition-all shadow-md text-center text-sm"
@@ -405,6 +397,12 @@ export default function DashboardClient({
 
       {/* Quick Action Floating Button */}
       <QuickActionButton />
+
+      {/* Transaction Modal */}
+      <TransactionModal
+        isOpen={isTransactionModalOpen}
+        onClose={() => setIsTransactionModalOpen(false)}
+      />
 
       {/* Conflict Resolution Dialog */}
       <ConflictResolutionDialog
